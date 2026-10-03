@@ -1,16 +1,6 @@
 export const QUERY_KEYS = {
   // Workspace-scoped resources
 
-  TAGS: (workspaceId: string) => ["tags", workspaceId],
-  TAG: (workspaceId: string, tagId: string) => ["tags", workspaceId, tagId],
-
-  CATEGORIES: (workspaceId: string) => ["categories", workspaceId],
-  CATEGORY: (workspaceId: string, categoryId: string) => [
-    "categories",
-    workspaceId,
-    categoryId,
-  ],
-
   MEDIA: (workspaceId: string) => ["media", workspaceId],
   MEDIA_DETAIL: (workspaceId: string, mediaId: string) => [
     "media",

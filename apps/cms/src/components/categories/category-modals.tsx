@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert02Icon, Package01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  type CreateCategoryValues,
+  categorySchema,
+} from "@marble/api/lib/taxonomy-validation";
+import {
   AlertDialog,
   AlertDialogBody,
   AlertDialogCancel,
@@ -34,11 +38,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type CreateCategoryValues,
-  categorySchema,
-} from "@/lib/validations/workspace";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 import type { Category } from "./columns";
 
@@ -77,65 +77,49 @@ export const CategoryModal = ({
 
   const workspaceId = useWorkspaceId();
 
-  const { mutate: createCategory, isPending: isCreating } = useMutation({
-    mutationFn: async (data: CreateCategoryValues) => {
-      const res = await fetch("/api/categories", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+  const { mutate: createCategory, isPending: isCreating } = useMutation(
+    orpc.categories.create.mutationOptions({
+      onSuccess: (data) => {
+        setOpen(false);
+        toast.success("Category created successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.categories.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        if (onCategoryCreated) {
+          onCategoryCreated(data);
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to create category");
-      }
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      setOpen(false);
-      toast.success("Category created successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
-        });
-      }
-      if (onCategoryCreated) {
-        onCategoryCreated(data);
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const { mutate: updateCategory, isPending: isUpdating } = useMutation({
-    mutationFn: async (data: CreateCategoryValues) => {
-      const res = await fetch(`/api/categories/${categoryData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to update category");
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      setOpen(false);
-      toast.success("Category updated successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
-        });
-      }
-      reset();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate: updateCategory, isPending: isUpdating } = useMutation(
+    orpc.categories.update.mutationOptions({
+      onSuccess: () => {
+        setOpen(false);
+        toast.success("Category updated successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.categories.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        reset();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   const onSubmit = async (data: CreateCategoryValues) => {
     if (!workspaceId) {
@@ -150,9 +134,9 @@ export const CategoryModal = ({
     }
 
     if (mode === "create") {
-      createCategory(data);
-    } else {
-      updateCategory(data);
+      createCategory({ ...data, workspaceId });
+    } else if (categoryData.id) {
+      updateCategory({ ...data, workspaceId, id: categoryData.id });
     }
   };
 
@@ -260,32 +244,25 @@ export const DeleteCategoryModal = ({
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
-  const { mutate: deleteCategory, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/categories/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorText = await res.json().catch(() => "Unknown error");
-        throw new Error(errorText.error || "Failed to delete category");
-      }
-
-      return true;
-    },
-    onSuccess: () => {
-      toast.success("Category deleted successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
-        });
-      }
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate: deleteCategory, isPending } = useMutation(
+    orpc.categories.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Category deleted successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.categories.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -317,7 +294,9 @@ export const DeleteCategoryModal = ({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteCategory();
+                if (workspaceId) {
+                  deleteCategory({ workspaceId, id });
+                }
               }}
               size="sm"
               variant="destructive"

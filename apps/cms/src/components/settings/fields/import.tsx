@@ -9,6 +9,7 @@ import { useState } from "react";
 import { PostsImportModal } from "@/components/posts/import-modal";
 import { SettingsSection } from "@/components/settings/section";
 import { ActivityIndicator } from "@/components/ui/activity-indicator";
+import { orpc } from "@/lib/orpc";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -38,11 +39,6 @@ interface ImportJob {
 
 interface ImportListResponse {
   jobs: ImportJob[];
-}
-
-interface Category {
-  id: string;
-  slug: string;
 }
 
 function formatDate(value: string | null) {
@@ -120,19 +116,12 @@ export function Import() {
     },
   });
 
-  const { data: categories = [] } = useQuery({
-    enabled: !!workspaceId,
-    queryKey: workspaceId
-      ? QUERY_KEYS.CATEGORIES(workspaceId)
-      : ["categories", "imports"],
-    queryFn: async () => {
-      const response = await fetch("/api/categories");
-      if (!response.ok) {
-        throw new Error("Failed to load categories");
-      }
-      return (await response.json()) as Category[];
-    },
-  });
+  const { data: categories = [] } = useQuery(
+    orpc.categories.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   const latestJobs = data?.jobs ?? [];
   const uncategorizedCategoryId = categories.find(

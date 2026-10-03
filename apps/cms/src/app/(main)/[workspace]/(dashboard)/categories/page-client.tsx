@@ -7,13 +7,12 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { toast } from "sonner";
-import { type Category, columns } from "@/components/categories/columns";
+import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 const CategoryModal = dynamic(() =>
@@ -22,40 +21,33 @@ const CategoryModal = dynamic(() =>
   )
 );
 
-function PageClient({ initialCategories }: { initialCategories?: Category[] }) {
+function PageClient() {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: categories, isLoading } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/categories");
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch categories: ${res.status} ${res.statusText}`
-          );
-        }
-        const data: Category[] = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch categories"
-        );
-        throw error instanceof Error
-          ? error
-          : new Error("Failed to fetch categories");
-      }
-    },
-    enabled: !!workspaceId && !isFetchingWorkspace,
-    initialData: initialCategories,
-  });
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.categories.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      staleTime: 1000 * 60 * 60,
+      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    })
+  );
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <DashboardBody>
+        <p className="text-muted-foreground text-sm">{error.message}</p>
+      </DashboardBody>
+    );
   }
 
   return (

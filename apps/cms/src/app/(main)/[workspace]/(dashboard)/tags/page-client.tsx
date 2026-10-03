@@ -7,51 +7,45 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { toast } from "sonner";
 import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import { columns, type Tag } from "@/components/tags/columns";
+import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
 
-function PageClient({ initialTags }: { initialTags?: Tag[] }) {
+function PageClient() {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: tags, isLoading } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.TAGS(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/tags");
-        if (!res.ok) {
-          throw new Error("Failed to fetch tags");
-        }
-        const data: Tag[] = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch tags"
-        );
-        throw error instanceof Error
-          ? error
-          : new Error("Failed to fetch tags");
-      }
-    },
-    enabled: !!workspaceId && !isFetchingWorkspace,
-    initialData: initialTags,
-  });
+  const {
+    data: tags,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.tags.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      staleTime: 1000 * 60 * 60,
+      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    })
+  );
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <DashboardBody>
+        <p className="text-muted-foreground text-sm">{error.message}</p>
+      </DashboardBody>
+    );
   }
 
   return (
