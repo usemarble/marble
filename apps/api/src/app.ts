@@ -1,12 +1,16 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { createAuth } from "@marble/auth";
+import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
+import { createRequestContext } from "./lib/context";
 import type { DbClient } from "./lib/db";
 import { dbMiddleware } from "./lib/db";
 import { restrictLegacyPostStatus } from "./lib/legacy-posts";
+import type { LogVariables } from "./lib/logger";
+import { rpcHandler } from "./lib/rpc";
 import { analytics } from "./middleware/analytics";
 import { authorization } from "./middleware/authorization";
 import { cache } from "./middleware/cache";
@@ -22,13 +26,14 @@ import eventsRoutes from "./routes/events";
 import fieldsRoutes from "./routes/fields";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
+import { devReference } from "./routes/reference";
 import tagsRoutes from "./routes/tags";
 import tasksRoutes from "./routes/tasks";
 import type { ApiKeyApp, Env } from "./types/env";
 
 interface AppEnv {
   Bindings: Env;
-  Variables: { db: DbClient };
+  Variables: { db: DbClient } & LogVariables;
 }
 
 const app = new OpenAPIHono<AppEnv>();
@@ -48,20 +53,35 @@ const openApiDocument = {
   security: [{ apiKey: [] }],
 };
 
-// Auth has credentialed CORS and runs before the public API's middleware.
-app.use(
-  "/api/auth/*",
-  cors({
-    origin: (_origin, c) => c.env.APP_URL,
-    credentials: true,
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["GET", "POST", "OPTIONS"],
-  })
-);
+// One wide event per request, with the user attached where the session is read.
+app.use("*", evlog());
+
+// The dashboard's surfaces (auth and RPC) use credentialed CORS for its own
+// origin and run before the public API's middleware. x-csrf-token is the header
+// oRPC's CSRF protection requires.
+const dashboardCors = cors({
+  origin: (_origin, c) => c.env.APP_URL,
+  credentials: true,
+  allowHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
+  allowMethods: ["GET", "POST", "OPTIONS"],
+  maxAge: 7200,
+});
+
+app.use("/api/auth/*", dashboardCors);
 app.use("/api/auth/*", dbMiddleware);
 app.all("/api/auth/*", (c) => {
   const auth = createAuth({ db: c.get("db"), env: c.env });
   return auth.handler(c.req.raw);
+});
+
+app.use("/rpc/*", dashboardCors);
+app.use("/rpc/*", dbMiddleware);
+app.all("/rpc/*", async (c) => {
+  const result = await rpcHandler.handle(c.req.raw, {
+    prefix: "/rpc",
+    context: await createRequestContext(c),
+  });
+  return result.matched ? result.response : c.notFound();
 });
 
 // Public API CORS remains permissive for content consumers.
@@ -85,7 +105,10 @@ app.use(
 app.use("*", cache());
 app.use(trimTrailingSlash());
 
-// Internal System Routes (no API key, no analytics)
+// Internal routes (no API key, no analytics). The dev-only reference answers
+// first and passes everything else through to the system routes below.
+app.use("/internal/*", devReference);
+
 app.use("/cache/invalidate", systemAuth());
 app.route("/cache/invalidate", cacheRoutes);
 

@@ -43,6 +43,8 @@ export const authorization =
         );
       }
 
+      c.get("log")?.set({ workspaceId, legacyRoute: true });
+
       await next();
     } catch (error) {
       console.error("[Authorization] Error validating workspace:", error);

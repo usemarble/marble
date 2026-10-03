@@ -1,4 +1,5 @@
 import type { ApiScope } from "@marble/utils/api-key-scopes";
+import type { RequestLogger } from "evlog";
 import type { DbClient } from "@/lib/db";
 
 /**
@@ -19,6 +20,7 @@ export type Env = Cloudflare.Env;
 // Context variables set by keyAuthorization middleware
 export interface ApiKeyVariables {
   db: DbClient;
+  log: RequestLogger;
   workspaceId?: string;
   apiKeyId?: string;
   apiKeyType?: "public" | "private";
