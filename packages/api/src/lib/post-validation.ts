@@ -17,7 +17,7 @@ const validJsonString = z
 
 export const postSchema = z.object({
   title: z.string().min(1, { message: "Title cannot be empty" }),
-  coverImage: z.string().url().nullable().optional(),
+  coverImage: z.url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
   content: z.string(),
