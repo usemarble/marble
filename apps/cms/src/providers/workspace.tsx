@@ -1,7 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
@@ -11,38 +10,69 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import NotFound from "@/app/not-found";
 import PageLoader from "@/components/shared/page-loader";
 import { organization, useSession } from "@/lib/auth/client";
-import {
-  WORKSPACE_SCOPED_PREFIXES,
-  type WorkspaceScopedPrefix,
-} from "@/lib/constants";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import type {
   Workspace,
   WorkspaceContextType,
   WorkspaceProviderProps,
 } from "@/types/workspace";
-import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace/client";
+import { workspacePath } from "@/utils/workspace/url";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined
 );
 
+/**
+ * Resolves the workspace named by the URL against the user's workspaces
+ * (`workspaces.list`) and provides it to the dashboard. The Worker authorizes
+ * every call against the `workspaceId` the components pass, so this decides
+ * nothing about access: a slug that isn't in the list just isn't one of theirs.
+ *
+ * It also keeps Better Auth's active organization on the URL's workspace, which
+ * the organization endpoints (members, invitations) default to.
+ */
 export function WorkspaceProvider({
   children,
-  initialWorkspace,
   workspaceSlug,
 }: WorkspaceProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const queryClient = useQueryClient();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    initialWorkspace
-  );
-  const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
   const { data: session } = useSession();
+  const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
+  const [recheckedSlug, setRecheckedSlug] = useState<string | null>(null);
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
+    null
+  );
+
+  const {
+    data: workspaceList,
+    error,
+    isFetching,
+    refetch,
+  } = useQuery(orpc.workspaces.list.queryOptions());
+
+  // Keep the last workspace seen for this URL. Leaving or deleting a workspace
+  // refetches the list without it before the redirect lands, and the page
+  // shouldn't turn into a 404 in between.
+  const found = workspaceList?.find((entry) => entry.slug === workspaceSlug);
+  if (found && found !== activeWorkspace) {
+    setActiveWorkspace(found);
+  }
+
+  // A workspace created or joined a moment ago may be missing from a cached
+  // list, so one miss refetches before the URL is treated as not found.
+  const isMissing = Boolean(workspaceList) && !activeWorkspace;
+  useEffect(() => {
+    if (isMissing && !isFetching && recheckedSlug !== workspaceSlug) {
+      setRecheckedSlug(workspaceSlug);
+      refetch();
+    }
+  }, [isFetching, isMissing, recheckedSlug, refetch, workspaceSlug]);
+
   const workspaceId = activeWorkspace?.id;
   const activeOrganizationId = session?.session.activeOrganizationId;
 
@@ -56,106 +86,62 @@ export function WorkspaceProvider({
     }
     organization
       .setActive({ organizationId: workspaceId })
-      .then(({ error }) => {
-        if (error) {
-          toast.error(error.message || "Failed to activate workspace");
+      .then(({ error: setActiveError }) => {
+        if (setActiveError) {
+          toast.error(setActiveError.message || "Failed to activate workspace");
         }
       })
-      .catch((error) => {
-        console.error("Failed to activate workspace", error);
+      .catch((setActiveError) => {
+        console.error("Failed to activate workspace", setActiveError);
       });
   }, [activeOrganizationId, isSwitchingWorkspace, session, workspaceId]);
 
-  const { data: usersWorkspaces } = useQuery({
-    queryKey: QUERY_KEYS.WORKSPACE_LIST,
-    queryFn: async () => {
-      const response = await request<Workspace[]>("workspaces");
-      return response.data;
-    },
-  });
+  useEffect(() => {
+    if (activeWorkspace) {
+      setLastVisitedWorkspace(activeWorkspace.slug);
+    }
+  }, [activeWorkspace]);
 
-  const { mutateAsync: updateActiveWorkspaceMutation } = useMutation({
-    mutationFn: async (workspace: Partial<Workspace>) => {
-      setIsSwitchingWorkspace(true);
-
-      if (workspace.slug) {
-        setLastVisitedWorkspace(workspace.slug);
-      }
-
-      if (!workspace.id) {
-        throw new Error("Workspace ID is required for switching");
-      }
-
-      const { data, error } = await organization.setActive({
-        organizationId: workspace.id,
-      });
-
-      if (error) {
-        toast.error(error.message);
-        throw new Error(error.message);
-      }
-
-      return data;
-    },
-    onSuccess: (_data, workspace) => {
-      if (workspace.slug) {
-        const isWorkspaceScopedQuery = (queryKey: readonly unknown[]) =>
-          Array.isArray(queryKey) &&
-          queryKey.length > 0 &&
-          typeof queryKey[0] === "string" &&
-          WORKSPACE_SCOPED_PREFIXES.includes(
-            queryKey[0] as WorkspaceScopedPrefix
-          );
-
-        queryClient.cancelQueries({
-          predicate: (query) => isWorkspaceScopedQuery(query.queryKey),
-        });
-        queryClient.removeQueries({
-          predicate: (query) => isWorkspaceScopedQuery(query.queryKey),
-        });
-
-        // Preserve the path after the workspace slug
-        // e.g., /oldworkspace/posts/123 → /newworkspace/posts/123
-        const pathSegments = pathname.split("/").filter(Boolean);
-        const pathAfterWorkspace = pathSegments.slice(1).join("/");
-        const newPath = pathAfterWorkspace
-          ? `/${workspace.slug}/${pathAfterWorkspace}`
-          : `/${workspace.slug}`;
-
-        router.push(newPath);
-      }
-    },
-    onError: (error: AxiosError) => {
-      console.error("Failed to switch workspace:", error);
-      setIsSwitchingWorkspace(false);
-    },
-  });
-
+  // Switching is a navigation: the destination's provider syncs the active
+  // organization, and every query is keyed by workspace ID, so there is nothing
+  // to cancel or clear here.
   const updateActiveWorkspace = useCallback(
-    async (workspace: Partial<Workspace>) => {
-      await updateActiveWorkspaceMutation(workspace);
+    (workspace: Partial<Workspace>) => {
+      if (!workspace.slug) {
+        return Promise.reject(new Error("Workspace slug is required"));
+      }
+
+      setIsSwitchingWorkspace(true);
+      setLastVisitedWorkspace(workspace.slug);
+
+      // Preserve the path after the workspace slug,
+      // e.g. /old/posts/123 → /new/posts/123
+      const pathAfterWorkspace = pathname.split("/").filter(Boolean).slice(1);
+      router.push(workspacePath(workspace.slug, pathAfterWorkspace.join("/")));
+      return Promise.resolve();
     },
-    [updateActiveWorkspaceMutation]
+    [pathname, router]
   );
 
   const refreshActiveWorkspace = useCallback(async () => {
-    const response = await request<Workspace | null>(
-      `workspaces/${workspaceSlug}`
-    );
-    setActiveWorkspace(response.data);
-  }, [workspaceSlug]);
+    await refetch();
+  }, [refetch]);
 
-  useEffect(() => {
-    setActiveWorkspace(initialWorkspace);
-    setIsSwitchingWorkspace(false);
-  }, [initialWorkspace]);
+  if (error && !workspaceList) {
+    throw error;
+  }
+
+  if (!workspaceList || (isMissing && recheckedSlug !== workspaceSlug)) {
+    return <PageLoader />;
+  }
+
+  if (!activeWorkspace) {
+    return isFetching ? <PageLoader /> : <NotFound />;
+  }
 
   const isFetchingWorkspace =
     isSwitchingWorkspace || !session || activeOrganizationId !== workspaceId;
-  const isOwner = activeWorkspace?.currentUserRole === "owner";
-  const isAdmin = activeWorkspace?.currentUserRole === "admin";
-  const isMember = activeWorkspace?.currentUserRole === "member";
-  const currentUserRole = activeWorkspace?.currentUserRole || null;
+  const currentUserRole = activeWorkspace.currentUserRole;
 
   return (
     <WorkspaceContext.Provider
@@ -164,10 +150,10 @@ export function WorkspaceProvider({
         updateActiveWorkspace,
         refreshActiveWorkspace,
         isFetchingWorkspace,
-        workspaceList: usersWorkspaces ?? null,
-        isOwner,
-        isAdmin,
-        isMember,
+        workspaceList,
+        isOwner: currentUserRole === "owner",
+        isAdmin: currentUserRole === "admin",
+        isMember: currentUserRole === "member",
         currentUserRole,
       }}
     >

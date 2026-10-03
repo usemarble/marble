@@ -1,9 +1,4 @@
 export const QUERY_KEYS = {
-  // Workspace keys
-  WORKSPACE_LIST: ["workspaces"],
-  WORKSPACE: (id: string) => ["workspace", id],
-  WORKSPACE_BY_SLUG: (slug: string) => ["workspace_by_slug", slug],
-
   // Workspace-scoped resources
   POSTS: (workspaceId: string) => ["posts", workspaceId],
   POST: (workspaceId: string, postId: string) => ["posts", workspaceId, postId],

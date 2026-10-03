@@ -14,7 +14,7 @@ import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Name() {
@@ -47,11 +47,11 @@ export function Name() {
       }
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Workspace name updated");
       nameForm.reset({ name: nameForm.getValues("name") });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: orpc.workspaces.list.key(),
       });
       router.refresh();
     },

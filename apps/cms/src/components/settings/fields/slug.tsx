@@ -14,7 +14,7 @@ import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Slug() {
@@ -59,7 +59,7 @@ export function Slug() {
       }
       return res;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (data) => {
       if (!data) {
         return;
       }
@@ -67,7 +67,7 @@ export function Slug() {
       toast.success("Workspace slug updated");
       slugForm.reset({ slug: data.data?.slug });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: orpc.workspaces.list.key(),
       });
       router.replace(`/${data.data?.slug}/settings/general`);
       router.refresh();

@@ -17,7 +17,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Timezone() {
@@ -49,13 +49,13 @@ export function Timezone() {
       }
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Updated timezone");
       timezoneForm.reset({
         timezone: timezoneForm.getValues("timezone"),
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: orpc.workspaces.list.key(),
       });
       router.refresh();
     },

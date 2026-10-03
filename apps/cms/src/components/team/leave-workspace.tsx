@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization, useListOrganizations } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 interface ListOrganizationResponse {
@@ -63,7 +63,7 @@ export function LeaveWorkspaceModal({
 
       toast.success("You have left the workspace.");
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
 
       const remainingWorkspaces = organizations?.filter(

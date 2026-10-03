@@ -1,46 +1,7 @@
-import type { PlanType } from "@marble/utils";
+import type { RouterOutputs } from "@marble/api/routers";
 
-export interface Workspace {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
-  timezone: string | null;
-  createdAt: Date | string;
-  currentUserRole: string | null;
-  members: Array<{
-    id: string;
-    role: string | null;
-    organizationId: string;
-    createdAt: Date | string;
-    userId: string;
-    user: {
-      id: string;
-      name: string | null;
-      email: string;
-      image: string | null;
-    };
-  }>;
-  invitations?: Array<{
-    id: string;
-    email: string;
-    role: string | null;
-    status: string;
-    organizationId: string;
-    inviterId: string;
-    expiresAt: Date | string;
-  }>;
-  subscription: {
-    id: string;
-    status: string;
-    plan: PlanType;
-    activePlan: PlanType;
-    currentPeriodStart?: string | Date;
-    currentPeriodEnd?: string | Date;
-    cancelAtPeriodEnd?: boolean;
-    canceledAt?: string | Date | null;
-  } | null;
-}
+/** A workspace the user belongs to, as `workspaces.list` returns it. */
+export type Workspace = RouterOutputs["workspaces"]["list"][number];
 
 export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
@@ -56,6 +17,5 @@ export interface WorkspaceContextType {
 
 export interface WorkspaceProviderProps {
   children: React.ReactNode;
-  initialWorkspace: Workspace | null;
   workspaceSlug: string;
 }

@@ -29,7 +29,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
@@ -75,7 +75,7 @@ export const InviteModal = ({
       setOpen(false);
       reset();
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
       await refreshActiveWorkspace();
     },

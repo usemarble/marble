@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 interface Invite {
@@ -73,7 +73,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
       await refreshActiveWorkspace();
     },
@@ -110,7 +110,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
       await refreshActiveWorkspace();
     },
