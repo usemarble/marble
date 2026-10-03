@@ -16,7 +16,7 @@ export default async function MainLayout({
   }
 
   return (
-    <UserProvider initialUser={null}>
+    <UserProvider>
       <div>{children}</div>
     </UserProvider>
   );

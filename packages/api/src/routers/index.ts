@@ -1,4 +1,8 @@
-import type { InferRouterOutputs, RouterClient } from "@orpc/server";
+import type {
+  InferRouterInputs,
+  InferRouterOutputs,
+  RouterClient,
+} from "@orpc/server";
 import { authorsRouter } from "./authors";
 import { categoriesRouter } from "./categories";
 import { keysRouter } from "./keys";
@@ -21,4 +25,5 @@ export const appRouter = {
 
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<AppRouter>;
+export type RouterInputs = InferRouterInputs<AppRouter>;
 export type RouterOutputs = InferRouterOutputs<AppRouter>;
