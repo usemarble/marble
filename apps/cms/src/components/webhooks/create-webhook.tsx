@@ -123,11 +123,15 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
-    mutationFn: (data: WebhookFormValues) =>
-      fetch("/api/webhooks", {
+    mutationFn: async (data: WebhookFormValues) => {
+      const response = await fetch("/api/webhooks", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create webhook");
+      }
+    },
     onSuccess: () => {
       toast.success("Webhook created successfully");
       reset();

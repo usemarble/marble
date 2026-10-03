@@ -1,4 +1,7 @@
+import { db } from "@marble/db";
+import { webhookEndpoint } from "@marble/db/schema";
 import { getDemoPostPublishedPayload } from "@marble/events";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
@@ -13,6 +16,17 @@ export async function POST(
   }
 
   const { sessionData, workspaceId } = accessData;
+  const { id } = await params;
+  const webhook = await db.query.webhookEndpoint.findFirst({
+    where: and(
+      eq(webhookEndpoint.id, id),
+      eq(webhookEndpoint.workspaceId, workspaceId)
+    ),
+    columns: { id: true },
+  });
+  if (!webhook) {
+    return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
+  }
 
   const apiUrl = process.env.MARBLE_API_URL;
   const systemSecret = process.env.SYSTEM_SECRET;
@@ -24,7 +38,6 @@ export async function POST(
     );
   }
 
-  const { id } = await params;
   let response: Response;
 
   try {

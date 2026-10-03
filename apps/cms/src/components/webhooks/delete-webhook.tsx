@@ -38,10 +38,14 @@ export function DeleteWebhookModal({
   const queryClient = useQueryClient();
 
   const { mutate: deleteWebhook, isPending } = useMutation({
-    mutationFn: () =>
-      fetch(`/api/webhooks/${webhookId}`, {
+    mutationFn: async () => {
+      const response = await fetch(`/api/webhooks/${webhookId}`, {
         method: "DELETE",
-      }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete webhook");
+      }
+    },
     onSuccess: () => {
       toast.success("Webhook deleted successfully");
       onDelete();
