@@ -24,6 +24,7 @@
     "@upstash/redis": "^1.39.0",
     "drizzle-orm": "^0.45.2",
     "evlog": "2.29.0",
+    "nanoid": "^5.1.16",
     "zod": "^4.3.6"
   },
   "devDependencies": {
