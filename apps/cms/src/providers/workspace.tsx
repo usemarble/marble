@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@marble/ui/components/sonner";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -9,7 +10,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { toast } from "sonner";
 import NotFound from "@/app/not-found";
 import { organization, useSession } from "@/lib/auth/client";
 import { orpc } from "@/lib/orpc";
