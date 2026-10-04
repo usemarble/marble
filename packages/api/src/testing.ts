@@ -9,6 +9,7 @@ import type { Context, QueuePublisher } from "./context";
 /** The Redis HTTP proxy from the root docker-compose.yml. */
 export const testEnv = {
   APP_URL: "http://localhost:3000",
+  AI_GATEWAY_API_KEY: "test-gateway-key",
   BETTER_AUTH_SECRET: "test-upload-intent-secret-with-sufficient-length",
   R2_ACCESS_KEY_ID: "test-access-key",
   R2_SECRET_ACCESS_KEY: "test-secret-key",

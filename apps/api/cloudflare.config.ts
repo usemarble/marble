@@ -83,6 +83,7 @@ export default defineConfig((ctx) => {
           mode === "production" ? "Dq_1D8IsZscrCY2rNneFZ" : ""
         ),
         // cf deploy deletes any secret not declared here.
+        AI_GATEWAY_API_KEY: bindings.secret(),
         BETTER_AUTH_SECRET: bindings.secret(),
         R2_ACCESS_KEY_ID: bindings.secret(),
         R2_SECRET_ACCESS_KEY: bindings.secret(),

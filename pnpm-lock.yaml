@@ -241,12 +241,15 @@ importers:
       '@upstash/redis':
         specifier: 1.39.0
         version: 1.39.0
+      ai:
+        specifier: 7.0.127
+        version: 7.0.127(zod@4.6.5)
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))
       evlog:
         specifier: 2.29.0
-        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1)(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@7.0.127(zod@4.6.5))(express@5.2.1(supports-color@10.2.2))(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
       hono:
         specifier: ^4.13.8
         version: 4.13.8
@@ -648,6 +651,9 @@ importers:
       '@upstash/redis':
         specifier: 1.39.0
         version: 1.39.0
+      ai:
+        specifier: 7.0.127
+        version: 7.0.127(zod@4.6.5)
       aws4fetch:
         specifier: ^1.0.20
         version: 1.0.20
@@ -659,7 +665,7 @@ importers:
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))
       evlog:
         specifier: 2.29.0
-        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1)(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@7.0.127(zod@4.6.5))(express@5.2.1(supports-color@10.2.2))(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
       nanoid:
         specifier: ^5.1.16
         version: 5.1.16
@@ -1165,6 +1171,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/gateway@4.0.103':
+    resolution: {integrity: sha512-nnGTUHzPRQ14jhv9CL4OQrzcRBIFTBMIPKGIi9Z9u/4GtwSRxa/nxUX6np2Iwp5phOzO0a0njj/j9Jolf5AEaA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider-utils@3.0.32':
     resolution: {integrity: sha512-izgUo50kamJMwoYCXoFwVccuJeyYp0y1+twf0FfpEz7kdQBloZLZbgLYUOUpannLWrV7xYSJR48BQJIQFbFiAQ==}
     engines: {node: '>=18'}
@@ -1177,6 +1189,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/provider-utils@5.0.53':
+    resolution: {integrity: sha512-VVe6UDd0y0/B4TfauuKKzcppqvhTmSluwwUVT4WG2/8h7gFbyFm7PM4UGM+ZXe3/RI6bv+Vl1cw/7aiBoQqdxg==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider@2.0.3':
     resolution: {integrity: sha512-h88OPkavHTiN9tMn2l5awAznGB0lXzjcLhgR1/rvjB2zlLprsNxbM2tt6OJsHUxduLC3klq0/eqaSf6fX5XVww==}
     engines: {node: '>=18'}
@@ -1184,6 +1202,10 @@ packages:
   '@ai-sdk/provider@3.0.15':
     resolution: {integrity: sha512-XeZW1CcDF2GMbH4wejW6xBRI2QCOgnkVYUnxoeDadB1mf85riL2bMUeDoh+6gJ/r4mjNfzUPW8OjLjvwTP0u1Q==}
     engines: {node: '>=18'}
+
+  '@ai-sdk/provider@4.0.21':
+    resolution: {integrity: sha512-UpbC9C1oht8dhfKPbVXSLRZS3DI8uk8n5v2uMjBPNIYGsC2kL045ywq7D8Hh9KgnH9rP5W/GxQdYtWScRouqlA==}
+    engines: {node: '>=22'}
 
   '@ai-sdk/react@2.0.240':
     resolution: {integrity: sha512-jUrJECM6+PAiWsBqYeTfMr4mk82ms+5jH6o+j5NkCvrk1+dyTG2SMQVCJ3ICglfKZqgTEGnMU8dVIP7qHy6nhA==}
@@ -6025,6 +6047,9 @@ packages:
   '@vvo/tzdb@6.198.0':
     resolution: {integrity: sha512-bNRWBhWYl0edVgyX6AYbhoCM2tk2lXJjGCyO2VDc2xn6Dw8dLd7WGj2DDXkVOkmOIQTNjEAcxrEpIzz5pWVwFg==}
 
+  '@workflow/serde@4.1.0':
+    resolution: {integrity: sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ==}
+
   JSONStream@1.3.5:
     resolution: {integrity: sha512-E+iruNOY8VV9s4JEbe1aNEm6MiszPRr/UfcHMz0TQh1BXSxHK+ASV1R6W4HpjBhSeS+54PIsAMCBmwD06LLsqQ==}
     hasBin: true
@@ -6117,6 +6142,12 @@ packages:
   ai@6.0.266:
     resolution: {integrity: sha512-N3HM2k/15ewTk15AWnt7kNy0+DEjE6A+R2lqgM2uQ3yvSp+Dm+J/eJVzSaZegINQQoM2aQAZ6MFxo4MsuiXcyg==}
     engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  ai@7.0.127:
+    resolution: {integrity: sha512-JNsNPk4ZvRGEJuqdVo2lYFkm7uAuf3p/RwKFWn1Wh/+IK3U1RyFWw2GXoFnhzqNfxEuj7XJB4WpIUhl1sHToWg==}
+    engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
@@ -11925,6 +11956,13 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.6.5
 
+  '@ai-sdk/gateway@4.0.103(zod@4.6.5)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.21
+      '@ai-sdk/provider-utils': 5.0.53(zod@4.6.5)
+      '@vercel/oidc': 3.2.0
+      zod: 4.6.5
+
   '@ai-sdk/provider-utils@3.0.32(zod@4.6.5)':
     dependencies:
       '@ai-sdk/provider': 2.0.3
@@ -11941,11 +11979,24 @@ snapshots:
       undici: 6.28.0
       zod: 4.6.5
 
+  '@ai-sdk/provider-utils@5.0.53(zod@4.6.5)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.21
+      '@standard-schema/spec': 1.1.0
+      '@workflow/serde': 4.1.0
+      eventsource-parser: 3.1.1
+      undici: 7.29.0
+      zod: 4.6.5
+
   '@ai-sdk/provider@2.0.3':
     dependencies:
       json-schema: 0.4.0
 
   '@ai-sdk/provider@3.0.15':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@4.0.21':
     dependencies:
       json-schema: 0.4.0
 
@@ -16774,6 +16825,8 @@ snapshots:
 
   '@vvo/tzdb@6.198.0': {}
 
+  '@workflow/serde@4.1.0': {}
+
   JSONStream@1.3.5:
     dependencies:
       jsonparse: 1.3.1
@@ -16863,6 +16916,13 @@ snapshots:
       '@ai-sdk/provider': 3.0.15
       '@ai-sdk/provider-utils': 4.0.48(zod@4.6.5)
       '@opentelemetry/api': 1.9.0
+      zod: 4.6.5
+
+  ai@7.0.127(zod@4.6.5):
+    dependencies:
+      '@ai-sdk/gateway': 4.0.103(zod@4.6.5)
+      '@ai-sdk/provider': 4.0.21
+      '@ai-sdk/provider-utils': 5.0.53(zod@4.6.5)
       zod: 4.6.5
 
   ajv-draft-04@1.0.0(ajv@8.20.0):
@@ -18551,6 +18611,18 @@ snapshots:
     optionalDependencies:
       '@orpc/server': 1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0))
       ai: 6.0.266(zod@4.6.5)
+      express: 5.2.1(supports-color@10.2.2)
+      h3: 1.15.11
+      hono: 4.13.8
+      next: 16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      ofetch: 1.5.1
+      react: 19.3.0
+      vite: 8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)
+
+  evlog@2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@7.0.127(zod@4.6.5))(express@5.2.1(supports-color@10.2.2))(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)):
+    optionalDependencies:
+      '@orpc/server': 1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0))
+      ai: 7.0.127(zod@4.6.5)
       express: 5.2.1(supports-color@10.2.2)
       h3: 1.15.11
       hono: 4.13.8

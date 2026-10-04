@@ -23,6 +23,7 @@
     "@orpc/server": "1.15.4",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.39.0",
+    "ai": "7.0.127",
     "aws4fetch": "^1.0.20",
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.2",
