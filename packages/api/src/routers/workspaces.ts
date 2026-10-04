@@ -5,6 +5,7 @@ import {
   listWorkspaceMembers,
   listWorkspaces,
 } from "../services/workspaces";
+import { billingRouter } from "./billing";
 import { metricsRouter } from "./metrics";
 
 const planSchema = z.enum(["free", "hobby", "pro"]);
@@ -55,6 +56,7 @@ const invitationSchema = z.object({
 });
 
 export const workspacesRouter = {
+  billing: billingRouter,
   metrics: metricsRouter,
   list: protectedProcedure
     .route({

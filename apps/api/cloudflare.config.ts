@@ -64,7 +64,7 @@ export default defineConfig((ctx) => {
           mode === "production" ? "production" : "sandbox"
         ),
         POLAR_SUCCESS_URL: bindings.text(
-          `${dashboardOrigin}/api/polar/success?checkout_id={CHECKOUT_ID}`
+          `${dashboardOrigin}/billing/success?checkout_id={CHECKOUT_ID}`
         ),
         POLAR_HOBBY_MONTHLY_PRODUCT_ID: bindings.text(products.hobbyMonthly),
         POLAR_HOBBY_YEARLY_PRODUCT_ID: bindings.text(products.hobbyYearly),
