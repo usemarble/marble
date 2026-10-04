@@ -20,7 +20,6 @@ export const {
   useSession,
   organization,
   useListOrganizations,
-  useActiveOrganization,
   emailOtp,
   checkout,
 } = authClient;
