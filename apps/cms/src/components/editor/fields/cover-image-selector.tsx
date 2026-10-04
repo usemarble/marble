@@ -43,7 +43,7 @@ import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaEditorApiUrl } from "@/lib/search-params";
@@ -73,7 +73,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const workspaceId = useWorkspaceId();
+  const workspaceId = useSyncedWorkspaceId();
   const queryClient = useQueryClient();
 
   const { mutate: uploadCover, isPending: isUploading } = useMutation({

@@ -6,9 +6,8 @@ import { MediaUsageCard } from "@/components/home/media-usage-card";
 import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
 import Loading from "./loading";
 
@@ -17,8 +16,7 @@ export default function PageClient({
 }: {
   initialUsage?: UsageDashboardData;
 }) {
-  const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
+  const workspaceId = useSyncedWorkspaceId();
 
   const { data, isPending, isError } = useQuery({
     queryKey: workspaceId
@@ -31,12 +29,12 @@ export default function PageClient({
       }
       return response.json();
     },
-    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    enabled: Boolean(workspaceId),
     initialData: initialUsage,
     staleTime: 1000 * 60 * 10,
   });
 
-  if (isFetchingWorkspace || !workspaceId || isPending) {
+  if (!workspaceId || isPending) {
     return <Loading />;
   }
 

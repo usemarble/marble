@@ -79,6 +79,10 @@ with `@marble/db/testing`.
 4. Keep page metadata and render a client component. Read filters on the
    client and use `orpc.<resource>.*.queryOptions` / `mutationOptions` with
    `useWorkspace()`'s ID. Invalidate oRPC keys scoped to that ID after writes.
+   While a query loads, render the route's own `loading.tsx`. The workspace
+   provider never holds the page back for the session's active organization:
+   a page that still fetches a CMS route reading it (`requireActiveWorkspaceAccess`)
+   uses `useSyncedWorkspaceId` until its route moves, then `useWorkspaceId`.
    Remove server fetches, initial data and casted JSON responses, then delete
    the old Next routes and unused helpers. Import shared browser-safe
    validation directly from this package; leave no compatibility exports.

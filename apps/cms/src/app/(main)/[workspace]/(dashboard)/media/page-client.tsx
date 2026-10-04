@@ -6,11 +6,10 @@ import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { MediaDataTable } from "@/components/media/media-data-table";
 import { useMediaActions } from "@/hooks/use-media-actions";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
-import { useWorkspace } from "@/providers/workspace";
 import type {
   Media,
   MediaPaginatedListResponse,
@@ -26,8 +25,7 @@ function PageClient({
   initialMedia?: MediaPaginatedListResponse;
   initialMediaKey?: string;
 }) {
-  const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
+  const workspaceId = useSyncedWorkspaceId();
   const [{ page, perPage, search, sort, type }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [isUploading, setIsUploading] = useState(false);
@@ -71,7 +69,7 @@ function PageClient({
         throw error;
       }
     },
-    enabled: !!workspaceId && !isFetchingWorkspace,
+    enabled: !!workspaceId,
     placeholderData: keepPreviousData,
     initialData: initialMediaKey === currentMediaKey ? initialMedia : undefined,
     staleTime: 1000 * 60 * 5,
@@ -149,7 +147,7 @@ function PageClient({
     setIsUploading(false);
   };
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
+  if (!workspaceId || isLoading) {
     return <Loading />;
   }
 

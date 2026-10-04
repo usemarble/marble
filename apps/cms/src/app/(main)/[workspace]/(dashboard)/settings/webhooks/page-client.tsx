@@ -2,18 +2,16 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { WebhooksSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import {
   WebhookDataTable,
   WebhooksEmptyState,
 } from "@/components/webhooks/webhook-data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 export function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const {
@@ -23,13 +21,13 @@ export function PageClient() {
   } = useQuery(
     orpc.webhooks.list.queryOptions({
       input: { workspaceId: workspaceId ?? "" },
-      enabled: !!workspaceId && !isFetchingWorkspace,
+      enabled: !!workspaceId,
       staleTime: 1000 * 60 * 60,
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <WebhooksSettingsSkeleton />;
+  if (!workspaceId || isLoading) {
+    return <Loading />;
   }
 
   if (error) {

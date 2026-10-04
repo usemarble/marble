@@ -11,7 +11,6 @@ import {
 } from "react";
 import { toast } from "sonner";
 import NotFound from "@/app/not-found";
-import PageLoader from "@/components/shared/page-loader";
 import { organization, useSession } from "@/lib/auth/client";
 import { orpc } from "@/lib/orpc";
 import type {
@@ -32,8 +31,15 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
  * every call against the `workspaceId` the components pass, so this decides
  * nothing about access: a slug that isn't in the list just isn't one of theirs.
  *
- * It also keeps Better Auth's active organization on the URL's workspace, which
- * the organization endpoints (members, invitations) default to.
+ * Children render straight away. Until the list arrives `activeWorkspace` is
+ * null and each page shows its own route skeleton; nothing waits for the
+ * active organization to sync, because every query passes `workspaceId` and
+ * every Better Auth organization call passes `organizationId`. Only a slug
+ * that isn't the user's replaces the dashboard, with a 404.
+ *
+ * It also keeps Better Auth's active organization on the URL's workspace, for
+ * the calls that still default to it (accepting an invitation, creating a
+ * workspace).
  */
 export function WorkspaceProvider({
   children,
@@ -42,7 +48,6 @@ export function WorkspaceProvider({
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
   const [recheckedSlug, setRecheckedSlug] = useState<string | null>(null);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     null
@@ -77,11 +82,7 @@ export function WorkspaceProvider({
   const activeOrganizationId = session?.session.activeOrganizationId;
 
   useEffect(() => {
-    if (
-      isSwitchingWorkspace ||
-      !(workspaceId && session) ||
-      activeOrganizationId === workspaceId
-    ) {
+    if (!(workspaceId && session) || activeOrganizationId === workspaceId) {
       return;
     }
     organization
@@ -94,7 +95,7 @@ export function WorkspaceProvider({
       .catch((setActiveError) => {
         console.error("Failed to activate workspace", setActiveError);
       });
-  }, [activeOrganizationId, isSwitchingWorkspace, session, workspaceId]);
+  }, [activeOrganizationId, session, workspaceId]);
 
   useEffect(() => {
     if (activeWorkspace) {
@@ -111,7 +112,6 @@ export function WorkspaceProvider({
         return Promise.reject(new Error("Workspace slug is required"));
       }
 
-      setIsSwitchingWorkspace(true);
       setLastVisitedWorkspace(workspace.slug);
 
       // Preserve the path after the workspace slug,
@@ -123,41 +123,35 @@ export function WorkspaceProvider({
     [pathname, router]
   );
 
-  const refreshActiveWorkspace = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
-
   if (error && !workspaceList) {
     throw error;
   }
 
-  if (!workspaceList || (isMissing && recheckedSlug !== workspaceSlug)) {
-    return <PageLoader />;
+  // The list has been refetched once since the slug went missing and it is
+  // still not there: it isn't one of the user's workspaces.
+  if (isMissing && recheckedSlug === workspaceSlug && !isFetching) {
+    return <NotFound />;
   }
 
-  if (!activeWorkspace) {
-    return isFetching ? <PageLoader /> : <NotFound />;
-  }
-
-  const isFetchingWorkspace =
-    isSwitchingWorkspace || !session || activeOrganizationId !== workspaceId;
-  const currentUserRole = activeWorkspace.currentUserRole;
+  const currentUserRole = activeWorkspace?.currentUserRole ?? null;
+  const isOrganizationSynced = Boolean(
+    workspaceId && session && activeOrganizationId === workspaceId
+  );
 
   return (
     <WorkspaceContext.Provider
       value={{
         activeWorkspace,
         updateActiveWorkspace,
-        refreshActiveWorkspace,
-        isFetchingWorkspace,
-        workspaceList,
+        isOrganizationSynced,
+        workspaceList: workspaceList ?? null,
         isOwner: currentUserRole === "owner",
         isAdmin: currentUserRole === "admin",
         isMember: currentUserRole === "member",
         currentUserRole,
       }}
     >
-      {isFetchingWorkspace ? <PageLoader /> : children}
+      {children}
     </WorkspaceContext.Provider>
   );
 }

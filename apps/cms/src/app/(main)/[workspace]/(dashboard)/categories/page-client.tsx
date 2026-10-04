@@ -12,7 +12,6 @@ import { DataTable } from "@/components/categories/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
 import Loading from "./loading";
 
 const CategoryModal = dynamic(() =>
@@ -23,7 +22,6 @@ const CategoryModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const {
@@ -34,11 +32,11 @@ function PageClient() {
     orpc.categories.list.queryOptions({
       input: { workspaceId: workspaceId ?? "" },
       staleTime: 1000 * 60 * 60,
-      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+      enabled: Boolean(workspaceId),
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
+  if (!workspaceId || isLoading) {
     return <Loading />;
   }
 

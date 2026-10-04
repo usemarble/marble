@@ -6,12 +6,10 @@ import { AuthorDataTable } from "@/components/authors/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
 import Loading from "./loading";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
 
   const {
     data: authors,
@@ -20,11 +18,11 @@ function PageClient() {
   } = useQuery(
     orpc.authors.list.queryOptions({
       input: { workspaceId: workspaceId ?? "" },
-      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+      enabled: Boolean(workspaceId),
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
+  if (!workspaceId || isLoading) {
     return <Loading />;
   }
 

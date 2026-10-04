@@ -6,9 +6,12 @@ export type Workspace = RouterOutputs["workspaces"]["list"][number];
 export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
   updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
-  refreshActiveWorkspace: () => Promise<void>;
+  /**
+   * Better Auth's active organization is this workspace. Only the dashboard
+   * routes still on the CMS wait for it; see `useSyncedWorkspaceId`.
+   */
+  isOrganizationSynced: boolean;
   workspaceList: Workspace[] | null;
-  isFetchingWorkspace: boolean;
   isOwner: boolean;
   isAdmin: boolean;
   isMember: boolean;

@@ -10,6 +10,7 @@ import {
 } from "@marble/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
@@ -49,7 +50,7 @@ export function usePlan() {
   const checkLimits = (usage: Parameters<typeof isOverLimit>[1]) =>
     isOverLimit(currentPlan, usage);
 
-  const workspaceId = activeWorkspace?.id;
+  const workspaceId = useSyncedWorkspaceId();
 
   const { data } = useQuery({
     queryKey: workspaceId

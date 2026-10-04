@@ -11,10 +11,9 @@ import { useState } from "react";
 import { columns } from "@/components/keys/columns";
 import { DataTable } from "@/components/keys/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { ApiKeysSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 const CreateKeyModal = dynamic(() =>
   import("@/components/keys/api-key-modal").then((mod) => mod.ApiKeyModal)
@@ -22,7 +21,6 @@ const CreateKeyModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const {
     data: keys,
@@ -32,12 +30,12 @@ function PageClient() {
     orpc.keys.list.queryOptions({
       input: { workspaceId: workspaceId ?? "" },
       staleTime: 1000 * 60 * 60,
-      enabled: !!workspaceId && !isFetchingWorkspace,
+      enabled: !!workspaceId,
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <ApiKeysSettingsSkeleton />;
+  if (!workspaceId || isLoading) {
+    return <Loading />;
   }
 
   if (error) {

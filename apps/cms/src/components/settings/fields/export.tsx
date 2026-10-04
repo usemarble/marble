@@ -6,8 +6,8 @@ import { DownloadSimpleIcon, FileArchiveIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 import { formatBytes } from "@/utils/string";
 
 interface ExportJob {
@@ -59,9 +59,8 @@ function getStatusLabel(job: ExportJob) {
 }
 
 export function Export() {
-  const { activeWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
-  const workspaceId = activeWorkspace?.id;
+  const workspaceId = useSyncedWorkspaceId();
 
   const { data } = useQuery({
     enabled: !!workspaceId,

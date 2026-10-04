@@ -25,7 +25,7 @@ import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger
 import { DashboardBody } from "@/components/layout/wrapper";
 import { VideoPlayer } from "@/components/media/video-player";
 import PageLoader from "@/components/shared/page-loader";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { blurhashToDataUrl } from "@/lib/blurhash";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
@@ -45,7 +45,7 @@ export default function MediaDetailPage({
   id,
   workspace,
 }: MediaDetailPageProps) {
-  const workspaceId = useWorkspaceId();
+  const workspaceId = useSyncedWorkspaceId();
   const queryClient = useQueryClient();
 
   const {

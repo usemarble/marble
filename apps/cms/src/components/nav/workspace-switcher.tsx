@@ -36,12 +36,8 @@ import { CreateWorkspaceDialog } from "./create-workspace-dialog";
 export function WorkspaceSwitcher() {
   const { isMobile, state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const {
-    activeWorkspace,
-    updateActiveWorkspace,
-    workspaceList,
-    isFetchingWorkspace,
-  } = useWorkspace();
+  const { activeWorkspace, updateActiveWorkspace, workspaceList } =
+    useWorkspace();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -84,7 +80,6 @@ export function WorkspaceSwitcher() {
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
             <DropdownMenuTrigger
-              disabled={isFetchingWorkspace}
               nativeButton={false}
               render={
                 <SidebarMenuButton
@@ -92,7 +87,6 @@ export function WorkspaceSwitcher() {
                     "h-8 w-full max-w-full cursor-pointer border border-transparent px-2 py-1 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                     isCollapsed && "min-w-0 justify-center rounded-full p-1"
                   )}
-                  disabled={isFetchingWorkspace}
                   render={<div />}
                 >
                   <Avatar className={cn("size-6.5")}>

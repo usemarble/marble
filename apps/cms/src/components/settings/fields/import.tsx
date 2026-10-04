@@ -9,6 +9,7 @@ import { useState } from "react";
 import { PostsImportModal } from "@/components/posts/import-modal";
 import { SettingsSection } from "@/components/settings/section";
 import { ActivityIndicator } from "@/components/ui/activity-indicator";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
@@ -95,7 +96,7 @@ function getImportedPostsHref(workspaceSlug: string, categoryId?: string) {
 export function Import() {
   const [open, setOpen] = useState(false);
   const { activeWorkspace } = useWorkspace();
-  const workspaceId = activeWorkspace?.id;
+  const workspaceId = useSyncedWorkspaceId();
   const workspaceSlug = activeWorkspace?.slug;
 
   const { data, isError } = useQuery({

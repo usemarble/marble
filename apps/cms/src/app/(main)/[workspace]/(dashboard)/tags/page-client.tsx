@@ -12,7 +12,6 @@ import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
 import Loading from "./loading";
 
 const TagModal = dynamic(() =>
@@ -21,7 +20,6 @@ const TagModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const {
@@ -32,11 +30,11 @@ function PageClient() {
     orpc.tags.list.queryOptions({
       input: { workspaceId: workspaceId ?? "" },
       staleTime: 1000 * 60 * 60,
-      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+      enabled: Boolean(workspaceId),
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
+  if (!workspaceId || isLoading) {
     return <Loading />;
   }
 

@@ -28,7 +28,7 @@ const PostsImportModal = dynamic(
 );
 
 function PageClient() {
-  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const { activeWorkspace } = useWorkspace();
   const workspaceId = activeWorkspace?.id;
   const [filters] = usePostPageFilters();
   const apiFilters = useMemo(
@@ -57,11 +57,11 @@ function PageClient() {
       input: { workspaceId: workspaceId ?? "", ...apiFilters },
       placeholderData: keepPreviousData,
       staleTime: 1000 * 60 * 60,
-      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+      enabled: Boolean(workspaceId),
     })
   );
 
-  if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
+  if (!workspaceId || (isLoading && !data)) {
     return <Loading />;
   }
 

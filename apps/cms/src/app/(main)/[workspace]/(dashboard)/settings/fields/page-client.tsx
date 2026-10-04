@@ -24,7 +24,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { FieldsSettingsSkeleton } from "@/components/settings/loading-skeletons";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { CustomField } from "@/types/fields";
 
@@ -53,7 +53,7 @@ export function PageClient({
 }: {
   initialFields?: CustomField[];
 }) {
-  const workspaceId = useWorkspaceId();
+  const workspaceId = useSyncedWorkspaceId();
   const queryClient = useQueryClient();
   const docsHref = "https://docs.marblecms.com/features/custom-fields";
   const [search, setSearch] = useState("");
