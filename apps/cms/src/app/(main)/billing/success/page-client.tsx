@@ -3,7 +3,7 @@
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import { ORPCError } from "@orpc/client";
-import { CheckCircle } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import Link from "next/link";
@@ -115,7 +115,7 @@ export default function PageClient() {
       <div className="flex w-full max-w-md flex-col items-center gap-8 text-center">
         <MarbleIcon />
         <div className="flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-          <CheckCircle
+          <CheckCircleIcon
             className="size-8 text-green-600 dark:text-green-400"
             weight="fill"
           />
