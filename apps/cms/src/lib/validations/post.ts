@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-export const shareLinkSchema = z.object({
-  postId: z.string().min(1, { message: "Post ID is required" }),
-});
-
-export type ShareLinkValues = z.infer<typeof shareLinkSchema>;
-
 // Schema for importing posts where the client sends markdown only and
 // the server derives HTML and Tiptap JSON.
 export const postImportSchema = z.object({

@@ -5,19 +5,58 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
+import { ORPCError } from "@orpc/client";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import Prose from "@/components/share/prose";
 import { LinkExpired, LinkNotFound } from "@/components/share/screens";
-import type { SharePageClientProps } from "@/types/share";
+import { orpc } from "@/lib/orpc";
+import Loading from "./loading";
 
-function SharePageClient({ data, status }: SharePageClientProps) {
-  if (status === "expired") {
+function SharePageClient() {
+  const { token } = useParams<{ token: string }>();
+  const { data, error, isPending } = useQuery(
+    orpc.share.get.queryOptions({
+      input: { token },
+      retry: false,
+      staleTime: 0,
+      gcTime: 0,
+    })
+  );
+  const {
+    data: content,
+    error: highlightError,
+    isPending: highlighting,
+  } = useQuery({
+    queryKey: ["share-highlight", token, data?.post.updatedAt],
+    enabled: Boolean(data),
+    gcTime: 0,
+    queryFn: async () => {
+      const { highlightContent } = await import("@marble/utils");
+      return highlightContent(data?.post.content ?? "");
+    },
+  });
+
+  if (isPending) {
+    return <Loading />;
+  }
+  if (error instanceof ORPCError && error.status === 410) {
     return <LinkExpired />;
   }
 
-  if (!data) {
+  if (error instanceof ORPCError && error.status === 404) {
     return <LinkNotFound />;
+  }
+  if (error) {
+    throw error;
+  }
+  if (highlightError) {
+    throw highlightError;
+  }
+  if (!data || highlighting) {
+    return <Loading />;
   }
 
   const { post } = data;
@@ -81,7 +120,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
 
           <Prose
             className="prose-iframe prose-img:rounded-none"
-            html={post.content}
+            html={content}
           />
         </div>
       </main>

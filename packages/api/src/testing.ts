@@ -8,6 +8,7 @@ import type { Context, QueuePublisher } from "./context";
 
 /** The Redis HTTP proxy from the root docker-compose.yml. */
 export const testEnv = {
+  APP_URL: "http://localhost:3000",
   REDIS_URL: "http://localhost:8079",
   REDIS_TOKEN: "justusemarble",
 };

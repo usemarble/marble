@@ -8,6 +8,7 @@ import { categoriesRouter } from "./categories";
 import { keysRouter } from "./keys";
 import { meRouter } from "./me";
 import { postsRouter } from "./posts";
+import { shareRouter } from "./share";
 import { tagsRouter } from "./tags";
 import { webhooksRouter } from "./webhooks";
 import { workspacesRouter } from "./workspaces";
@@ -19,6 +20,7 @@ export const appRouter = {
   me: meRouter,
   keys: keysRouter,
   posts: postsRouter,
+  share: shareRouter,
   workspaces: workspacesRouter,
   webhooks: webhooksRouter,
 };

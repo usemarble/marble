@@ -4,7 +4,10 @@ import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { SimpleCsrfProtectionHandlerPlugin } from "@orpc/server/plugins";
+import {
+  ResponseHeadersPlugin,
+  SimpleCsrfProtectionHandlerPlugin,
+} from "@orpc/server/plugins";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 
 /**
@@ -41,7 +44,10 @@ async function logProcedure({
  * another origin can't ride the session cookie into a mutation.
  */
 export const rpcHandler = new RPCHandler<Context>(appRouter, {
-  plugins: [new SimpleCsrfProtectionHandlerPlugin()],
+  plugins: [
+    new SimpleCsrfProtectionHandlerPlugin(),
+    new ResponseHeadersPlugin(),
+  ],
   clientInterceptors: [logProcedure],
 });
 
@@ -53,6 +59,7 @@ export const rpcHandler = new RPCHandler<Context>(appRouter, {
 export const referenceHandler = new OpenAPIHandler<Context>(appRouter, {
   clientInterceptors: [logProcedure],
   plugins: [
+    new ResponseHeadersPlugin(),
     new OpenAPIReferencePlugin({
       schemaConverters: [new ZodToJsonSchemaConverter()],
       docsPath: "/reference",

@@ -4,6 +4,7 @@
  * because the generated type lives in apps/api and a package can't import it.
  */
 export interface ApiEnv {
+  APP_URL: string;
   REDIS_URL: string;
   REDIS_TOKEN: string;
 }
