@@ -8,7 +8,8 @@ export class BillingError extends Error {}
 
 /**
  * Checkout redirects aren't proof of payment. Polar's webhook owns subscription
- * writes; this only clears cached reads and returns the authorized workspace.
+ * writes; this only clears cached reads and returns the authorized workspace
+ * for the success page.
  */
 export async function completeCheckout(
   ctx: ServiceContext,
@@ -16,7 +17,7 @@ export async function completeCheckout(
 ) {
   const found = await ctx.db.query.workspace.findFirst({
     where: eq(workspace.id, workspaceId),
-    columns: { slug: true },
+    columns: { slug: true, name: true },
   });
   if (!found) {
     throw new BillingError("Workspace not found");
@@ -37,5 +38,5 @@ export async function completeCheckout(
     // Webhooks also clear this; clear again if the redirect arrives first.
     clearWorkspacePlan(redis, workspaceId),
   ]);
-  return { slug: found.slug };
+  return { slug: found.slug, name: found.name };
 }

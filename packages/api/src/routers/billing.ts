@@ -12,7 +12,7 @@ export const billingRouter = {
       summary: "Refresh cached usage and plan after checkout",
     })
     .input(z.object({ workspaceId: z.string().min(1) }))
-    .output(z.object({ slug: z.string() }))
+    .output(z.object({ slug: z.string(), name: z.string() }))
     .handler(async ({ context }) => {
       try {
         return await completeCheckout(context, context.workspaceId);

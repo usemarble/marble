@@ -52,6 +52,7 @@ it("only members can clear the workspace's existing usage namespace and cached p
     ]);
     expect(await client.completeCheckout({ workspaceId: home.id })).toEqual({
       slug: home.slug,
+      name: home.name,
     });
     expect(await Promise.all(keys.map((key) => redis.get(key)))).toEqual([
       null,
