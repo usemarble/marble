@@ -43,11 +43,10 @@ import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { getMediaEditorApiUrl } from "@/lib/search-params";
-import type { Media, MediaCursorListResponse } from "@/types/media";
+import { orpc } from "@/lib/orpc";
+import type { Media } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
 const urlSchema = z.string().url({
@@ -73,11 +72,12 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const workspaceId = useSyncedWorkspaceId();
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { mutate: uploadCover, isPending: isUploading } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "media" }),
+    mutationFn: (file: File) =>
+      uploadFile({ file, type: "media", workspaceId: workspaceId ?? "" }),
     onSuccess: (data: Media) => {
       if (data?.url) {
         onChange(data.url);
@@ -85,7 +85,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
         setFile(undefined);
         if (workspaceId) {
           queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.MEDIA(workspaceId),
+            queryKey: orpc.media.list.key(),
           });
         }
       } else {
@@ -103,28 +103,21 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: [
-      // biome-ignore lint/style/noNonNullAssertion: workspace is verified before enabled
-      ...QUERY_KEYS.MEDIA(workspaceId!),
-      { context: "cover-selector" },
-    ],
-    staleTime: 1000 * 60 * 5,
-    queryFn: async ({ pageParam }: { pageParam?: string }) => {
-      const url = getMediaEditorApiUrl("/api/media/editor", {
-        cursor: pageParam || null,
-      });
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error("Failed to load media");
-      }
-      const data: MediaCursorListResponse = await res.json();
-      return data;
-    },
-    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
-    initialPageParam: undefined,
-    enabled: !!workspaceId,
-  });
+  } = useInfiniteQuery(
+    orpc.media.editor.infiniteOptions({
+      input: (cursor: string | undefined) => ({
+        workspaceId: workspaceId ?? "",
+        cursor,
+        limit: 20,
+        sort: "createdAt_desc",
+      }),
+      staleTime: 1000 * 60 * 5,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      initialPageParam: undefined,
+      enabled: !!workspaceId,
+      queryKey: [workspaceId],
+    })
+  );
 
   const media = data?.pages.flatMap((page) => page.media) ?? [];
 

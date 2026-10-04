@@ -5,6 +5,22 @@
  */
 export interface ApiEnv {
   APP_URL: string;
+  BETTER_AUTH_SECRET: string;
+  R2_ACCESS_KEY_ID: string;
+  R2_SECRET_ACCESS_KEY: string;
+  R2_S3_ENDPOINT: string;
+  R2_BUCKET_NAME: string;
+  STORAGE_PUBLIC_URL: string;
+  POLAR_ACCESS_TOKEN: string;
+  POLAR_SERVER: "sandbox" | "production";
   REDIS_URL: string;
   REDIS_TOKEN: string;
+  STORAGE: {
+    head(key: string): Promise<{
+      size: number;
+      httpMetadata?: { contentType?: string };
+    } | null>;
+    get(key: string): Promise<{ body: ReadableStream; size: number } | null>;
+    delete(key: string | string[]): Promise<void>;
+  };
 }

@@ -9,8 +9,27 @@ import type { Context, QueuePublisher } from "./context";
 /** The Redis HTTP proxy from the root docker-compose.yml. */
 export const testEnv = {
   APP_URL: "http://localhost:3000",
+  BETTER_AUTH_SECRET: "test-upload-intent-secret-with-sufficient-length",
+  R2_ACCESS_KEY_ID: "test-access-key",
+  R2_SECRET_ACCESS_KEY: "test-secret-key",
+  R2_S3_ENDPOINT: "https://r2.example.invalid",
+  R2_BUCKET_NAME: "test-bucket",
+  STORAGE_PUBLIC_URL: "https://cdn.example.invalid",
+  POLAR_ACCESS_TOKEN: "",
+  POLAR_SERVER: "sandbox" as const,
   REDIS_URL: "http://localhost:8079",
   REDIS_TOKEN: "justusemarble",
+  STORAGE: {
+    async head(_key: string) {
+      return null;
+    },
+    async get(_key: string) {
+      return null;
+    },
+    async delete(_key: string | string[]) {
+      // Default test storage has no objects.
+    },
+  },
 };
 
 /** A queue that records what it was sent, and can be made to fail. */
