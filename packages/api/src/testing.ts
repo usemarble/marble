@@ -71,6 +71,7 @@ export function createTestContext(
       deferred.push(work);
     },
     session: null,
+    clientIp: null,
     ...overrides,
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { MAX_AI_READABILITY_CONTENT_LENGTH } from "@marble/api/lib/readability-validation";
 import { useCurrentEditor } from "@marble/editor";
 import {
   Sidebar,
@@ -22,7 +23,7 @@ import { useWatch } from "react-hook-form";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePlan } from "@/hooks/use-plan";
-import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
+import { client } from "@/lib/orpc";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import { calculateReadabilityScore } from "@/utils/readability";
@@ -160,8 +161,9 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
     refetchOnReconnect: false,
     retry: 0,
     queryFn: async () => {
-      const result = await fetchAiReadabilitySuggestionsObject({
-        content: editorHTML,
+      const result = await client.ai.suggestions({
+        workspaceId,
+        content: editorHTML.slice(0, MAX_AI_READABILITY_CONTENT_LENGTH),
         metrics: {
           wordCount: metrics.wordCount,
           sentenceCount: metrics.sentenceCount,

@@ -48,5 +48,11 @@ export async function createRequestContext(
     });
   }
 
-  return { ...base, session };
+  return {
+    ...base,
+    session,
+    // Cloudflare sets this and a client can't override it. x-forwarded-for
+    // can be forged, so it is not used.
+    clientIp: c.req.header("cf-connecting-ip") ?? null,
+  };
 }

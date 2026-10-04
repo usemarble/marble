@@ -3,6 +3,7 @@ import type {
   InferRouterOutputs,
   RouterClient,
 } from "@orpc/server";
+import { aiRouter } from "./ai";
 import { authorsRouter } from "./authors";
 import { categoriesRouter } from "./categories";
 import { dataTransferRouter } from "./data-transfer";
@@ -18,6 +19,7 @@ import { webhooksRouter } from "./webhooks";
 import { workspacesRouter } from "./workspaces";
 
 export const appRouter = {
+  ai: aiRouter,
   authors: authorsRouter,
   categories: categoriesRouter,
   data: dataTransferRouter,

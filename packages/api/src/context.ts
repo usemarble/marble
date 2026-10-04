@@ -38,6 +38,8 @@ export interface ServiceContext {
 /** The oRPC context: a service context plus the caller's session. */
 export interface Context extends ServiceContext {
   session: Session | null;
+  /** The caller's IP as Cloudflare reports it, for per-IP limits. */
+  clientIp: string | null;
   /** Injected by oRPC's response headers plugin at the HTTP boundary. */
   resHeaders?: Headers;
 }

@@ -19,6 +19,7 @@
     "@marble/auth": "workspace:*",
     "@marble/db": "workspace:*",
     "@marble/events": "workspace:*",
+    "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
     "@orpc/server": "1.15.4",
     "@upstash/ratelimit": "^2.0.8",
