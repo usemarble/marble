@@ -162,13 +162,13 @@ const exportDownloadColumns = {
   slug: workspace.slug,
 };
 
-type ExportDownloadRow = {
+interface ExportDownloadRow {
   status: string;
   storageKey: string | null;
   expiresAt: Date | null;
   createdAt: Date;
   slug: string;
-};
+}
 
 /**
  * Signs a five-minute R2 GET for a ready export, so the file downloads from
