@@ -6,33 +6,19 @@ import { MediaUsageCard } from "@/components/home/media-usage-card";
 import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { UsageDashboardData } from "@/types/dashboard";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 import Loading from "./loading";
 
-export default function PageClient({
-  initialUsage,
-}: {
-  initialUsage?: UsageDashboardData;
-}) {
-  const workspaceId = useSyncedWorkspaceId();
-
-  const { data, isPending, isError } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.USAGE_DASHBOARD(workspaceId)
-      : ["usage-dashboard", "disabled"],
-    queryFn: async (): Promise<UsageDashboardData> => {
-      const response = await fetch("/api/metrics/usage");
-      if (!response.ok) {
-        throw new Error("Failed to fetch usage metrics");
-      }
-      return response.json();
-    },
-    enabled: Boolean(workspaceId),
-    initialData: initialUsage,
-    staleTime: 1000 * 60 * 10,
-  });
+export default function PageClient() {
+  const workspaceId = useWorkspaceId();
+  const { data, isPending, isError } = useQuery(
+    orpc.workspaces.metrics.usage.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+      staleTime: 1000 * 60 * 10,
+    })
+  );
 
   if (!workspaceId || isPending) {
     return <Loading />;

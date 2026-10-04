@@ -17,16 +17,9 @@ export const QUERY_KEYS = {
 
   BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
 
-  USAGE_DASHBOARD: (workspaceId: string) => ["usage-dashboard", workspaceId],
-
   AI_READABILITY_SUGGESTIONS: (workspaceId: string, contentKey: string) => [
     "ai-readability-suggestions",
     workspaceId,
     contentKey,
-  ],
-
-  PUBLISHING_METRICS: (workspaceId: string) => [
-    "publishing-metrics",
-    workspaceId,
   ],
 };

@@ -23,28 +23,20 @@ import { cn } from "@marble/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PublishingMetricsData } from "@/types/dashboard";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 
 export const PublishingActivityCard = () => {
-  const workspaceId = useSyncedWorkspaceId();
+  const workspaceId = useWorkspaceId();
 
-  const { data: metrics, isPending } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.PUBLISHING_METRICS(workspaceId)
-      : ["publishing-metrics", "disabled"],
-    queryFn: async (): Promise<PublishingMetricsData> => {
-      const response = await fetch("/api/metrics/publishing");
-      if (!response.ok) {
-        throw new Error("Failed to fetch publishing metrics");
-      }
-      return response.json();
-    },
-    enabled: Boolean(workspaceId),
-  });
+  const { data: metrics, isPending } = useQuery(
+    orpc.workspaces.metrics.publishing.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   if (!workspaceId || isPending) {
     return (

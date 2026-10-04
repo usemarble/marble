@@ -1,16 +1,34 @@
-import "server-only";
-
-import { db } from "@marble/db";
-import { media, usageEvent } from "@marble/db/schema";
-import { addDays, format, startOfDay, subDays, subHours } from "date-fns";
-import { and, count, desc, eq, gte, isNotNull, lt } from "drizzle-orm";
-import type { UsageDashboardData } from "@/types/dashboard";
+import { media, post, usageEvent } from "@marble/db/schema";
+import {
+  addDays,
+  eachDayOfInterval,
+  endOfYear,
+  format,
+  startOfDay,
+  startOfYear,
+  subDays,
+  subHours,
+} from "date-fns";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  isNotNull,
+  lt,
+  lte,
+} from "drizzle-orm";
+import type { ServiceContext } from "../context";
 
 const CHART_DAYS = 30;
 
-export async function getDashboardUsageMetrics(
+export async function getUsageMetrics(
+  ctx: ServiceContext,
   workspaceId: string
-): Promise<UsageDashboardData> {
+) {
+  const { db } = ctx;
   const now = new Date();
   const today = startOfDay(now);
   const chartStart = subDays(today, CHART_DAYS - 1);
@@ -260,6 +278,77 @@ export async function getDashboardUsageMetrics(
         duration: item.duration,
         blurHash: item.blurHash,
       })),
+    },
+  };
+}
+
+export async function getPublishingMetrics(
+  ctx: ServiceContext,
+  workspaceId: string
+) {
+  const { db } = ctx;
+  const now = new Date();
+  const startOfCurrentYear = startOfYear(now);
+  const endOfCurrentYear = endOfYear(now);
+
+  const posts = await db
+    .select({ publishedAt: post.publishedAt })
+    .from(post)
+    .where(
+      and(
+        eq(post.workspaceId, workspaceId),
+        eq(post.status, "published"),
+        gte(post.publishedAt, startOfCurrentYear),
+        lte(post.publishedAt, endOfCurrentYear)
+      )
+    )
+    .orderBy(asc(post.publishedAt));
+
+  const dateCountMap = new Map<string, number>();
+
+  for (const entry of posts) {
+    if (entry.publishedAt) {
+      const dateKey = format(entry.publishedAt, "yyyy-MM-dd");
+      dateCountMap.set(dateKey, (dateCountMap.get(dateKey) || 0) + 1);
+    }
+  }
+
+  const allDaysInYear = eachDayOfInterval({
+    start: startOfCurrentYear,
+    end: endOfCurrentYear,
+  });
+
+  const maxCount = Math.max(...Array.from(dateCountMap.values()), 1);
+
+  const activityData = allDaysInYear.map((date) => {
+    const dateKey = format(date, "yyyy-MM-dd");
+    const count = dateCountMap.get(dateKey) || 0;
+
+    let level: number;
+    const percentage = count === 0 ? 0 : (count / maxCount) * 100;
+
+    if (count === 0) {
+      level = 0;
+    } else if (percentage <= 25) {
+      level = 1;
+    } else if (percentage <= 50) {
+      level = 2;
+    } else if (percentage <= 75) {
+      level = 3;
+    } else {
+      level = 4;
+    }
+
+    return {
+      date: dateKey,
+      count,
+      level,
+    };
+  });
+
+  return {
+    graph: {
+      activity: activityData,
     },
   };
 }
