@@ -7,6 +7,7 @@ at `/rpc` and builds the per-request context; `apps/cms` imports the router
 `apps/*`.
 
 ```
+src/ai/             the model module, assistant prompt and read-only tools
 src/context.ts      ServiceContext and Context (types only)
 src/index.ts        procedure builders: publicProcedure, protectedProcedure, workspaceProcedure
 src/routers/        one file per resource, assembled in routers/index.ts
@@ -40,6 +41,19 @@ members or subscriptions change.
 Declare `.route({ method, path, tags })` on every procedure so the dev-only
 reference at `/internal/reference` reads like REST
 (`/workspaces/{workspaceId}/posts`).
+
+## AI
+
+`ai/model.ts` is the only place that names a provider or model (the Vercel AI
+Gateway; `createModel(ctx)` returns the evlog-wrapped model, its telemetry and
+the provider options to spread into `generateText` / `streamText`). Tests mock
+`createModel` with `wrapModel(ctx.log, new MockLanguageModelV4(...))`; they never
+call the gateway.
+
+The assistant's tools (`ai/tools.ts`) are built per request for the workspace
+the caller was already authorized for: the model never supplies a workspace.
+They only read, through the existing services, and wrap customer-written text
+in `[BEGIN_UNTRUSTED]...[END_UNTRUSTED]` (`ai/untrusted.ts`).
 
 ## Writes: `transact`
 
