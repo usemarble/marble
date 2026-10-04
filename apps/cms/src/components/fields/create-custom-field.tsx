@@ -1,6 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  type CustomFieldFormValues,
+  customFieldSchema,
+} from "@marble/api/lib/field-validation";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -31,11 +35,7 @@ import { FieldOptionsInput } from "@/components/fields/field-options-input";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type CustomFieldFormValues,
-  customFieldSchema,
-} from "@/lib/validations/fields";
+import { orpc } from "@/lib/orpc";
 
 const typeOptions = [
   { label: "Text", value: "text" },
@@ -94,18 +94,7 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
   const router = useRouter();
 
   const { mutate: createField, isPending: isCreating } = useMutation({
-    mutationFn: (data: CustomFieldFormValues) =>
-      fetch("/api/fields", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Failed to create field");
-        }
-        return res.json();
-      }),
+    ...orpc.fields.create.mutationOptions(),
     onSuccess: () => {
       toast.success("Custom field created");
       reset();
@@ -113,7 +102,7 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
       setIsOpen(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
+          queryKey: orpc.fields.list.key({ input: { workspaceId } }),
         });
       }
       if (params.workspace) {
@@ -129,7 +118,9 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
   });
 
   const onSubmit = (data: CustomFieldFormValues) => {
-    createField(data);
+    if (workspaceId) {
+      createField({ workspaceId, ...data });
+    }
   };
 
   return (

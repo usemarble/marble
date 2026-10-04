@@ -5,6 +5,7 @@ import type {
 } from "@orpc/server";
 import { authorsRouter } from "./authors";
 import { categoriesRouter } from "./categories";
+import { fieldsRouter } from "./fields";
 import { keysRouter } from "./keys";
 import { meRouter } from "./me";
 import { postsRouter } from "./posts";
@@ -16,6 +17,7 @@ import { workspacesRouter } from "./workspaces";
 export const appRouter = {
   authors: authorsRouter,
   categories: categoriesRouter,
+  fields: fieldsRouter,
   tags: tagsRouter,
   me: meRouter,
   keys: keysRouter,
