@@ -1,4 +1,5 @@
 import {
+  apiUrl,
   appUrl,
   baseWorker,
   dataBindings,
@@ -52,6 +53,7 @@ export default defineConfig((ctx) => {
         QUEUE_TASKS: bindings.text(queue.tasks),
         QUEUE_DLQ: bindings.text(queue.dlq),
         APP_URL: bindings.text(appUrl(mode)),
+        API_URL: bindings.text(apiUrl(mode)),
         RESEND_API_KEY: bindings.secret(),
       },
     },

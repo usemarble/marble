@@ -9,9 +9,8 @@ import { useState } from "react";
 import { PostsImportModal } from "@/components/posts/import-modal";
 import { SettingsSection } from "@/components/settings/section";
 import { ActivityIndicator } from "@/components/ui/activity-indicator";
-import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
-import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
 interface ImportJob {
@@ -36,10 +35,6 @@ interface ImportJob {
   failedAt: string | null;
   errorMessage: string | null;
   createdAt: string;
-}
-
-interface ImportListResponse {
-  jobs: ImportJob[];
 }
 
 function formatDate(value: string | null) {
@@ -96,19 +91,14 @@ function getImportedPostsHref(workspaceSlug: string, categoryId?: string) {
 export function Import() {
   const [open, setOpen] = useState(false);
   const { activeWorkspace } = useWorkspace();
-  const workspaceId = useSyncedWorkspaceId();
+  const workspaceId = useWorkspaceId();
   const workspaceSlug = activeWorkspace?.slug;
 
   const { data, isError } = useQuery({
+    ...orpc.data.imports.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+    }),
     enabled: !!workspaceId,
-    queryKey: workspaceId ? QUERY_KEYS.IMPORTS(workspaceId) : ["imports"],
-    queryFn: async () => {
-      const response = await fetch("/api/data/import");
-      if (!response.ok) {
-        throw new Error("Failed to load imports");
-      }
-      return (await response.json()) as ImportListResponse;
-    },
     refetchInterval: (query) => {
       const jobs = query.state.data?.jobs ?? [];
       return jobs.some((job) => isActiveImportStatus(job.status))

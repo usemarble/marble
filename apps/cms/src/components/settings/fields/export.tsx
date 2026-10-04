@@ -6,8 +6,8 @@ import { DownloadSimpleIcon, FileArchiveIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
-import { useSyncedWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 import { formatBytes } from "@/utils/string";
 
 interface ExportJob {
@@ -20,14 +20,6 @@ interface ExportJob {
   completedAt: string | null;
   failedAt: string | null;
   errorMessage: string | null;
-}
-
-interface ExportListResponse {
-  jobs: ExportJob[];
-}
-
-interface ExportCreateResponse {
-  job: ExportJob;
 }
 
 function formatDate(value: string | null) {
@@ -60,18 +52,13 @@ function getStatusLabel(job: ExportJob) {
 
 export function Export() {
   const queryClient = useQueryClient();
-  const workspaceId = useSyncedWorkspaceId();
+  const workspaceId = useWorkspaceId();
 
   const { data } = useQuery({
+    ...orpc.data.exports.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+    }),
     enabled: !!workspaceId,
-    queryKey: workspaceId ? QUERY_KEYS.EXPORTS(workspaceId) : ["exports"],
-    queryFn: async () => {
-      const response = await fetch("/api/data/export");
-      if (!response.ok) {
-        throw new Error("Failed to load exports");
-      }
-      return (await response.json()) as ExportListResponse;
-    },
     refetchInterval: (query) => {
       const jobs = query.state.data?.jobs ?? [];
       return jobs.some(
@@ -83,25 +70,25 @@ export function Export() {
   });
 
   const { mutate: startExport, isPending } = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/data/export", { method: "POST" });
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to start export");
-      }
-      return (await response.json()) as ExportCreateResponse;
-    },
+    ...orpc.data.exports.create.mutationOptions(),
     onSuccess: async () => {
       toast.success("Export started");
       if (workspaceId) {
         await queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.EXPORTS(workspaceId),
+          queryKey: orpc.data.exports.list.key({ input: { workspaceId } }),
         });
       }
     },
     onError: (error: Error) => {
       toast.error(error.message);
     },
+  });
+  const { mutate: downloadExport } = useMutation({
+    ...orpc.data.exports.download.mutationOptions(),
+    onSuccess: ({ url }) => {
+      window.location.assign(url);
+    },
+    onError: (error) => toast.error(error.message),
   });
 
   const latestJobs = data?.jobs ?? [];
@@ -127,7 +114,7 @@ export function Export() {
           <AsyncButton
             className="w-26"
             isLoading={isPending}
-            onClick={() => startExport()}
+            onClick={() => workspaceId && startExport({ workspaceId })}
             size="sm"
           >
             Start Export
@@ -149,16 +136,15 @@ export function Export() {
               </div>
               {job.status === "ready" && (
                 <Button
-                  nativeButton={false}
-                  render={
-                    <a href={`/api/data/export/${job.id}/download`}>
-                      <DownloadSimpleIcon className="size-4" />
-                      Download
-                    </a>
+                  onClick={() =>
+                    workspaceId && downloadExport({ workspaceId, id: job.id })
                   }
                   size="sm"
                   variant="secondary"
-                />
+                >
+                  <DownloadSimpleIcon className="size-4" />
+                  Download
+                </Button>
               )}
             </div>
           );

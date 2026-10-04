@@ -4,6 +4,7 @@ import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { exportDownload } from "./handlers/export-download";
 import { registrationAnalytics } from "./handlers/registration-analytics";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
 import { createRequestContext } from "./lib/context";
@@ -86,6 +87,10 @@ app.all("/rpc/*", async (c) => {
   });
   return result.matched ? result.response : c.notFound();
 });
+
+// The export-ready email's link: a one-off token, no session, so it sits
+// outside /rpc and ahead of the public API's cache.
+app.get("/exports/:id/download", dbMiddleware, exportDownload);
 
 // Public API CORS remains permissive for content consumers.
 app.use(
