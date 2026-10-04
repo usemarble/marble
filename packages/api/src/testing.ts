@@ -76,6 +76,7 @@ export function createTestContext(
   return {
     context,
     events,
+    tasks,
     flush: () => Promise.all(deferred.splice(0)),
   };
 }

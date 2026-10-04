@@ -123,7 +123,13 @@ export const mediaRouter = {
     )
     .output(mediaDto)
     .handler(({ context, input }) =>
-      updateMedia(context, context.workspaceId, input.id, input)
+      updateMedia(
+        context,
+        context.workspaceId,
+        input.id,
+        input,
+        context.session.user.id
+      )
     ),
   delete: mediaProcedure
     .route({

@@ -12,7 +12,7 @@ const DEPENDENTS: Record<CacheResource, readonly CacheResource[]> = {
   categories: ["posts"],
   authors: ["posts"],
   fields: ["posts"],
-  media: [],
+  media: ["posts"],
 };
 
 /**

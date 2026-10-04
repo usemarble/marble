@@ -115,7 +115,12 @@ export const AuthorSheet = ({
   };
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
+    mutationFn: (file: File) =>
+      uploadFile({
+        file,
+        type: "author-avatar",
+        workspaceId: workspaceId ?? "",
+      }),
     onSuccess: (data) => {
       setPendingAvatarUrl(data.url);
       setValue("image", data.url, { shouldDirty: true });

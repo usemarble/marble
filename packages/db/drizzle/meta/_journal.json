@@ -29,6 +29,13 @@
       "when": 1791045801325,
       "tag": "0003_outbox_enqueued_at",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791079787042,
+      "tag": "0004_media_storage_key_unique",
+      "breakpoints": true
     }
   ]
 }

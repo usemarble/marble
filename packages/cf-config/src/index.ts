@@ -81,6 +81,10 @@ export function storagePublicUrl(mode: Mode) {
   return mode === "production" ? undefined : storagePublicUrls[mode];
 }
 
+export function storageBucketName(mode: Mode) {
+  return resources[mode].bucket;
+}
+
 const appUrls = {
   production: "https://app.marblecms.com",
   staging: "https://staging.marblecms.com",

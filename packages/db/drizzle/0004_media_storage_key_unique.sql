@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "media_storageKey_key" ON "media" USING btree ("storageKey");

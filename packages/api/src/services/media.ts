@@ -1,5 +1,5 @@
 import { media } from "@marble/db/schema";
-import { toMediaPayload } from "@marble/events";
+import { toMediaPayload, withChanges } from "@marble/events";
 import {
   and,
   asc,
@@ -202,22 +202,34 @@ export async function updateMedia(
   ctx: ServiceContext,
   workspaceId: string,
   id: string,
-  values: { name: string; alt: string | null }
+  values: { name: string; alt: string | null },
+  actorId: string
 ) {
-  return transact(ctx, async ({ tx }) => {
+  return transact(ctx, async ({ tx, emitEvent, invalidate }) => {
     const [row] = await tx
       .update(media)
       .set({ ...values, updatedAt: new Date() })
       .where(and(eq(media.id, id), eq(media.workspaceId, workspaceId)))
-      .returning(mediaColumns);
+      .returning();
     if (!row) {
       throw new MediaError(404, "Media not found");
     }
+    await emitEvent({
+      type: "media_updated",
+      workspaceId,
+      source: "dashboard",
+      resourceType: "media",
+      resourceId: row.id,
+      actorType: "user",
+      actorId,
+      payload: withChanges(toMediaPayload(row), Object.keys(values)),
+    });
+    invalidate(workspaceId, "media");
     return dto(row);
   });
 }
 
-function safeMediaKey(key: string, bucketName: string) {
+function safeMediaKey(key: string, bucketName: string, workspaceId: string) {
   let decoded = decodeURIComponent(key)
     .replace(/^\/+/, "")
     .replace(/\/{2,}/g, "/");
@@ -225,7 +237,7 @@ function safeMediaKey(key: string, bucketName: string) {
     decoded = decoded.slice(bucketName.length + 1);
   }
   if (
-    !decoded.startsWith("media/") ||
+    !decoded.startsWith(`media/${workspaceId}/`) ||
     decoded.split("/").some((segment) => ["", ".", ".."].includes(segment))
   ) {
     throw new Error("Invalid storage key: must be a safe media object key.");
@@ -252,7 +264,7 @@ export async function deleteMedia(
     try {
       if (row.url) {
         await ctx.env.STORAGE.delete(
-          safeMediaKey(row.storageKey, ctx.env.R2_BUCKET_NAME)
+          safeMediaKey(row.storageKey, ctx.env.R2_BUCKET_NAME, workspaceId)
         );
       }
       ready.push(row);
@@ -264,7 +276,7 @@ export async function deleteMedia(
   if (!ready.length) {
     throw new MediaError(500, "No media items were deleted successfully");
   }
-  await transact(ctx, async ({ tx, emitEvent }) => {
+  await transact(ctx, async ({ tx, emitEvent, invalidate }) => {
     await tx.delete(media).where(
       and(
         inArray(
@@ -286,6 +298,7 @@ export async function deleteMedia(
         payload: toMediaPayload(row),
       });
     }
+    invalidate(workspaceId, "media");
   });
   const deletedIds = ready.map((row) => row.id);
   return {

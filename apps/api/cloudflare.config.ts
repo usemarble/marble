@@ -5,6 +5,7 @@ import {
   dataBindings,
   queues,
   resolveMode,
+  storageBucketName,
   storagePublicUrl,
   workerName,
 } from "@marble/cf-config";
@@ -53,6 +54,10 @@ export default defineConfig((ctx) => {
         STORAGE_PUBLIC_URL: bindings.text(
           publicUrl ?? "https://cdn.marblecms.com"
         ),
+        R2_S3_ENDPOINT: bindings.text(
+          "https://3fade0cee31eae101fc646319ce3b7ef.r2.cloudflarestorage.com"
+        ),
+        R2_BUCKET_NAME: bindings.text(storageBucketName(mode)),
         MODE: bindings.text(mode),
         APP_URL: bindings.text(dashboardOrigin),
         BETTER_AUTH_URL: bindings.text(apiUrl(mode)),
@@ -79,6 +84,8 @@ export default defineConfig((ctx) => {
         ),
         // cf deploy deletes any secret not declared here.
         BETTER_AUTH_SECRET: bindings.secret(),
+        R2_ACCESS_KEY_ID: bindings.secret(),
+        R2_SECRET_ACCESS_KEY: bindings.secret(),
         GOOGLE_CLIENT_ID: bindings.secret(),
         GOOGLE_CLIENT_SECRET: bindings.secret(),
         GITHUB_ID: bindings.secret(),
