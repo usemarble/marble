@@ -119,7 +119,7 @@ export async function createField(
   const id = createRecordId();
   const now = new Date();
   try {
-    await transact(ctx, async ({ tx }) => {
+    await transact(ctx, async ({ tx, invalidate }) => {
       await tx.insert(field).values({
         id,
         name: body.name,
@@ -135,6 +135,7 @@ export async function createField(
       if (options.length) {
         await tx.insert(fieldOption).values(options);
       }
+      invalidate(workspaceId, "fields");
     });
   } catch (error) {
     if (isFieldWorkspaceKeyConflict(error)) {
@@ -186,7 +187,7 @@ export async function updateField(
           option.label !== current.options[i]?.label
       ));
   try {
-    const result = await transact(ctx, async ({ tx }) => {
+    const result = await transact(ctx, async ({ tx, invalidate }) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
       if (typeChanged || optionsChanged) {
         const [values] = await tx
@@ -236,6 +237,7 @@ export async function updateField(
           await tx.insert(fieldOption).values(next);
         }
       }
+      invalidate(workspaceId, "fields");
       return true;
     });
     if (!result) {
@@ -265,10 +267,11 @@ export async function deleteField(
   id: string
 ) {
   await getField(ctx, workspaceId, id);
-  await transact(ctx, async ({ tx }) => {
+  await transact(ctx, async ({ tx, invalidate }) => {
     await tx
       .delete(field)
       .where(and(eq(field.id, id), eq(field.workspaceId, workspaceId)));
+    invalidate(workspaceId, "fields");
   });
   return { id };
 }
