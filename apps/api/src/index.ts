@@ -1,2 +1,257 @@
-/** biome-ignore-all lint/performance/noBarrelFile: "required" */
-export { default } from "./app";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { createAuth } from "@marble/auth";
+import { evlog } from "evlog/hono";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { trimTrailingSlash } from "hono/trailing-slash";
+import { exportDownload } from "./handlers/export-download";
+import { registrationAnalytics } from "./handlers/registration-analytics";
+import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
+import { createRequestContext } from "./lib/context";
+import type { DbClient } from "./lib/db";
+import { dbMiddleware } from "./lib/db";
+import { restrictLegacyPostStatus } from "./lib/legacy-posts";
+import type { LogVariables } from "./lib/logger";
+import { rpcHandler } from "./lib/rpc";
+import { analytics } from "./middleware/analytics";
+import { authorization } from "./middleware/authorization";
+import { cache } from "./middleware/cache";
+import { keyAuthorization } from "./middleware/key-authorization";
+import { legacyAnalytics } from "./middleware/legacy-analytics";
+import { ratelimit } from "./middleware/ratelimit";
+import { scopeAuthorization } from "./middleware/scope-authorization";
+import { systemAuth } from "./middleware/system";
+import authorsRoutes from "./routes/authors";
+import cacheRoutes from "./routes/cache";
+import categoriesRoutes from "./routes/categories";
+import eventsRoutes from "./routes/events";
+import fieldsRoutes from "./routes/fields";
+import mediaRoutes from "./routes/media";
+import postsRoutes from "./routes/posts";
+import { devReference } from "./routes/reference";
+import tagsRoutes from "./routes/tags";
+import tasksRoutes from "./routes/tasks";
+import type { ApiKeyApp, Env } from "./types/env";
+
+interface AppEnv {
+  Bindings: Env;
+  Variables: { db: DbClient } & LogVariables;
+}
+
+const app = new OpenAPIHono<AppEnv>();
+
+const OPENAPI_CACHE_CONTROL =
+  "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+
+const openApiDocument = {
+  openapi: "3.1.0",
+  info: {
+    title: "Marble API",
+    version: "1.0.0",
+    description:
+      "A headless CMS API for managing and delivering content programmatically.",
+  },
+  servers: [{ url: "https://api.marblecms.com", description: "Production" }],
+  security: [{ apiKey: [] }],
+};
+
+// One wide event per request, with the user attached where the session is read.
+app.use("*", evlog());
+
+// The dashboard's surfaces (auth and RPC) use credentialed CORS for its own
+// origin and run before the public API's middleware. x-csrf-token is the header
+// oRPC's CSRF protection requires.
+const dashboardCors = cors({
+  origin: (_origin, c) => c.env.APP_URL,
+  credentials: true,
+  allowHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
+  allowMethods: ["GET", "POST", "OPTIONS"],
+  maxAge: 7200,
+});
+
+app.use("/api/auth/*", dashboardCors);
+// This cookie-only route must answer before Better Auth's wildcard handler.
+app.post("/api/auth/analytics/registration", registrationAnalytics);
+app.use("/api/auth/*", dbMiddleware);
+app.all("/api/auth/*", (c) => {
+  const auth = createAuth({ db: c.get("db"), env: c.env });
+  return auth.handler(c.req.raw);
+});
+
+app.use("/rpc/*", dashboardCors);
+app.use("/rpc/*", dbMiddleware);
+app.all("/rpc/*", async (c) => {
+  const result = await rpcHandler.handle(c.req.raw, {
+    prefix: "/rpc",
+    context: await createRequestContext(c),
+  });
+  return result.matched ? result.response : c.notFound();
+});
+
+// The export-ready email's link: a one-off token, no session, so it sits
+// outside /rpc and ahead of the public API's cache.
+app.get("/exports/:id/download", dbMiddleware, exportDownload);
+
+// Public API CORS remains permissive for content consumers.
+app.use(
+  "*",
+  cors({
+    origin: (origin) => {
+      if (!origin) {
+        return "*";
+      }
+      if (FRAMER_PLUGIN_PATTERN.test(origin)) {
+        return origin;
+      }
+      return "*";
+    },
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  })
+);
+
+app.use("*", cache());
+app.use(trimTrailingSlash());
+
+// Internal routes (no API key, no analytics). The dev-only reference answers
+// first and passes everything else through to the system routes below.
+app.use("/internal/*", devReference);
+
+app.use("/cache/invalidate", systemAuth());
+app.route("/cache/invalidate", cacheRoutes);
+
+app.use("/internal/events", systemAuth());
+app.use("/internal/events", dbMiddleware);
+app.route("/internal/events", eventsRoutes);
+
+app.use("/internal/tasks", systemAuth());
+app.route("/internal/tasks", tasksRoutes);
+
+// Legacy Workspace ID Routes (/v1/:workspaceId/*)
+// MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes
+// Using standard Hono since these are deprecated and don't need to be in the spec
+const legacyV1 = new Hono<AppEnv>();
+legacyV1.use("/:workspaceId/*", dbMiddleware);
+legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
+legacyV1.use("/:workspaceId/*", authorization());
+legacyV1.use("/:workspaceId/*", legacyAnalytics());
+
+legacyV1.route("/:workspaceId/tags", tagsRoutes);
+legacyV1.route("/:workspaceId/categories", categoriesRoutes);
+legacyV1.route("/:workspaceId/posts", postsRoutes);
+legacyV1.route("/:workspaceId/authors", authorsRoutes);
+legacyV1.route("/:workspaceId/fields", fieldsRoutes);
+
+// Mount legacy routes dispatcher - intercepts /v1/:workspaceId/* BEFORE apiKeyV1
+app.use("/v1/:workspaceId/*", async (c, next) => {
+  const path = c.req.path;
+  const workspaceId = c.req.param("workspaceId");
+
+  // Check if this is a legacy workspace route (workspaceId is not a known resource)
+  if (!ROUTES.includes(workspaceId)) {
+    // Rewrite path (strip /v1 prefix) for legacy router
+    const newPath = path.replace("/v1", "");
+    const newUrl = new URL(c.req.url);
+    const restrictedStatus = restrictLegacyPostStatus(newUrl, workspaceId);
+
+    if (restrictedStatus) {
+      console.warn(
+        JSON.stringify({
+          event: "legacy_post_status_restricted",
+          workspaceId,
+          requestedStatus: restrictedStatus,
+        })
+      );
+    }
+
+    newUrl.pathname = newPath;
+    const newRequest = new Request(newUrl.toString(), c.req.raw);
+    return legacyV1.fetch(newRequest, c.env, c.executionCtx);
+  }
+
+  // If workspaceId is actually a resource name (posts, tags, etc.), skip this middleware
+  // and let Hono continue to the next matching route (apiKeyV1)
+  return next();
+});
+
+// API Key Routes (/v1/posts, /v1/tags, etc.)
+// Using OpenAPIHono to properly merge specs
+const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
+apiKeyV1.use("*", dbMiddleware);
+apiKeyV1.use("*", ratelimit("apiKey"));
+apiKeyV1.use("*", keyAuthorization());
+apiKeyV1.use("*", scopeAuthorization());
+apiKeyV1.use("*", analytics());
+
+// Mount routes with proper OpenAPIHono to enable spec merging
+apiKeyV1.route("/posts", postsRoutes);
+apiKeyV1.route("/categories", categoriesRoutes);
+apiKeyV1.route("/tags", tagsRoutes);
+apiKeyV1.route("/authors", authorsRoutes);
+apiKeyV1.route("/media", mediaRoutes);
+apiKeyV1.route("/fields", fieldsRoutes);
+
+// Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs
+app.route("/v1", apiKeyV1);
+
+// Redirect non-versioned routes to v1
+app.use("/:workspaceId/*", async (c, next) => {
+  const path = c.req.path;
+  const workspaceId = c.req.param("workspaceId");
+  if (
+    path.startsWith("/v1/") ||
+    path === "/" ||
+    path === "/status" ||
+    path === "/openapi.json"
+  ) {
+    return next();
+  }
+
+  const isWorkspaceRoute = ROUTES.some(
+    (route) =>
+      path === `/${workspaceId}/${route}` ||
+      path.startsWith(`/${workspaceId}/${route}/`)
+  );
+
+  if (isWorkspaceRoute) {
+    const url = new URL(c.req.url);
+    url.pathname = `/v1${path}`;
+    return Response.redirect(url.toString(), 308);
+  }
+  return next();
+});
+
+// Redirect non-versioned API routes to v1 (e.g., /posts -> /v1/posts)
+app.use("/*", async (c, next) => {
+  const path = c.req.path;
+  const firstSegment = path.split("/").filter(Boolean)[0];
+
+  if (firstSegment && ROUTES.includes(firstSegment)) {
+    const url = new URL(c.req.url);
+    url.pathname = `/v1${path}`;
+    return Response.redirect(url.toString(), 308);
+  }
+  return next();
+});
+
+app.get("/", (c) => c.text("Hello from marble"));
+app.get("/status", (c) => c.json({ status: "ok" }));
+
+app.use("/openapi.json", async (c, next) => {
+  await next();
+
+  if (c.res.status < 400) {
+    c.header("Cache-Control", OPENAPI_CACHE_CONTROL);
+  }
+});
+
+app.doc("/openapi.json", openApiDocument);
+
+app.openAPIRegistry.registerComponent("securitySchemes", "apiKey", {
+  type: "apiKey",
+  in: "header",
+  name: "Authorization",
+  description: "Your Marble API key",
+});
+
+export default app;

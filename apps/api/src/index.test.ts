@@ -20,7 +20,7 @@ vi.mock("@/lib/db", async () => {
   };
 });
 
-const { default: app } = await import("./app");
+const { default: app } = await import("./index");
 const env = { APP_URL: "https://staging.marblecms.com" } as Env;
 
 beforeEach(() => {
