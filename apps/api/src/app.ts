@@ -4,6 +4,7 @@ import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { registrationAnalytics } from "./handlers/registration-analytics";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
 import { createRequestContext } from "./lib/context";
 import type { DbClient } from "./lib/db";
@@ -68,6 +69,8 @@ const dashboardCors = cors({
 });
 
 app.use("/api/auth/*", dashboardCors);
+// This cookie-only route must answer before Better Auth's wildcard handler.
+app.post("/api/auth/analytics/registration", registrationAnalytics);
 app.use("/api/auth/*", dbMiddleware);
 app.all("/api/auth/*", (c) => {
   const auth = createAuth({ db: c.get("db"), env: c.env });

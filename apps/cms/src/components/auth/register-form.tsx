@@ -42,16 +42,20 @@ export function RegisterForm() {
   async function saveAttribution() {
     const marketingParams = new URLSearchParams(window.location.search);
     try {
-      await fetch("/api/analytics/registration", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          marketingAnonymousId: marketingParams.get("anonId"),
-          marketingSessionId: marketingParams.get("sessionId"),
-          appAnonymousId: getAnonymousId(),
-          appSessionId: getSessionId(),
-        }),
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/analytics/registration`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            marketingAnonymousId: marketingParams.get("anonId"),
+            marketingSessionId: marketingParams.get("sessionId"),
+            appAnonymousId: getAnonymousId(),
+            appSessionId: getSessionId(),
+          }),
+        }
+      );
     } catch {
       // Analytics must not block registration.
     }
