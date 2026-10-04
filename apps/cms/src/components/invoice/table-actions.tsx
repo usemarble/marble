@@ -5,12 +5,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { toast } from "@marble/ui/components/sonner";
 import {
   CopyIcon,
   DotsThreeVerticalIcon,
   DownloadSimpleIcon,
 } from "@phosphor-icons/react";
-import { toast } from "sonner";
 import type { Invoice } from "./columns";
 
 export default function TableActions(props: Invoice) {

@@ -428,9 +428,6 @@ importers:
       shiki:
         specifier: ^3.12.2
         version: 3.23.0
-      sonner:
-        specifier: ^1.7.1
-        version: 1.7.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.3.3)
@@ -22735,11 +22732,6 @@ snapshots:
     dependencies:
       react: 19.3.0
       react-dom: 18.3.1(react@19.3.0)
-
-  sonner@1.7.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
 
   source-map-js@1.2.1: {}
 
