@@ -89,10 +89,11 @@ export const aiChat: Handler<{
       return c.json({ error: "Invalid messages" }, 400);
     }
 
-    const { model, telemetry } = createModel(ctx);
+    const { model, telemetry, providerOptions } = createModel(ctx);
     const result = streamText({
       model,
       telemetry,
+      providerOptions,
       system: assistantSystemPrompt(workspaceName, new Date()),
       messages: await convertToModelMessages(messages.data, { tools }),
       tools,

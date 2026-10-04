@@ -2,7 +2,8 @@ import { generateText } from "ai";
 import { MockLanguageModelV4 } from "ai/test";
 import { createRequestLogger } from "evlog";
 import { describe, expect, it } from "vitest";
-import { wrapModel } from "./model";
+import { testEnv } from "../testing";
+import { createModel, wrapModel } from "./model";
 
 const usage = {
   inputTokens: {
@@ -38,5 +39,16 @@ describe("wrapModel", () => {
       outputTokens: 5,
       finishReason: "stop",
     });
+  });
+});
+
+describe("createModel", () => {
+  it("turns off OpenAI's strict structured output, which rejects optional schema properties", () => {
+    const { providerOptions } = createModel({
+      env: testEnv,
+      log: createRequestLogger({}),
+    });
+
+    expect(providerOptions).toEqual({ openai: { strictJsonSchema: false } });
   });
 });

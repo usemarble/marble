@@ -173,10 +173,11 @@ export async function suggestReadability(
 
   let result: Suggestions;
   try {
-    const { model, telemetry } = createModel(ctx);
+    const { model, telemetry, providerOptions } = createModel(ctx);
     const generated = await generateText({
       model,
       telemetry,
+      providerOptions,
       timeout: 30_000,
       system: systemPrompt({ metrics }),
       prompt: `

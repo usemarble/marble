@@ -27,5 +27,11 @@ export function wrapModel(log: RequestLogger, base: LanguageModel) {
  */
 export function createModel(ctx: Pick<ServiceContext, "env" | "log">) {
   const gateway = createGateway({ apiKey: ctx.env.AI_GATEWAY_API_KEY });
-  return wrapModel(ctx.log, gateway(MODEL_ID));
+  return {
+    ...wrapModel(ctx.log, gateway(MODEL_ID)),
+    // AI SDK 7 sends OpenAI's strict structured-output mode by default, which
+    // rejects any schema with an optional property (readability suggestions
+    // have two). Spread this into every generateText / streamText call.
+    providerOptions: { openai: { strictJsonSchema: false } },
+  };
 }
