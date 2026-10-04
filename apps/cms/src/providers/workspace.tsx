@@ -134,16 +134,12 @@ export function WorkspaceProvider({
   }
 
   const currentUserRole = activeWorkspace?.currentUserRole ?? null;
-  const isOrganizationSynced = Boolean(
-    workspaceId && session && activeOrganizationId === workspaceId
-  );
 
   return (
     <WorkspaceContext.Provider
       value={{
         activeWorkspace,
         updateActiveWorkspace,
-        isOrganizationSynced,
         workspaceList: workspaceList ?? null,
         isOwner: currentUserRole === "owner",
         isAdmin: currentUserRole === "admin",

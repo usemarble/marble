@@ -80,17 +80,11 @@ with `@marble/db/testing`.
    client and use `orpc.<resource>.*.queryOptions` / `mutationOptions` with
    `useWorkspace()`'s ID. Invalidate oRPC keys scoped to that ID after writes.
    While a query loads, render the route's own `loading.tsx`. The workspace
-   provider never holds the page back for the session's active organization:
-   a page that still fetches a CMS route reading it (`requireActiveWorkspaceAccess`)
-   uses `useSyncedWorkspaceId` until its route moves, then `useWorkspaceId`.
+   provider never holds the page back for the session's active organization;
+   pages use `useWorkspaceId` and pass it explicitly.
    Remove server fetches, initial data and casted JSON responses, then delete
    the old Next routes and unused helpers. Import shared browser-safe
    validation directly from this package; leave no compatibility exports.
-   The remaining `useSyncedWorkspaceId` pages are `/[workspace]/media`,
-   `/[workspace]/media/[id]`, and `/[workspace]/settings/fields` (including
-   its import/export job panels). The editor's cover-image selector also uses
-   it while media still comes from the CMS. Every other migrated caller uses
-   `useWorkspaceId`.
 5. Use `@marble/db/testing` and the request/queue helpers in `src/testing.ts`
    for behavior tests: events and transitions, rollback, and workspace
    scoping. Verify with `cf dev` and jobs together, checking outbox stamps,
