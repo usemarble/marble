@@ -4,6 +4,7 @@ import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { aiChat } from "./handlers/ai-chat";
 import { exportDownload } from "./handlers/export-download";
 import { registrationAnalytics } from "./handlers/registration-analytics";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
@@ -54,7 +55,7 @@ const openApiDocument = {
 // One wide event per request, with the user attached where the session is read.
 app.use("*", evlog());
 
-// The dashboard's surfaces (auth and RPC) use credentialed CORS for its own
+// The dashboard's surfaces (auth, RPC and AI) use credentialed CORS for its own
 // origin and run before the public API's middleware. x-csrf-token is the header
 // oRPC's CSRF protection requires.
 const dashboardCors = cors({
@@ -83,6 +84,12 @@ app.all("/rpc/*", async (c) => {
   });
   return result.matched ? result.response : c.notFound();
 });
+
+// The dashboard assistant. Credentialed CORS like /rpc; the AI SDK's chat
+// transport only sends Content-Type, which dashboardCors already allows.
+app.use("/ai/*", dashboardCors);
+app.use("/ai/*", dbMiddleware);
+app.post("/ai/chat", aiChat);
 
 // The export-ready email's link: a one-off token, no session, so it sits
 // outside /rpc and ahead of the public API's cache.

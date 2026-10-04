@@ -10,6 +10,7 @@ export interface PlanLimits {
     inviteMembers: boolean;
     shareDrafts: boolean;
     advancedReadability: boolean;
+    aiAssistant: boolean;
     keywordOptimization: boolean;
     unlimitedPosts: boolean;
   };
@@ -26,6 +27,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
       inviteMembers: true,
       shareDrafts: false,
       advancedReadability: false,
+      aiAssistant: false,
       keywordOptimization: false,
       unlimitedPosts: true,
     },
@@ -40,6 +42,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
       inviteMembers: true,
       shareDrafts: true,
       advancedReadability: true,
+      aiAssistant: true,
       keywordOptimization: false,
       unlimitedPosts: true,
     },
@@ -54,6 +57,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
       inviteMembers: true,
       shareDrafts: true,
       advancedReadability: true,
+      aiAssistant: true,
       keywordOptimization: false,
       unlimitedPosts: true,
     },

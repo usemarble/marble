@@ -6,7 +6,7 @@ import type { Env } from "@/types/env";
 import type { DbVariables } from "./db";
 import type { LogVariables } from "./logger";
 
-type RequestContext = HonoContext<{
+export type RequestContext = HonoContext<{
   Bindings: Env;
   Variables: DbVariables & LogVariables;
 }>;
@@ -27,7 +27,7 @@ export function serviceContext(c: RequestContext): ServiceContext {
 }
 
 /**
- * The oRPC context for `/rpc` (and later `/ai`): the service context plus the
+ * The request context for `/rpc` and `/ai`: the service context plus the
  * caller's session. This is the only place the session is looked up, so `/v1`
  * API-key traffic never pays for it. A failing lookup throws instead of
  * becoming an anonymous request, which would sign the user out of the

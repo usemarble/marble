@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./ai/*": "./src/ai/*.ts",
     "./context": "./src/context.ts",
     "./routers": "./src/routers/index.ts",
     "./services/*": "./src/services/*.ts",
