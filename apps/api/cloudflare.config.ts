@@ -98,7 +98,6 @@ export default defineConfig((ctx) => {
         ...(mode === "production" && {
           DATABUDDY_API_KEY: bindings.secret(),
         }),
-        SYSTEM_SECRET: bindings.secret(),
       },
     },
   };

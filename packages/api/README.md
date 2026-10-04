@@ -67,12 +67,12 @@ with `@marble/db/testing`.
 1. Read the CMS routes, their validation and query helpers, and every caller.
    Port their queries, rules, errors and DTOs into `services/<resource>.ts`
    using the request's `ServiceContext`. Services are dashboard-only in
-   MAB-201; leave `/v1` logic alone until MAB-204. Record existing bugs and
-   differences instead of fixing them during the port.
+   MAB-201; leave `/v1` logic alone until MAB-204. Fix clear bugs in their own
+   commits; record differences from `/v1` for MAB-204 instead of changing them.
 2. Put every write through `transact`. Write the same events inside it, with
    `source: "dashboard"` and the resolved actor; register the same resource
-   invalidations there. Never call the CMS's event or cache relays. Preserve
-   writes that previously emitted no event or invalidation.
+   invalidations there. Preserve writes that previously emitted no event or
+   invalidation.
 3. Add a resource router built from `workspaceProcedure`, with an explicit
    `workspaceId`, `.route({ method, path, tags })`, and DTO output schemas.
    Translate service errors at this boundary. Add it to `routers/index.ts`.

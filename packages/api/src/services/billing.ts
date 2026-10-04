@@ -28,7 +28,7 @@ export async function completeCheckout(
     token: ctx.env.REDIS_TOKEN,
   });
   await Promise.all([
-    // The old usage relay cleared this API usage metadata key. Dashboard
+    // The CMS cleared this API usage metadata key after checkout. Dashboard
     // metrics themselves are uncached; keep the existing key name.
     redis
       .del(`usage:meta:${workspaceId}`)

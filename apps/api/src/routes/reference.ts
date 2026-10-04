@@ -9,8 +9,7 @@ import type { Env } from "@/types/env";
 /**
  * Serves the dashboard router's OpenAPI reference at `/internal/reference` and
  * `/internal/openapi.json`. Development only: in any other mode it steps aside
- * without touching the request, so the internal relay routes behind it still
- * match.
+ * without touching the request.
  */
 export const devReference = createMiddleware<{
   Bindings: Env;

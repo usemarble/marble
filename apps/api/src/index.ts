@@ -20,17 +20,13 @@ import { keyAuthorization } from "./middleware/key-authorization";
 import { legacyAnalytics } from "./middleware/legacy-analytics";
 import { ratelimit } from "./middleware/ratelimit";
 import { scopeAuthorization } from "./middleware/scope-authorization";
-import { systemAuth } from "./middleware/system";
 import authorsRoutes from "./routes/authors";
-import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
-import eventsRoutes from "./routes/events";
 import fieldsRoutes from "./routes/fields";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
 import { devReference } from "./routes/reference";
 import tagsRoutes from "./routes/tags";
-import tasksRoutes from "./routes/tasks";
 import type { ApiKeyApp, Env } from "./types/env";
 
 interface AppEnv {
@@ -113,19 +109,8 @@ app.use(
 app.use("*", cache());
 app.use(trimTrailingSlash());
 
-// Internal routes (no API key, no analytics). The dev-only reference answers
-// first and passes everything else through to the system routes below.
+// The dashboard router's OpenAPI reference, in development only.
 app.use("/internal/*", devReference);
-
-app.use("/cache/invalidate", systemAuth());
-app.route("/cache/invalidate", cacheRoutes);
-
-app.use("/internal/events", systemAuth());
-app.use("/internal/events", dbMiddleware);
-app.route("/internal/events", eventsRoutes);
-
-app.use("/internal/tasks", systemAuth());
-app.route("/internal/tasks", tasksRoutes);
 
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
 // MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes

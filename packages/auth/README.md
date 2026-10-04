@@ -32,8 +32,8 @@ Polar product IDs, the checkout success URL and the Databuddy client IDs are
 plain values in `cloudflare.config.ts`. `DATABUDDY_API_KEY` is declared only in
 production, where registration tracking runs.
 
-The existing `POLAR_ACCESS_TOKEN`, `REDIS_URL`, `REDIS_TOKEN`, `RESEND_API_KEY`
-and `SYSTEM_SECRET` remain declared. The Polar token must target the sandbox,
+The existing `POLAR_ACCESS_TOKEN`, `REDIS_URL`, `REDIS_TOKEN` and
+`RESEND_API_KEY` remain declared. The Polar token must target the sandbox,
 and Redis must be the staging instance.
 
 Set Vercel staging's public values:
