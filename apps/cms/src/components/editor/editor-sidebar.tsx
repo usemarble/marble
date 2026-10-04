@@ -139,7 +139,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const { canUseFeature } = usePlan();
   const canUseAi = canUseFeature("advancedReadability");
 
-  const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
+  const [activeTab, setActiveTab] = useState<keyof typeof tabs>("metadata");
 
   // biome-ignore lint/style/noNonNullAssertion: <>
   const workspaceId = activeWorkspace!.id;
@@ -155,7 +155,9 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
       workspaceId,
       postId ?? "draft"
     ),
-    enabled: canUseAi && editorHTML.trim().length > 0,
+    // Only while the Analysis tab is open and there's text to analyse: a new,
+    // empty post shouldn't spend a model call nobody looks at.
+    enabled: canUseAi && activeTab === "analysis" && metrics.wordCount > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -178,28 +180,6 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
       return result;
     },
   });
-
-  const [activeTab, setActiveTab] = useState<keyof typeof tabs>("metadata");
-
-  useEffect(() => {
-    if (
-      activeTab === "analysis" &&
-      canUseAi &&
-      !!workspaceId &&
-      !hasFetchedAiOnce &&
-      editorHTML.trim().length > 0
-    ) {
-      refetchAi();
-      setHasFetchedAiOnce(true);
-    }
-  }, [
-    activeTab,
-    canUseAi,
-    workspaceId,
-    hasFetchedAiOnce,
-    editorHTML,
-    refetchAi,
-  ]);
 
   const handleRefreshAi = () => {
     bypassCacheRef.current = true;
