@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { env } from "@/env";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: "*",
       allow: ["/login", "/register"],
     },
-    host: process.env.NEXT_PUBLIC_APP_URL,
+    host: env.NEXT_PUBLIC_APP_URL,
   };
 }

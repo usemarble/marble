@@ -26,6 +26,7 @@ import { Controller, useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
+import { env } from "@/env";
 import { organization } from "@/lib/auth/client";
 
 function PageClientInner() {
@@ -127,7 +128,7 @@ function PageClientInner() {
                   </Label>
                   <div className="flex w-full overflow-hidden rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30">
                     <span className="border-r bg-muted p-2">
-                      {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
+                      {env.NEXT_PUBLIC_APP_URL.split("//")[1]}/
                     </span>
 
                     <input

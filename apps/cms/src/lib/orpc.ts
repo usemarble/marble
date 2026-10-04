@@ -3,6 +3,7 @@ import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { SimpleCsrfProtectionLinkPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { env } from "@/env";
 
 /**
  * The dashboard's typed client for the API Worker's `/rpc` router. Browser-only:
@@ -14,7 +15,7 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query";
  * credentials; the CSRF plugin adds the header the Worker requires.
  */
 const link = new RPCLink({
-  url: `${process.env.NEXT_PUBLIC_API_URL}/rpc`,
+  url: `${env.NEXT_PUBLIC_API_URL}/rpc`,
   plugins: [new SimpleCsrfProtectionLinkPlugin()],
   fetch: (request, init) =>
     globalThis.fetch(request, { ...init, credentials: "include" }),

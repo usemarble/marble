@@ -1,6 +1,9 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
+// Validates the public env vars when `next dev` or `next build` starts.
+import "./src/env";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@marble/auth", "@marble/ui"],

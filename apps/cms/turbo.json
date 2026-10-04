@@ -4,12 +4,6 @@
     "build": {
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
       "env": [
-        "NODE_ENV",
-        "DATABASE_URL",
-        "DIRECT_URL",
-        "REDIS_URL",
-        "REDIS_TOKEN",
-        "AI_GATEWAY_API_KEY",
         "NEXT_PUBLIC_API_URL",
         "NEXT_PUBLIC_APP_URL",
         "NEXT_PUBLIC_SITE_URL",
