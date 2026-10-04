@@ -114,9 +114,9 @@ export default function PageClient() {
     <main className="flex min-h-dvh items-center justify-center px-6">
       <div className="flex w-full max-w-md flex-col items-center gap-8 text-center">
         <MarbleIcon />
-        <div className="flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+        <div className="flex size-16 items-center justify-center rounded-full bg-green-100">
           <CheckCircleIcon
-            className="size-8 text-green-600 dark:text-green-400"
+            className="size-8 text-green-600"
             weight="fill"
           />
         </div>
