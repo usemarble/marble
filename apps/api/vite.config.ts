@@ -12,7 +12,12 @@ export default defineConfig(({ mode }) => ({
   // The Worker answers CORS itself (credentialed for the dashboard origin).
   // Vite's own CORS middleware would answer preflights first, without
   // Access-Control-Allow-Credentials.
-  server: { port: 8787, cors: false },
+  server: {
+    port: 8787,
+    cors: false,
+    // Quick tunnels (cloudflared) for testing Polar webhooks locally.
+    allowedHosts: ["localhost", ".trycloudflare.com"],
+  },
   plugins: [
     cloudflare({
       auxiliaryWorkers: withJobs
