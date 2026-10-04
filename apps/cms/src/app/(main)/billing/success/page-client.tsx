@@ -115,10 +115,7 @@ export default function PageClient() {
       <div className="flex w-full max-w-md flex-col items-center gap-8 text-center">
         <MarbleIcon />
         <div className="flex size-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircleIcon
-            className="size-8 text-green-600"
-            weight="fill"
-          />
+          <CheckCircleIcon className="size-8 text-green-600" weight="fill" />
         </div>
         <div className="flex flex-col gap-2">
           <h1 className="font-semibold text-2xl">Thanks for subscribing</h1>
