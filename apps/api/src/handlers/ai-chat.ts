@@ -11,6 +11,7 @@ import {
   safeValidateUIMessages,
   stepCountIs,
   streamText,
+  toUIMessageStream
 } from "ai";
 import type { Handler } from "hono";
 import { z } from "zod";
@@ -105,7 +106,7 @@ export const aiChat: Handler<{
           error instanceof Error ? error : new Error(String(error))
         ),
     });
-    return result.toUIMessageStreamResponse();
+    return toUIMessageStream(result);
   } catch (error) {
     if (error instanceof AssistantError) {
       if (error.retryAfterSeconds !== undefined) {
