@@ -9,6 +9,7 @@ import { createContext, useContext, useState } from "react";
 import { authClient, useSession } from "@/lib/auth/client";
 import { orpc } from "@/lib/orpc";
 import type { UserContextType } from "@/types/user";
+import { clearLastVisitedWorkspace } from "@/utils/workspace/client";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -54,7 +55,10 @@ export function UserProvider({ children }: UserProviderProps) {
     setIsSigningOut(true);
     try {
       await authClient.signOut();
-      queryClient.removeQueries({ queryKey: orpc.me.key() });
+      // Drop every cached query, not just the profile: the next account to
+      // sign in on this tab must not see this one's workspaces or content.
+      queryClient.clear();
+      clearLastVisitedWorkspace();
       router.push("/login");
     } catch (error) {
       console.error("Failed to sign out:", error);

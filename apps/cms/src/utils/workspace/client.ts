@@ -13,6 +13,12 @@ export const setLastVisitedWorkspace = (
   document.cookie = `${lastVisitedWorkspace}=${workspace}; max-age=${maxAge}; path=/`;
 };
 
+/** Forgets the last visited workspace, e.g. when the user signs out. */
+export const clearLastVisitedWorkspace = () => {
+  // biome-ignore lint/suspicious/noDocumentCookie: <>
+  document.cookie = `${lastVisitedWorkspace}=; max-age=0; path=/`;
+};
+
 /**
  * Retrieves the last visited workspace from cookies.
  * @param cookies The RequestCookies or ReadonlyRequestCookies object to read from.
