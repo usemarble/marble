@@ -38,7 +38,7 @@
     "@cloudflare/vite-plugin": "2.0.0-beta.sha-ad79608dd",
     "@marble/cf-config": "workspace:*",
     "@types/node": "^22.9.0",
-    "cf": "1.0.0-beta.2",
+    "cf": "1.0.0-beta.12",
     "vite": "8.3.1",
     "vitest": "^3.2.4"
   }
