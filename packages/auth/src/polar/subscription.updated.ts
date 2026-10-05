@@ -1,6 +1,6 @@
 import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
-import type { WebhookSubscriptionUpdatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionupdatedpayload.js";
+import type { webhooks } from "@polar-sh/sdk/2026-10";
 import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { clearWorkspacePlan } from "../access";
@@ -14,9 +14,10 @@ import {
 export async function handleSubscriptionUpdated(
   db: DbClient,
   redis: Redis,
-  payload: WebhookSubscriptionUpdatedPayload
+  payload: webhooks.WebhookSubscriptionUpdatedPayload
 ) {
   const { data: subscriptionData } = payload;
+  const eventTimestamp = new Date(payload.timestamp);
 
   const existingSubscription = await db.query.subscription.findFirst({
     where: eq(subscription.polarId, subscriptionData.id),
@@ -31,7 +32,7 @@ export async function handleSubscriptionUpdated(
   }
 
   if (
-    isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
+    isStalePolarEvent(existingSubscription.lastPolarEventAt, eventTimestamp)
   ) {
     console.log(
       `Ignoring stale subscription.updated webhook for subscription ${subscriptionData.id}`
@@ -54,8 +55,8 @@ export async function handleSubscriptionUpdated(
   }
 
   if (
-    !subscriptionData.currentPeriodStart ||
-    !subscriptionData.currentPeriodEnd
+    !subscriptionData.current_period_start ||
+    !subscriptionData.current_period_end
   ) {
     console.error(
       "subscription.updated webhook received without currentPeriodStart or currentPeriodEnd"
@@ -64,7 +65,7 @@ export async function handleSubscriptionUpdated(
   }
 
   const recurringInterval = getRecurringInterval(
-    subscriptionData.recurringInterval
+    subscriptionData.recurring_interval
   );
 
   try {
@@ -73,28 +74,28 @@ export async function handleSubscriptionUpdated(
       .set({
         plan,
         status,
-        currentPeriodStart: new Date(subscriptionData.currentPeriodStart),
-        currentPeriodEnd: new Date(subscriptionData.currentPeriodEnd),
-        cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd,
-        canceledAt: subscriptionData.canceledAt
-          ? new Date(subscriptionData.canceledAt)
+        currentPeriodStart: new Date(subscriptionData.current_period_start),
+        currentPeriodEnd: new Date(subscriptionData.current_period_end),
+        cancelAtPeriodEnd: subscriptionData.cancel_at_period_end,
+        canceledAt: subscriptionData.canceled_at
+          ? new Date(subscriptionData.canceled_at)
           : null,
-        endedAt: subscriptionData.endedAt
-          ? new Date(subscriptionData.endedAt)
+        endedAt: subscriptionData.ended_at
+          ? new Date(subscriptionData.ended_at)
           : null,
-        endsAt: subscriptionData.endsAt
-          ? new Date(subscriptionData.endsAt)
+        endsAt: subscriptionData.ends_at
+          ? new Date(subscriptionData.ends_at)
           : null,
-        startedAt: subscriptionData.startedAt
-          ? new Date(subscriptionData.startedAt)
+        startedAt: subscriptionData.started_at
+          ? new Date(subscriptionData.started_at)
           : null,
-        productId: subscriptionData.productId || undefined,
+        productId: subscriptionData.product_id || undefined,
         amount: subscriptionData.amount
           ? Math.round(subscriptionData.amount)
           : undefined,
         currency: subscriptionData.currency || undefined,
-        discountId: subscriptionData.discountId || undefined,
-        lastPolarEventAt: payload.timestamp,
+        discountId: subscriptionData.discount_id || undefined,
+        lastPolarEventAt: eventTimestamp,
         recurringInterval,
         updatedAt: new Date(),
       })
@@ -103,7 +104,7 @@ export async function handleSubscriptionUpdated(
           eq(subscription.polarId, subscriptionData.id),
           or(
             isNull(subscription.lastPolarEventAt),
-            lte(subscription.lastPolarEventAt, payload.timestamp)
+            lte(subscription.lastPolarEventAt, eventTimestamp)
           )
         )
       )

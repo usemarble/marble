@@ -232,9 +232,6 @@ importers:
       '@orpc/zod':
         specifier: 1.15.4
         version: 1.15.4(@opentelemetry/api@1.9.0)(@orpc/contract@1.15.4(@opentelemetry/api@1.9.0))(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0))(zod@4.6.5)
-      '@polar-sh/sdk':
-        specifier: 0.47.1
-        version: 0.47.1
       '@upstash/ratelimit':
         specifier: ^2.0.8
         version: 2.0.8(@upstash/redis@1.39.0)
@@ -677,11 +674,11 @@ importers:
         specifier: workspace:*
         version: link:../utils
       '@polar-sh/better-auth':
-        specifier: ^1.8.4
-        version: 1.8.4(@polar-sh/sdk@0.47.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(f042a102df4140304ca75a82cc7e0604))(react@19.3.0)(zod@4.6.5)
+        specifier: ^2.0.1
+        version: 2.0.1(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(f042a102df4140304ca75a82cc7e0604))(react@19.3.0)(zod@4.6.5)
       '@polar-sh/sdk':
-        specifier: 0.47.1
-        version: 0.47.1
+        specifier: 1.0.2
+        version: 1.0.2
       '@upstash/redis':
         specifier: 1.39.0
         version: 1.39.0
@@ -4089,23 +4086,28 @@ packages:
       react: '>= 16.8'
       react-dom: '>= 16.8'
 
-  '@polar-sh/better-auth@1.8.4':
-    resolution: {integrity: sha512-BgWCcBQDRYwQn2NEYYzGSEfnrmBJHaDTvYBXGE2V3mmGPKspUDS8+p1LzbNY0Sw681LT8HB5w5Q81Ysc46CVSQ==}
-    engines: {node: '>=16'}
+  '@polar-sh/adapter-utils@1.0.1':
+    resolution: {integrity: sha512-iF0Qo2Aj7yxvZ+hzqbSO4tLmKg2vWrPN4mqUv2hc5Hu7WgsATjjLUKuAaabGOxoBgspK3DyRrMOrA+cXCyTRdA==}
+    engines: {node: '>=24'}
+
+  '@polar-sh/better-auth@2.0.1':
+    resolution: {integrity: sha512-Ixp20mDwIiS698PzXgc5FgNuxI/5669yozxV7K9bXZ0UczwHsRx+CVHkPvA+w3I2vKgC+RvUfErAUlPKiIrxrQ==}
+    engines: {node: '>=24'}
     peerDependencies:
-      '@polar-sh/sdk': ^0.47.0
-      better-auth: ^1.4.12
+      '@polar-sh/sdk': ^1.0.2
+      better-auth: ^1.7.0
       zod: ^3.25.0 || ^4.0.0
 
-  '@polar-sh/checkout@0.2.1':
-    resolution: {integrity: sha512-AEKKw3o4ykApECA4bU6a2YC0+aQKTFUasca4ZgCDIjG8AHlu3SjW3Taxh2nfeYAczhah0m0axVF9AV8VfdYzfw==}
+  '@polar-sh/checkout@0.4.2':
+    resolution: {integrity: sha512-FsZuOTIbjsxfVk5rAQk/PYQQYt9sJfrl0TV4eEnWxvHIjLoNOpHjBYm5jUDOIj/uavJElyGmmnxPKUHioFdJ7g==}
     peerDependencies:
-      '@stripe/react-stripe-js': ^3.6.0 || ^4.0.2
-      '@stripe/stripe-js': ^7.1.0
+      '@stripe/react-stripe-js': ^3.6.0 || ^4.0.2 || ^5.6.1
+      '@stripe/stripe-js': ^7.1.0 || ^8.11.0
       react: ^18 || ^19
 
-  '@polar-sh/sdk@0.47.1':
-    resolution: {integrity: sha512-fkz7wPLbqfuDmY9LxuXpE2uP2TAV6J0q/YN5hJ4UBxpjbkB0hKM6c4R35N89t83dfzMlG6EOlqOn+Rd1T6XrJQ==}
+  '@polar-sh/sdk@1.0.2':
+    resolution: {integrity: sha512-c3jdqYloVfcejKsAqYfYcW4bG7KkXj5bXkgdsdx4GHlJPzHFV5tysfeZGf9V7dJReLBirAluchsuHWiAIBco8w==}
+    engines: {node: '>=22'}
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -14698,10 +14700,15 @@ snapshots:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
-  '@polar-sh/better-auth@1.8.4(@polar-sh/sdk@0.47.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(f042a102df4140304ca75a82cc7e0604))(react@19.3.0)(zod@4.6.5)':
+  '@polar-sh/adapter-utils@1.0.1':
     dependencies:
-      '@polar-sh/checkout': 0.2.1(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(react@19.3.0)
-      '@polar-sh/sdk': 0.47.1
+      '@polar-sh/sdk': 1.0.2
+
+  '@polar-sh/better-auth@2.0.1(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(f042a102df4140304ca75a82cc7e0604))(react@19.3.0)(zod@4.6.5)':
+    dependencies:
+      '@polar-sh/adapter-utils': 1.0.1
+      '@polar-sh/checkout': 0.4.2(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(react@19.3.0)
+      '@polar-sh/sdk': 1.0.2
       better-auth: 1.7.6(f042a102df4140304ca75a82cc7e0604)
       zod: 4.6.5
     transitivePeerDependencies:
@@ -14709,17 +14716,14 @@ snapshots:
       - '@stripe/stripe-js'
       - react
 
-  '@polar-sh/checkout@0.2.1(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(react@19.3.0)':
+  '@polar-sh/checkout@0.4.2(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(react@19.3.0)':
     dependencies:
       '@stripe/react-stripe-js': 4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@stripe/stripe-js': 7.9.0
       date-fns: 4.4.0
       react: 19.3.0
 
-  '@polar-sh/sdk@0.47.1':
-    dependencies:
-      standardwebhooks: 1.0.0
-      zod: 4.6.5
+  '@polar-sh/sdk@1.0.2': {}
 
   '@poppinss/colors@4.1.6':
     dependencies:

@@ -383,7 +383,7 @@ async function trackPolarUpload(
       events: [
         {
           name: "media_upload",
-          externalCustomerId: customerId,
+          external_customer_id: customerId,
           metadata: { size: fileSize, type: mediaType },
         },
       ],

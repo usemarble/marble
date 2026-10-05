@@ -1,9 +1,9 @@
+import { createPolarSdkClient } from "@marble/auth/polar";
 import { createRecordId } from "@marble/db/id";
 import { member, usageEvent, workspace } from "@marble/db/schema";
 import { eq } from "drizzle-orm";
 import type { Context, MiddlewareHandler } from "hono";
 import type { DbClient } from "@/lib/db";
-import { createPolarClient } from "@/lib/polar";
 import {
   checkApiUsage,
   notifyApiUsageThreshold,
@@ -82,13 +82,16 @@ export async function runAnalyticsTask({
     }
 
     if (polarAccessToken) {
-      const polar = createPolarClient(polarAccessToken, polarServer);
+      const polar = createPolarSdkClient(
+        polarAccessToken,
+        polarServer ?? "sandbox"
+      );
       try {
         await polar.events.ingest({
           events: [
             {
               name: "api_request",
-              externalCustomerId: customerId,
+              external_customer_id: customerId,
               metadata: {
                 ...(endpoint && { endpoint }),
                 method,

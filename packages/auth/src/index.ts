@@ -46,7 +46,7 @@ import {
   validateWorkspaceSlug,
   validateWorkspaceTimezone,
 } from "./hooks";
-import { createPolarSdkClient } from "./polar/client";
+import { createPolarAuthClient } from "./polar/client";
 import { handleCustomerCreated } from "./polar/customer.created";
 import { handleSubscriptionCanceled } from "./polar/subscription.canceled";
 import { handleSubscriptionCreated } from "./polar/subscription.created";
@@ -108,7 +108,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
     resendApiKey: env.RESEND_API_KEY,
     development: env.MODE === "dev",
   });
-  const polarClient = createPolarSdkClient(
+  const polarClient = createPolarAuthClient(
     env.POLAR_ACCESS_TOKEN,
     env.POLAR_SERVER
   );
@@ -146,7 +146,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           return;
         }
 
-        const referenceId = getBodyString(ctx.body, "referenceId");
+        const referenceId = getBodyString(ctx.body, "reference_id");
 
         if (!referenceId) {
           return;

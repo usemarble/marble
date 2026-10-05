@@ -1,6 +1,6 @@
 import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
-import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
+import type { webhooks } from "@polar-sh/sdk/2026-10";
 import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { clearWorkspacePlan } from "../access";
@@ -9,9 +9,10 @@ import { isStalePolarEvent } from "./utils";
 export async function handleSubscriptionRevoked(
   db: DbClient,
   redis: Redis,
-  payload: WebhookSubscriptionRevokedPayload
+  payload: webhooks.WebhookSubscriptionRevokedPayload
 ) {
   const { data: subscriptionData } = payload;
+  const eventTimestamp = new Date(payload.timestamp);
 
   const existingSubscription = await db.query.subscription.findFirst({
     where: eq(subscription.polarId, subscriptionData.id),
@@ -26,7 +27,7 @@ export async function handleSubscriptionRevoked(
   }
 
   if (
-    isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
+    isStalePolarEvent(existingSubscription.lastPolarEventAt, eventTimestamp)
   ) {
     console.log(
       `Ignoring stale subscription.revoked webhook for subscription ${subscriptionData.id}`
@@ -39,10 +40,10 @@ export async function handleSubscriptionRevoked(
       .update(subscription)
       .set({
         status: "expired",
-        endedAt: subscriptionData.endedAt
-          ? new Date(subscriptionData.endedAt)
+        endedAt: subscriptionData.ended_at
+          ? new Date(subscriptionData.ended_at)
           : new Date(),
-        lastPolarEventAt: payload.timestamp,
+        lastPolarEventAt: eventTimestamp,
         updatedAt: new Date(),
       })
       .where(
@@ -50,7 +51,7 @@ export async function handleSubscriptionRevoked(
           eq(subscription.polarId, subscriptionData.id),
           or(
             isNull(subscription.lastPolarEventAt),
-            lte(subscription.lastPolarEventAt, payload.timestamp)
+            lte(subscription.lastPolarEventAt, eventTimestamp)
           )
         )
       )

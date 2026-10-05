@@ -11,6 +11,23 @@ reads use `authClient.getSession({ fetchOptions: { headers: await headers() } })
 Provider avatars are copied through `STORAGE.put`. User updates go through
 Better Auth's internal adapter so its Redis session copies also refresh.
 
+## Polar webhooks
+
+The auth package uses Polar SDK 1.x and the Better Auth adapter 2.x with API
+version `2026-10`. The adapter requires `createPolarCore`; media usage events
+use the full client from `createPolar`. Webhook payloads use snake_case fields
+and ISO timestamp strings, which the subscription handlers convert to Dates
+before storing them.
+
+Set the webhook endpoint's API version to `2026-10` and pass its complete
+dashboard signing secret as `POLAR_WEBHOOK_SECRET`, without encoding it.
+Restart the local API after updating its secret. The access token authenticates
+outgoing requests; it does not verify webhook deliveries.
+
+Polar secrets created or reset from September 8, 2026 use Standard Webhooks.
+The SDK verifies both those signatures and the older Polar HMAC signatures.
+See [Polar's delivery documentation](https://polar.sh/docs/integrate/webhooks/delivery).
+
 ## Staging setup
 
 `apps/api/cloudflare.config.ts` is the source of truth for bindings, vars and

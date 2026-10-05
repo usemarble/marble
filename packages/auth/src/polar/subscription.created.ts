@@ -1,7 +1,7 @@
 import type { DbClient } from "@marble/db";
 import { createRecordId } from "@marble/db/id";
 import { subscription, user, workspace } from "@marble/db/schema";
-import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
+import type { webhooks } from "@polar-sh/sdk/2026-10";
 import type { Redis } from "@upstash/redis";
 import { eq } from "drizzle-orm";
 import { clearWorkspacePlan } from "../access";
@@ -14,11 +14,12 @@ import {
 export async function handleSubscriptionCreated(
   db: DbClient,
   redis: Redis,
-  payload: WebhookSubscriptionCreatedPayload
+  payload: webhooks.WebhookSubscriptionCreatedPayload
 ) {
   const { data: subscriptionData } = payload;
+  const eventTimestamp = new Date(payload.timestamp);
   const workspaceId = subscriptionData.metadata?.referenceId;
-  const userId = subscriptionData.customer.externalId;
+  const userId = subscriptionData.customer.external_id;
 
   if (typeof workspaceId !== "string") {
     console.error(
@@ -34,22 +35,22 @@ export async function handleSubscriptionCreated(
     return;
   }
 
-  if (!subscriptionData.currentPeriodStart) {
+  if (!subscriptionData.current_period_start) {
     console.error(
       "subscription.created webhook received without a currentPeriodStart"
     );
     return;
   }
 
-  if (!subscriptionData.currentPeriodEnd) {
+  if (!subscriptionData.current_period_end) {
     console.error(
       "subscription.created webhook received without a currentPeriodEnd"
     );
     return;
   }
 
-  const currentPeriodStart = subscriptionData.currentPeriodStart;
-  const currentPeriodEnd = subscriptionData.currentPeriodEnd;
+  const currentPeriodStart = subscriptionData.current_period_start;
+  const currentPeriodEnd = subscriptionData.current_period_end;
 
   const userExists = await db.query.user.findFirst({
     where: eq(user.id, userId),
@@ -82,7 +83,7 @@ export async function handleSubscriptionCreated(
   }
 
   const recurringInterval = getRecurringInterval(
-    subscriptionData.recurringInterval
+    subscriptionData.recurring_interval
   );
 
   try {
@@ -104,19 +105,19 @@ export async function handleSubscriptionCreated(
       status,
       currentPeriodStart: new Date(currentPeriodStart),
       currentPeriodEnd: new Date(currentPeriodEnd),
-      cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
+      cancelAtPeriodEnd: subscriptionData.cancel_at_period_end || false,
       userId,
       workspaceId,
-      startedAt: subscriptionData.startedAt
-        ? new Date(subscriptionData.startedAt)
+      startedAt: subscriptionData.started_at
+        ? new Date(subscriptionData.started_at)
         : null,
-      productId: subscriptionData.productId || undefined,
+      productId: subscriptionData.product_id || undefined,
       amount: subscriptionData.amount
         ? Math.round(subscriptionData.amount)
         : undefined,
       currency: subscriptionData.currency || undefined,
-      discountId: subscriptionData.discountId || undefined,
-      lastPolarEventAt: payload.timestamp,
+      discountId: subscriptionData.discount_id || undefined,
+      lastPolarEventAt: eventTimestamp,
       recurringInterval,
       updatedAt: new Date(),
     });

@@ -71,7 +71,7 @@ function PageClient() {
     try {
       await checkout({
         slug: plan,
-        referenceId: activeWorkspace.id,
+        reference_id: activeWorkspace.id,
       });
     } catch (error) {
       console.error(error);

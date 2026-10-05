@@ -1,22 +1,30 @@
-import { HTTPClient, Polar } from "@polar-sh/sdk";
+import {
+  createPolar,
+  createPolarCore,
+  type Polar,
+  type PolarCore,
+} from "@polar-sh/sdk/2026-10";
 
-export const POLAR_API_VERSION = "2026-04";
+export const POLAR_API_VERSION = "2026-10";
 
 export type PolarServer = "production" | "sandbox";
+
+export function createPolarAuthClient(
+  accessToken: string | undefined,
+  server: PolarServer
+): PolarCore {
+  return createPolarCore({
+    accessToken: accessToken ?? "",
+    environment: server,
+  });
+}
 
 export function createPolarSdkClient(
   accessToken: string | undefined,
   server: PolarServer
 ): Polar {
-  const httpClient = new HTTPClient();
-
-  httpClient.addHook("beforeRequest", (request) => {
-    request.headers.set("Polar-Version", POLAR_API_VERSION);
-  });
-
-  return new Polar({
-    accessToken,
-    server,
-    httpClient,
+  return createPolar({
+    accessToken: accessToken ?? "",
+    environment: server,
   });
 }

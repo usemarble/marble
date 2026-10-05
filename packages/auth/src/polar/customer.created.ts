@@ -1,7 +1,7 @@
-import type { WebhookCustomerCreatedPayload } from "@polar-sh/sdk/models/components/webhookcustomercreatedpayload.js";
+import type { webhooks } from "@polar-sh/sdk/2026-10";
 
 export async function handleCustomerCreated(
-  payload: WebhookCustomerCreatedPayload
+  payload: webhooks.WebhookCustomerCreatedPayload
 ) {
   const { data: customer } = payload;
   try {
