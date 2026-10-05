@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { env } from "@/env";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
@@ -42,16 +43,20 @@ export function RegisterForm() {
   async function saveAttribution() {
     const marketingParams = new URLSearchParams(window.location.search);
     try {
-      await fetch("/api/analytics/registration", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          marketingAnonymousId: marketingParams.get("anonId"),
-          marketingSessionId: marketingParams.get("sessionId"),
-          appAnonymousId: getAnonymousId(),
-          appSessionId: getSessionId(),
-        }),
-      });
+      await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/api/auth/analytics/registration`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            marketingAnonymousId: marketingParams.get("anonId"),
+            marketingSessionId: marketingParams.get("sessionId"),
+            appAnonymousId: getAnonymousId(),
+            appSessionId: getSessionId(),
+          }),
+        }
+      );
     } catch {
       // Analytics must not block registration.
     }
@@ -117,7 +122,7 @@ export function RegisterForm() {
       await saveAttribution();
       const result = await authClient.signIn.social({
         provider,
-        callbackURL,
+        callbackURL: new URL(callbackURL, window.location.origin).href,
       });
       if (result.error) {
         track("registration_failed", { method: provider });

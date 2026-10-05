@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { Databuddy } from "@databuddy/sdk/react";
 import { Geist } from "next/font/google";
 import Script from "next/script";
+import { env } from "@/env";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
 
@@ -50,9 +51,9 @@ function DatabuddyAnalytics() {
   return (
     <>
       {process.env.NODE_ENV === "production" &&
-        process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
+        env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
           <Databuddy
-            clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
+            clientId={env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
             enableBatching={true}
             skipPatterns={[
               "/reset",

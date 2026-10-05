@@ -1,5 +1,5 @@
 import type { JSONContent } from "@tiptap/core";
-import { parseHTML } from "linkedom";
+import { DOMParser } from "linkedom";
 import { htmlToTiptap } from "./html";
 import { markdownToHtml } from "./markdown";
 
@@ -52,8 +52,14 @@ export function detectPostContentFormat(content: string): PostContentFormat {
     return "html";
   }
 
-  const { document } = parseHTML(`<html><body>${trimmed}</body></html>`);
-  const topLevelText = Array.from(document.body.childNodes)
+  const document = new DOMParser().parseFromString(
+    `<html><body>${trimmed}</body></html>`,
+    "text/html"
+  );
+  const body = document.body as unknown as {
+    childNodes: ArrayLike<{ nodeType: number; textContent: string | null }>;
+  };
+  const topLevelText = Array.from(body.childNodes)
     .filter((node) => node.nodeType === 3)
     .map((node) => node.textContent ?? "")
     .join("\n");

@@ -23,18 +23,20 @@ import { useForm } from "react-hook-form";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { CropImageModal } from "@/components/media/crop-image-modal";
 import { DeleteAccountModal } from "@/components/settings/delete-account";
-import { AccountSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { MAX_AVATAR_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
+import Loading from "./loading";
 
 function PageClient() {
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState<
@@ -45,11 +47,12 @@ function PageClient() {
   const [cropOpen, setCropOpen] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
+    mutationFn: (file: File) =>
+      uploadFile({ file, type: "avatar", workspaceId: workspaceId ?? "" }),
     onSuccess: (data) => {
       setPendingAvatarUrl(data.url);
       updateUser({ image: data.url });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
+      queryClient.invalidateQueries({ queryKey: orpc.me.key() });
       setFile(null);
     },
     onError: (error) => {
@@ -98,7 +101,7 @@ function PageClient() {
   };
 
   if (isFetchingUser) {
-    return <AccountSettingsSkeleton />;
+    return <Loading />;
   }
 
   return (

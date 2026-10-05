@@ -1,5 +1,6 @@
 "use client";
 
+import type { PostEditorValues } from "@marble/api/lib/post-validation";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { EditorHeader } from "@/components/editor/editor-header";
@@ -7,7 +8,6 @@ import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
-import type { PostEditorValues } from "@/lib/validations/post";
 import "@/styles/editor.css";
 import {
   type Editor,
@@ -23,12 +23,12 @@ import {
 import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
+import { generateSlug } from "@marble/utils";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { getMediaEditorApiUrl } from "@/lib/search-params";
-import type { MediaCursorListResponse } from "@/types/media";
-import { generateSlug } from "@/utils/string";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { client } from "@/lib/orpc";
 import { TextareaAutosize } from "./textarea-autosize";
 
 /**
@@ -72,6 +72,7 @@ const EDITOR_PROPS: UseMarbleEditorOptions["editorProps"] = {
 function EditorPageContent() {
   "use no memo";
   const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
   const { mode, postId, registerBeforeSubmit } = useEditorData();
   const {
@@ -88,39 +89,55 @@ function EditorPageContent() {
   // included) on every keystroke.
   const [initialContent] = useState(() => getValues("content") || "");
 
-  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
-    const result = await uploadFile({ file, type: "media" });
-    if (!result?.url) {
-      throw new Error("Upload failed: Invalid response from server.");
-    }
-    return result.url;
-  }, []);
+  const handleImageUpload = useCallback(
+    async (file: File): Promise<string> => {
+      if (!workspaceId) {
+        throw new Error("Workspace unavailable");
+      }
+      const result = await uploadFile({ file, type: "media", workspaceId });
+      if (!result?.url) {
+        throw new Error("Upload failed: Invalid response from server.");
+      }
+      return result.url;
+    },
+    [workspaceId]
+  );
 
-  const handleVideoUpload = useCallback(async (file: File): Promise<string> => {
-    const result = await uploadFile({ file, type: "media" });
-    if (!result?.url) {
-      throw new Error("Upload failed: Invalid response from server.");
-    }
-    return result.url;
-  }, []);
+  const handleVideoUpload = useCallback(
+    async (file: File): Promise<string> => {
+      if (!workspaceId) {
+        throw new Error("Workspace unavailable");
+      }
+      const result = await uploadFile({ file, type: "media", workspaceId });
+      if (!result?.url) {
+        throw new Error("Upload failed: Invalid response from server.");
+      }
+      return result.url;
+    },
+    [workspaceId]
+  );
 
   const fetchMediaPage = useCallback(
     async (cursor?: string): Promise<MediaPage> => {
+      if (!workspaceId) {
+        return { media: [] };
+      }
       try {
-        const url = getMediaEditorApiUrl("/api/media/editor", {
-          cursor: cursor || null,
+        const data = await client.media.editor({
+          workspaceId,
+          cursor,
+          limit: 20,
+          sort: "createdAt_desc",
         });
-        const response = await fetch(url);
-        if (!response.ok) {
-          return { media: [] };
-        }
-        const data: MediaCursorListResponse = await response.json();
         return {
           media: data.media.map((item) => ({
             id: item.id,
             url: item.url,
             name: item.name,
-            type: item.type as "image" | "video" | "file",
+            type:
+              item.type === "image" || item.type === "video"
+                ? item.type
+                : "file",
           })),
           nextCursor: data.nextCursor,
         };
@@ -128,7 +145,7 @@ function EditorPageContent() {
         return { media: [] };
       }
     },
-    []
+    [workspaceId]
   );
 
   const handleUploadError = useCallback((error: Error) => {

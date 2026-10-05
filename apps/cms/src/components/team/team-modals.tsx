@@ -14,8 +14,10 @@ import {
   AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
@@ -33,6 +35,7 @@ export function RemoveMemberModal({
 }: RemoveMemberModalProps) {
   const [loading, setLoading] = useState(false);
   const { activeWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
   async function removeMember() {
     if (!activeWorkspace?.id) {
       toast.error("No active workspace found");
@@ -41,16 +44,27 @@ export function RemoveMemberModal({
 
     setLoading(true);
     try {
-      await organization.removeMember({
+      const { error } = await organization.removeMember({
         memberIdOrEmail: member.id,
         organizationId: activeWorkspace.id,
         fetchOptions: {
           onSuccess: () => {
             toast.success("Member removed successfully");
             setOpen(false);
+            queryClient.invalidateQueries({
+              queryKey: orpc.workspaces.members.list.key({
+                input: { workspaceId: activeWorkspace.id },
+              }),
+            });
+            queryClient.invalidateQueries({
+              queryKey: orpc.workspaces.list.key(),
+            });
           },
         },
       });
+      if (error) {
+        toast.error(error.message || "Failed to remove member");
+      }
     } catch (_error) {
       toast.error("Failed to remove member");
     }

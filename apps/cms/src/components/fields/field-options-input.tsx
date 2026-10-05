@@ -1,5 +1,6 @@
 "use client";
 
+import type { CustomFieldFormValues } from "@marble/api/lib/field-validation";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { PlusIcon, XIcon } from "@phosphor-icons/react";
@@ -11,7 +12,6 @@ import type {
   UseFormRegister,
 } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { CustomFieldFormValues } from "@/lib/validations/fields";
 
 interface FieldOptionsInputProps {
   append: UseFieldArrayAppend<CustomFieldFormValues, "options">;

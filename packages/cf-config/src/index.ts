@@ -81,6 +81,10 @@ export function storagePublicUrl(mode: Mode) {
   return mode === "production" ? undefined : storagePublicUrls[mode];
 }
 
+export function storageBucketName(mode: Mode) {
+  return resources[mode].bucket;
+}
+
 const appUrls = {
   production: "https://app.marblecms.com",
   staging: "https://staging.marblecms.com",
@@ -90,6 +94,17 @@ const appUrls = {
 /** The dashboard origin each mode's Workers link and allow requests from. */
 export function appUrl(mode: Mode) {
   return appUrls[mode];
+}
+
+const apiUrls = {
+  production: "https://api.marblecms.com",
+  staging: "https://api-staging.marblecms.com",
+  dev: "http://localhost:8787",
+} as const satisfies Record<Mode, string>;
+
+/** The API Worker's origin in each mode; better-auth's baseURL. */
+export function apiUrl(mode: Mode) {
+  return apiUrls[mode];
 }
 
 /**

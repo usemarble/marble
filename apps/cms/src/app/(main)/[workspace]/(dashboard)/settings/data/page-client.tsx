@@ -3,14 +3,14 @@
 import { DashboardBody } from "@/components/layout/wrapper";
 import { Export } from "@/components/settings/fields/export";
 import { Import } from "@/components/settings/fields/import";
-import { DataSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 function PageClient() {
-  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const { activeWorkspace } = useWorkspace();
 
-  if (isFetchingWorkspace || !activeWorkspace) {
-    return <DataSettingsSkeleton />;
+  if (!activeWorkspace) {
+    return <Loading />;
   }
 
   return (

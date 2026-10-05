@@ -1,17 +1,19 @@
 "use client";
 
 import { PRICING_PLANS } from "@marble/utils";
+import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { PlanLimitBanner } from "@/components/billing/plan-limit-banner";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { MembersSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
 import { usePlan } from "@/hooks/use-plan";
+import { orpc } from "@/lib/orpc";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 const InviteModal = dynamic(() =>
   import("@/components/team/invite-modal").then((mod) => mod.InviteModal)
@@ -25,18 +27,40 @@ const LeaveWorkspaceModal = dynamic(() =>
 
 function PageClient() {
   const { user } = useUser();
-  const { activeWorkspace, isFetchingWorkspace, currentUserRole, isOwner } =
-    useWorkspace();
+  const { activeWorkspace, currentUserRole, isOwner } = useWorkspace();
   const { currentPlan, planLimits, currentMemberCount } = usePlan();
+  const workspaceId = activeWorkspace?.id ?? "";
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
 
-  if (isFetchingWorkspace || !activeWorkspace || !user) {
-    return <MembersSettingsSkeleton />;
+  const { data: members, error: membersError } = useQuery(
+    orpc.workspaces.members.list.queryOptions({
+      input: { workspaceId },
+      enabled: Boolean(workspaceId),
+    })
+  );
+  const { data: invitations, error: invitationsError } = useQuery(
+    orpc.workspaces.invitations.list.queryOptions({
+      input: { workspaceId },
+      enabled: Boolean(workspaceId),
+    })
+  );
+
+  const error = membersError ?? invitationsError;
+  if (error) {
+    return (
+      <DashboardBody size="compact">
+        <p className="text-muted-foreground text-sm">{error.message}</p>
+      </DashboardBody>
+    );
   }
 
-  const data: TeamMemberRow[] = activeWorkspace.members.map((member) => ({
+  if (!(activeWorkspace && user && members && invitations)) {
+    return <Loading />;
+  }
+
+  const data: TeamMemberRow[] = members.map((member) => ({
     id: member.id,
     type: "member" as const,
     name: member.user.name || member.user.email,
@@ -52,7 +76,7 @@ function PageClient() {
     PRICING_PLANS.find((plan) => plan.id === currentPlan)?.title ?? currentPlan;
   const seats = planLimits.maxMembers;
   const seatLabel = `${seats} member${seats === 1 ? "" : "s"}`;
-  const pendingInviteCount = (activeWorkspace.invitations || []).filter(
+  const pendingInviteCount = invitations.filter(
     (invitation) => invitation.status === "pending"
   ).length;
 
@@ -93,7 +117,7 @@ function PageClient() {
           setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
         />
 
-        <InviteSection invitations={activeWorkspace.invitations || []} />
+        <InviteSection invitations={invitations} workspaceId={workspaceId} />
       </div>
 
       <InviteModal open={showInviteModal} setOpen={setShowInviteModal} />

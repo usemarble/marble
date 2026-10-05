@@ -1,0 +1,97 @@
+import type { DbClient } from "@marble/db";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createAuth } from "./index";
+import { testEnv } from "./test-env";
+
+const db = {} as DbClient;
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+describe("Worker auth configuration", () => {
+  it("handles the default auth path without a database query", async () => {
+    const auth = createAuth({ db, env: testEnv() });
+    const response = await auth.handler(
+      new Request("http://localhost:8787/api/auth/ok")
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+  });
+
+  it("shares staging cookies with the dashboard without using production names", async () => {
+    const auth = createAuth({
+      db,
+      env: testEnv({
+        MODE: "staging",
+        BETTER_AUTH_URL: "https://api-staging.marblecms.com",
+        APP_URL: "https://staging.marblecms.com",
+        AUTH_COOKIE_DOMAIN: ".marblecms.com",
+        AUTH_COOKIE_PREFIX: "marble-staging",
+      }),
+    });
+    const context = await auth.$context;
+    expect(context.authCookies.sessionToken).toMatchObject({
+      name: "__Secure-marble-staging.session_token",
+      attributes: {
+        domain: ".marblecms.com",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: true,
+      },
+    });
+    expect(context.trustedOrigins).toContain("https://staging.marblecms.com");
+    expect(context.trustedOrigins).not.toContain("https://app.marblecms.com");
+    expect(auth.options.plugins[0]?.id).toBe("polar");
+  });
+
+  it("keeps localhost cookies usable across ports", async () => {
+    const context = await createAuth({ db, env: testEnv() }).$context;
+    expect(context.authCookies.sessionToken).toMatchObject({
+      name: "marble-dev.session_token",
+      attributes: { sameSite: "lax", secure: false },
+    });
+    expect(context.authCookies.sessionToken.attributes.domain).toBeUndefined();
+    expect(context.trustedOrigins).toContain("http://localhost:3000");
+  });
+
+  it("updates copied avatars through Better Auth so cached sessions refresh", async () => {
+    const auth = createAuth({ db, env: testEnv() });
+    const context = await auth.$context;
+    const user = {
+      id: "avatar-user",
+      name: "Avatar User",
+      email: "avatar@staging.invalid",
+      emailVerified: false,
+      image: "https://avatars.githubusercontent.com/u/123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const updateUser = vi
+      .spyOn(context.internalAdapter, "updateUser")
+      .mockResolvedValue(user);
+    vi.spyOn(auth.api, "createOrganization").mockResolvedValue({
+      id: "personal-workspace",
+      name: "Personal",
+      slug: "personal-workspace",
+      createdAt: new Date(),
+      metadata: null,
+      members: [],
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response("avatar", {
+          headers: { "content-type": "image/png" },
+        })
+      )
+    );
+    await auth.options.databaseHooks.user.create.after(user, null);
+    expect(updateUser).toHaveBeenCalledWith(user.id, {
+      image: expect.stringMatching(
+        /^https:\/\/cdn-test.marblecms.com\/avatars\/avatar-user\//
+      ),
+    });
+  });
+});

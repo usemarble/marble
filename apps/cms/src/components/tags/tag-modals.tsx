@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert02Icon, Tag01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  type CreateTagValues,
+  tagSchema,
+} from "@marble/api/lib/taxonomy-validation";
+import {
   AlertDialog,
   AlertDialogBody,
   AlertDialogCancel,
@@ -29,13 +33,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
+import { generateSlug } from "@marble/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/string";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 import type { Tag } from "./columns";
 
@@ -70,63 +73,47 @@ export function TagModal({
 
   const workspaceId = useWorkspaceId();
 
-  const { mutate: createTag, isPending: isCreating } = useMutation({
-    mutationFn: async (data: CreateTagValues) => {
-      const res = await fetch("/api/tags", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+  const { mutate: createTag, isPending: isCreating } = useMutation(
+    orpc.tags.create.mutationOptions({
+      onSuccess: (data) => {
+        onTagCreated?.(data);
+        setOpen(false);
+        toast.success("Tag created successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.tags.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        reset();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to create tag");
-      }
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      onTagCreated?.(data);
-      setOpen(false);
-      toast.success("Tag created successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.TAGS(workspaceId),
-        });
-      }
-      reset();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const { mutate: updateTag, isPending: isUpdating } = useMutation({
-    mutationFn: async (data: CreateTagValues) => {
-      const res = await fetch(`/api/tags/${tagData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to update tag");
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      setOpen(false);
-      toast.success("Tag updated successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.TAGS(workspaceId),
-        });
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate: updateTag, isPending: isUpdating } = useMutation(
+    orpc.tags.update.mutationOptions({
+      onSuccess: () => {
+        setOpen(false);
+        toast.success("Tag updated successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.tags.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   const onSubmit = async (data: CreateTagValues) => {
     if (!workspaceId) {
@@ -140,9 +127,9 @@ export function TagModal({
     }
 
     if (mode === "create") {
-      createTag(data);
-    } else {
-      updateTag(data);
+      createTag({ ...data, workspaceId });
+    } else if (tagData.id) {
+      updateTag({ ...data, workspaceId, id: tagData.id });
     }
   };
 
@@ -244,34 +231,25 @@ export const DeleteTagModal = ({
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
-  const { mutate: deleteTag, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/tags/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text().catch(() => "Unknown error");
-        throw new Error(
-          `Failed to delete tag: ${res.status} ${res.statusText} - ${errorText}`
-        );
-      }
-
-      return true;
-    },
-    onSuccess: () => {
-      toast.success("Tag deleted successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.TAGS(workspaceId),
-        });
-      }
-      setOpen(false);
-    },
-    onError: () => {
-      toast.error("Failed to delete tag.");
-    },
-  });
+  const { mutate: deleteTag, isPending } = useMutation(
+    orpc.tags.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Tag deleted successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.tags.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        setOpen(false);
+      },
+      onError: () => {
+        toast.error("Failed to delete tag.");
+      },
+    })
+  );
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -303,7 +281,9 @@ export const DeleteTagModal = ({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteTag();
+                if (workspaceId) {
+                  deleteTag({ workspaceId, id });
+                }
               }}
               size="sm"
               variant="destructive"

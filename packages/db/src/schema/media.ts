@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { mediaTypeEnum } from "./enums";
 import { workspace } from "./workspaces";
@@ -35,6 +36,7 @@ export const media = pgTable(
     storageKey: text("storageKey").notNull(),
   },
   (table) => [
+    uniqueIndex("media_storageKey_key").on(table.storageKey),
     index("media_workspaceId_createdAt_idx").using(
       "btree",
       table.workspaceId.asc().nullsLast().op("text_ops"),

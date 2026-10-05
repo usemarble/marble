@@ -6,8 +6,6 @@ export const VALID_DISCORD_DOMAINS = [
 
 export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
 
-export const timezones = Intl.supportedValuesOf("timeZone");
-
 export const IMAGE_DROPZONE_ACCEPT = [
   ".jpeg",
   ".jpg",
@@ -78,36 +76,6 @@ export const WORKSPACE_SCOPED_PREFIXES = [
 
 export type WorkspaceScopedPrefix = (typeof WORKSPACE_SCOPED_PREFIXES)[number];
 
-export const ALLOWED_AVATAR_HOSTS = [
-  "avatars.githubusercontent.com",
-  "googleusercontent.com",
-] as const;
-
-/**
- * Validates if a URL is from an allowed avatar host with HTTPS protocol
- */
-export function isAllowedAvatarUrl(url: string): boolean {
-  try {
-    const parsedUrl = new URL(url);
-
-    // Enforce HTTPS protocol
-    if (parsedUrl.protocol !== "https:") {
-      return false;
-    }
-
-    const hostname = parsedUrl.hostname;
-
-    // Check if hostname matches exactly or is a subdomain of allowed hosts
-    return ALLOWED_AVATAR_HOSTS.some(
-      (allowedHost) =>
-        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`)
-    );
-  } catch {
-    // Invalid URL
-    return false;
-  }
-}
-
 export const SOCIAL_PLATFORMS = {
   x: "x",
   github: "github",
@@ -150,78 +118,3 @@ export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
 
 export const MEDIA_LIMIT = 20;
 export const POST_LIMIT = 20;
-
-/**
- * Reserved workspace slugs that cannot be used for workspace creation
- * to prevent conflicts with system routes and Next.js internals
- */
-export const RESERVED_WORKSPACE_SLUGS = [
-  // Auth routes
-  "login",
-  "register",
-  "reset",
-  "verify",
-  "join",
-  "invite",
-  "auth",
-  // System routes
-  "api",
-  "new",
-  "share",
-  "settings",
-  // API routes
-  "account",
-  "accounts",
-  "ai",
-  "billing",
-  "complete",
-  "import",
-  "metrics",
-  "polar",
-  "preferences",
-  "publishing",
-  "suggestions",
-  "upload",
-  "usage",
-  "user",
-  "workspace",
-  "workspaces",
-  "success",
-  // Workspace-level pages (dashboard routes)
-  "posts",
-  "post",
-  "categories",
-  "category",
-  "tags",
-  "tag",
-  "authors",
-  "author",
-  "media",
-  "webhooks",
-  "webhook",
-  "hooks",
-  "hook",
-  "keys",
-  "key",
-  "editor",
-  // Next.js internals
-  "_next",
-  "static",
-  "favicon",
-  "robots",
-  "sitemap",
-  // Future-proofing common patterns
-  "admin",
-  "dashboard",
-  "app",
-  "www",
-  "blog",
-  "docs",
-  "help",
-  "support",
-  "about",
-  "contact",
-  "pricing",
-  "terms",
-  "privacy",
-] as const;

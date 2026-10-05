@@ -109,12 +109,6 @@ const postPageSearchParams = {
 export const usePostPageFilters = (options: Options = {}) =>
   useQueryStates(postPageSearchParams, options);
 
-export const loadPostApiFilters = createLoader(postPageSearchParams);
-
-export const getPostApiUrl = createSerializer(postPageSearchParams, {
-  clearOnDefault: false,
-});
-
 // Webhook deliveries (URL + React Query API share the same shape)
 const WEBHOOK_DELIVERY_STATUSES = [
   "all",
@@ -159,9 +153,3 @@ const webhookDeliveriesSearchParams = {
 
 export const useWebhookDeliveriesFilters = (options: Options = {}) =>
   useQueryStates(webhookDeliveriesSearchParams, options);
-
-// Defaults ("all", "", page 1, perPage 20) are cleared, so the serialized
-// query only carries active filters — exactly what the GET handler expects.
-export const getWebhookDeliveriesApiUrl = createSerializer(
-  webhookDeliveriesSearchParams
-);

@@ -1,7 +1,8 @@
+import { generateSlug } from "@marble/utils";
 import axios from "axios";
 import { encode } from "blurhash";
-import type { PresignedUrlResponse, UploadType } from "@/types/media";
-import { generateSlug } from "@/utils/string";
+import { client } from "@/lib/orpc";
+import type { Media, UploadType } from "@/types/media";
 
 interface UploadMetadata {
   mimeType?: string;
@@ -24,29 +25,28 @@ const BLURHASH_RASTER_TYPES = new Set([
  */
 async function getPresignedUrl(
   file: File,
-  type: UploadType
-): Promise<PresignedUrlResponse> {
-  const response = await axios.post<PresignedUrlResponse>("/api/upload", {
+  type: UploadType,
+  workspaceId: string
+) {
+  return client.uploads.initiate({
+    workspaceId,
     type,
     fileType: file.type,
     fileSize: file.size,
+    fileName: file.name,
   });
-
-  if (response.status !== 200) {
-    throw new Error("Failed to get presigned URL.");
-  }
-
-  return response.data;
 }
 
 /**
  * Uploads the raw file bytes directly to R2 through the presigned URL.
  */
-async function uploadToR2(presignedUrl: string, file: File) {
+async function uploadToR2(
+  presignedUrl: string,
+  file: File,
+  headers: Record<string, string>
+) {
   const response = await axios.put(presignedUrl, file, {
-    headers: {
-      "Content-Type": file.type,
-    },
+    headers,
   });
 
   if (response.status !== 200) {
@@ -62,6 +62,7 @@ async function completeUpload(
   token: string,
   file: File,
   type: UploadType,
+  workspaceId: string,
   metadata: UploadMetadata
 ) {
   const filenameParts = file.name.split(".");
@@ -82,6 +83,7 @@ async function completeUpload(
   const mediaName = `${sluggedName}.${extension}`;
   const body = {
     type,
+    workspaceId,
     key,
     token,
     fileType: file.type,
@@ -90,13 +92,7 @@ async function completeUpload(
     ...metadata,
   };
 
-  const response = await axios.post("/api/upload/complete", body);
-
-  if (response.status !== 200) {
-    throw new Error(response.data.error);
-  }
-
-  return response.data;
+  return client.uploads.complete(body);
 }
 
 /**
@@ -214,24 +210,56 @@ async function getUploadMetadata(file: File): Promise<UploadMetadata> {
  * Runs the dashboard upload flow: presign, extract metadata, upload to R2, and
  * create the Marble media record.
  */
+export function uploadFile(input: {
+  file: File;
+  type: "media";
+  workspaceId: string;
+}): Promise<Media>;
+export function uploadFile(input: {
+  file: File;
+  type: "avatar" | "author-avatar" | "logo";
+  workspaceId: string;
+}): Promise<{ url: string }>;
 export async function uploadFile({
   file,
   type,
+  workspaceId,
 }: {
   file: File;
   type: UploadType;
+  workspaceId: string;
 }) {
   try {
-    const { url: presignedUrl, key, token } = await getPresignedUrl(file, type);
+    const {
+      url: presignedUrl,
+      key,
+      token,
+      headers,
+    } = await getPresignedUrl(file, type, workspaceId);
     const metadata = await getUploadMetadata(file);
-    await uploadToR2(presignedUrl, file);
-    const result = await completeUpload(key, token, file, type, metadata);
+    await uploadToR2(presignedUrl, file, headers);
+    const result = await completeUpload(
+      key,
+      token,
+      file,
+      type,
+      workspaceId,
+      metadata
+    );
+    if (type === "media" && !("id" in result)) {
+      throw new Error("Upload returned no media record");
+    }
+    if (type !== "media" && "id" in result) {
+      throw new Error("Upload returned an unexpected media record");
+    }
     return result;
   } catch (error) {
     console.error("Upload failed:", error);
     if (axios.isAxiosError(error) && error.response?.data?.error) {
       throw new Error(error.response.data.error);
     }
-    throw new Error("An unexpected error occurred during upload.");
+    throw error instanceof Error
+      ? error
+      : new Error("An unexpected error occurred during upload.");
   }
 }

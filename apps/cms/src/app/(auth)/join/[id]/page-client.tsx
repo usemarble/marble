@@ -10,13 +10,13 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
 import { cn } from "@marble/ui/lib/utils";
 import {
   ArrowArcLeftIcon,
+  ArrowRightIcon,
   CheckIcon,
   CircleNotchIcon,
   XIcon,
@@ -131,56 +131,50 @@ function PageClient({ id, user }: PageClientProps) {
   };
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex w-full items-center justify-center px-4 py-12">
       {invitation ? (
-        <Card className="max-w-md rounded-[24px] px-5 py-7">
+        <Card className="w-full max-w-md gap-4 rounded-[20px] border-none bg-surface p-2">
           <CardHeader
             className={cn(
-              "items-center",
+              "gap-0 px-4 pt-4",
               inviteStatus !== "pending" && "sr-only"
             )}
           >
-            <CardTitle className="font-medium">Invitation</CardTitle>
-            <CardDescription>
-              You've been invited to join a workspace
-            </CardDescription>
+            <CardTitle className="font-medium text-lg">
+              Workspace invitation
+            </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
             {inviteStatus === "pending" && (
-              <div className="mt-5 flex flex-col gap-8">
+              <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-center gap-4">
                   <Avatar className="size-14">
                     <AvatarImage src={user.image || ""} />
-                    <AvatarFallback>XQ</AvatarFallback>
+                    <AvatarFallback>
+                      {user.name.charAt(0).toUpperCase() ||
+                        user.email.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
-                  <svg
-                    className="size-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1}
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <title>X</title>
-                    <path
-                      d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <ArrowRightIcon
+                    aria-hidden="true"
+                    className="size-5 text-muted-foreground"
+                  />
                   <Avatar className="size-14">
-                    <AvatarImage src="" />
-                    <AvatarFallback>MAB</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 font-medium text-primary">
+                      {invitation.organizationName.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
-                <p className="text-center text-sm">
-                  <strong>{invitation?.inviterEmail}</strong> has invited you to
-                  join <strong>{invitation?.organizationName}</strong>.
+                <p className="text-center text-muted-foreground text-sm leading-relaxed">
+                  <strong className="break-all font-medium text-foreground">
+                    {invitation.inviterEmail}
+                  </strong>{" "}
+                  has invited you to join{" "}
+                  <strong className="font-medium text-foreground">
+                    {invitation.organizationName}
+                  </strong>
+                  .
                 </p>
-                {/* <p className="text-sm text-center">
-                  This invitation was sent to{" "}
-                  <strong>{invitation?.email}</strong>.
-                </p> */}
               </div>
             )}
             {inviteStatus === "accepted" && (
@@ -220,32 +214,34 @@ function PageClient({ id, user }: PageClientProps) {
                 </div>
               </div>
             )}
+            {error && inviteStatus === "pending" && (
+              <div className="mt-6 rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+                <ErrorMessage className="text-center text-sm">
+                  {error}
+                </ErrorMessage>
+              </div>
+            )}
+            {inviteStatus === "pending" && (
+              <div className="mt-10 grid grid-cols-2 gap-3">
+                <AsyncButton
+                  disabled={accepting || rejecting}
+                  isLoading={rejecting}
+                  onClick={handleReject}
+                  variant="destructive"
+                >
+                  Reject
+                </AsyncButton>
+                <AsyncButton
+                  disabled={accepting || rejecting}
+                  isLoading={accepting}
+                  onClick={handleAccept}
+                  variant="default"
+                >
+                  Accept
+                </AsyncButton>
+              </div>
+            )}
           </CardContent>
-          {error && inviteStatus === "pending" && (
-            <div className="mt-4 rounded-sm border border-destructive bg-destructive/10 p-3">
-              <ErrorMessage className="text-center text-sm">
-                {error}
-              </ErrorMessage>
-            </div>
-          )}
-          {inviteStatus === "pending" && (
-            <CardFooter className="mt-4 grid grid-cols-2 gap-6">
-              <AsyncButton
-                isLoading={rejecting}
-                onClick={handleReject}
-                variant="outline"
-              >
-                Reject
-              </AsyncButton>
-              <AsyncButton
-                isLoading={accepting}
-                onClick={handleAccept}
-                variant="outline"
-              >
-                Accept
-              </AsyncButton>
-            </CardFooter>
-          )}
         </Card>
       ) : error && !isLoading ? (
         <InviteError />
@@ -260,14 +256,14 @@ export default PageClient;
 
 function InviteError() {
   return (
-    <Card className="w-full max-w-md rounded-[24px] px-5 py-7">
-      <CardHeader className="text-center">
+    <Card className="w-full max-w-md gap-4 rounded-[20px] border-none bg-surface p-2.5">
+      <CardHeader className="gap-2 px-4 pt-4 pb-1">
         <CardTitle className="font-medium">Invalid Invite</CardTitle>
         <CardDescription className="sr-only">
           This invite is invalid or you don't have the correct permissions.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="rounded-[12px] bg-background p-6 shadow-xs">
         <div className="flex flex-col items-center gap-6">
           <p className="text-center text-muted-foreground">
             The invitation you're trying to access is either invalid or you
@@ -292,15 +288,15 @@ function InviteError() {
 
 function InviteLoading() {
   return (
-    <Card className="grid h-80 max-w-md place-content-center rounded-[24px] p-6">
+    <Card className="w-full max-w-md gap-0 rounded-[20px] border-none bg-surface p-2.5">
       <CardHeader className="sr-only">
         <CardTitle>Loading</CardTitle>
         <CardDescription>
           We're verifying your invite link, please hold on.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center gap-4">
+      <CardContent className="rounded-[12px] bg-background p-6 shadow-xs">
+        <div className="flex min-h-60 flex-col items-center justify-center gap-4">
           <CircleNotchIcon className="size-5 animate-spin transition" />
           <p className="max-w-prose text-center text-muted-foreground">
             We're verifying your invite link. This might take a few seconds...

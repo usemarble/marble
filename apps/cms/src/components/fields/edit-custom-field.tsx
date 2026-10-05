@@ -1,6 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  type CustomFieldFormValues,
+  customFieldSchema,
+} from "@marble/api/lib/field-validation";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import {
@@ -28,11 +32,7 @@ import { FieldOptionsInput } from "@/components/fields/field-options-input";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type CustomFieldFormValues,
-  customFieldSchema,
-} from "@/lib/validations/fields";
+import { orpc } from "@/lib/orpc";
 import type { CustomField } from "@/types/fields";
 
 const typeOptions = [
@@ -108,26 +108,13 @@ export function EditCustomFieldSheet({
   });
 
   const { mutate: updateField, isPending } = useMutation({
-    mutationFn: async (data: CustomFieldFormValues) => {
-      const res = await fetch(`/api/fields/${field.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to update field");
-      }
-
-      return res.json();
-    },
+    ...orpc.fields.update.mutationOptions(),
     onSuccess: () => {
       toast.success("Custom field updated");
       onOpenChange(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
+          queryKey: orpc.fields.list.key({ input: { workspaceId } }),
         });
       }
       if (params.workspace) {
@@ -142,7 +129,9 @@ export function EditCustomFieldSheet({
   });
 
   const onSubmit = (data: CustomFieldFormValues) => {
-    updateField(data);
+    if (workspaceId) {
+      updateField({ workspaceId, id: field.id, ...data });
+    }
   };
 
   return (

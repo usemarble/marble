@@ -7,14 +7,14 @@ import { Logo } from "@/components/settings/fields/logo";
 import { Name } from "@/components/settings/fields/name";
 import { Slug } from "@/components/settings/fields/slug";
 import { Timezone } from "@/components/settings/fields/timezone";
-import { GeneralSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 function PageClient() {
-  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const { activeWorkspace } = useWorkspace();
 
-  if (isFetchingWorkspace || !activeWorkspace) {
-    return <GeneralSettingsSkeleton />;
+  if (!activeWorkspace) {
+    return <Loading />;
   }
 
   return (

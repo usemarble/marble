@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { toast } from "@marble/ui/components/sonner";
 import { PlusIcon, UploadIcon } from "@phosphor-icons/react";
 import { useId, useRef } from "react";
-import { toast } from "sonner";
 import { ALLOWED_MIME_TYPES, MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 
 interface FileUploadInputProps {

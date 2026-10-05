@@ -20,7 +20,7 @@ import {
 import { CategoryModal } from "@/components/categories/category-modals";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { FieldInfo } from "./field-info";
 
 interface CategoryResponse {
@@ -48,34 +48,21 @@ export function CategorySelector<TFieldValues extends FieldValues>({
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      const data: CategoryResponse[] = await res.json();
-      return data;
-    },
-    enabled: !!workspaceId,
-  });
+  const { data: categories = [], isLoading: isLoadingCategories } = useQuery(
+    orpc.categories.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      staleTime: 1000 * 60 * 60,
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   const handleCategoryCreated = (newCategory: CategoryResponse) => {
     if (!workspaceId) {
       return;
     }
 
-    queryClient.setQueryData(
-      QUERY_KEYS.CATEGORIES(workspaceId),
-      (oldData: CategoryResponse[] | undefined) =>
-        oldData ? [...oldData, newCategory] : [newCategory]
-    );
-
     queryClient.invalidateQueries({
-      queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
+      queryKey: orpc.categories.key({ input: { workspaceId } }),
     });
 
     onChange(newCategory.id);

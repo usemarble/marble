@@ -1,11 +1,16 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import {
+  cacheKey,
+  createCacheClient,
+  hashQueryParams,
+} from "@marble/api/lib/cache";
+import { transact } from "@marble/api/lib/transaction";
 import { createRecordId } from "@marble/db/id";
 import { media as mediaTable } from "@marble/db/schema";
 import { toMediaPayload, withChanges } from "@marble/events";
 import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
-import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "@/lib/constants";
-import { emitEvent } from "@/lib/events";
+import { serviceContext } from "@/lib/context";
 import {
   extensionFromFile,
   getImageDimensions,
@@ -337,7 +342,6 @@ media.openapi(updateMediaRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
 
@@ -358,15 +362,36 @@ media.openapi(updateMediaRoute, async (c) => {
       );
     }
 
-    const [updated] = await db
-      .update(mediaTable)
-      .set({
-        ...(body.name !== undefined ? { name: body.name } : {}),
-        ...(body.alt !== undefined ? { alt: body.alt } : {}),
-        updatedAt: new Date(),
-      })
-      .where(eq(mediaTable.id, id))
-      .returning();
+    const updated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [row] = await tx
+          .update(mediaTable)
+          .set({
+            ...(body.name !== undefined ? { name: body.name } : {}),
+            ...(body.alt !== undefined ? { alt: body.alt } : {}),
+            updatedAt: new Date(),
+          })
+          .where(eq(mediaTable.id, id))
+          .returning();
+
+        if (!row) {
+          return null;
+        }
+
+        invalidate(workspaceId, "media");
+        await emitEvent({
+          type: "media_updated",
+          workspaceId,
+          resourceType: "media",
+          resourceId: row.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: withChanges(toMediaPayload(row), Object.keys(body)),
+        });
+        return row;
+      }
+    );
 
     if (!updated) {
       return c.json(
@@ -377,22 +402,6 @@ media.openapi(updateMediaRoute, async (c) => {
         500 as const
       );
     }
-
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
-
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "media_updated",
-        workspaceId,
-        resourceType: "media",
-        resourceId: updated.id,
-        actorType: "api_key",
-        actorId: c.get("apiKeyId"),
-        payload: withChanges(toMediaPayload(updated), Object.keys(body)),
-      }).catch((error) => {
-        console.error("[media.update] Failed to emit media_updated:", error);
-      })
-    );
 
     return c.json({ media: serializeMedia(updated) }, 200 as const);
   } catch (error) {
@@ -411,7 +420,6 @@ media.openapi(deleteMediaRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { id } = c.req.valid("param");
 
     const existing = await db.query.media.findFirst({
@@ -441,13 +449,10 @@ media.openapi(deleteMediaRoute, async (c) => {
       );
     }
 
-    await db.delete(mediaTable).where(eq(mediaTable.id, id));
-
-    c.executionCtx.waitUntil(c.env.STORAGE.delete(existing.storageKey));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
-
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
+    await transact(serviceContext(c), async ({ tx, emitEvent, invalidate }) => {
+      await tx.delete(mediaTable).where(eq(mediaTable.id, id));
+      invalidate(workspaceId, "media");
+      await emitEvent({
         type: "media_deleted",
         workspaceId,
         resourceType: "media",
@@ -455,10 +460,10 @@ media.openapi(deleteMediaRoute, async (c) => {
         actorType: "api_key",
         actorId: c.get("apiKeyId"),
         payload: toMediaPayload(existing),
-      }).catch((error) => {
-        console.error("[media.delete] Failed to emit media_deleted:", error);
-      })
-    );
+      });
+    });
+
+    c.executionCtx.waitUntil(c.env.STORAGE.delete(existing.storageKey));
 
     return c.json({ id }, 200 as const);
   } catch (error) {
@@ -477,7 +482,6 @@ media.openapi(uploadMediaRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const formData = await c.req.formData();
     const file = formData.get("file");
 
@@ -542,53 +546,52 @@ media.openapi(uploadMediaRoute, async (c) => {
     >;
 
     try {
-      const [inserted] = await db
-        .insert(mediaTable)
-        .values({
-          id,
-          name,
-          alt,
-          url: publicUrl(c.env.STORAGE_PUBLIC_URL, key),
-          storageKey: key,
-          size: file.size,
-          mimeType: contentType,
-          width: dimensions.width,
-          height: dimensions.height,
-          type: getMediaType(contentType),
-          workspaceId,
-          updatedAt: new Date(),
-        })
-        .returning();
+      created = await transact(
+        serviceContext(c),
+        async ({ tx, emitEvent, invalidate }) => {
+          const [inserted] = await tx
+            .insert(mediaTable)
+            .values({
+              id,
+              name,
+              alt,
+              url: publicUrl(c.env.STORAGE_PUBLIC_URL, key),
+              storageKey: key,
+              size: file.size,
+              mimeType: contentType,
+              width: dimensions.width,
+              height: dimensions.height,
+              type: getMediaType(contentType),
+              workspaceId,
+              updatedAt: new Date(),
+            })
+            .returning();
 
-      if (!inserted) {
-        throw new Error("Failed to create media record");
-      }
+          if (!inserted) {
+            throw new Error("Failed to create media record");
+          }
 
-      created = inserted;
+          invalidate(workspaceId, "media");
+          await emitEvent({
+            type: "media_uploaded",
+            workspaceId,
+            resourceType: "media",
+            resourceId: inserted.id,
+            actorType: "api_key",
+            actorId: c.get("apiKeyId"),
+            payload: toMediaPayload(inserted),
+          });
+          return inserted;
+        }
+      );
     } catch (error) {
       await c.env.STORAGE.delete(key);
       throw error;
     }
 
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
-
     c.executionCtx.waitUntil(
       trackMediaUploadUsage(db, workspaceId, file.size).catch((error) => {
         console.error("[media.upload] Failed to track media usage:", error);
-      })
-    );
-
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "media_uploaded",
-        workspaceId,
-        resourceType: "media",
-        resourceId: created.id,
-        actorType: "api_key",
-        actorId: c.get("apiKeyId"),
-        payload: toMediaPayload(created),
-      }).catch((error) => {
-        console.error("[media.upload] Failed to emit media_uploaded:", error);
       })
     );
 

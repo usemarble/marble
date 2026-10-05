@@ -32,6 +32,12 @@ export const dbMiddleware = createMiddleware<{
   Bindings: Env;
   Variables: DbVariables;
 }>(async (c, next) => {
+  // Reuse the request's client if an earlier middleware already opened one.
+  if (c.get("db")) {
+    await next();
+    return;
+  }
+
   let db: DbClient;
   try {
     db = await createDbClient(c.env);

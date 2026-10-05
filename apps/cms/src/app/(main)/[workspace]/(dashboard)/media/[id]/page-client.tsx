@@ -24,10 +24,9 @@ import { useEffect, useMemo, useState } from "react";
 import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { VideoPlayer } from "@/components/media/video-player";
-import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { blurhashToDataUrl } from "@/lib/blurhash";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import type { Media } from "@/types/media";
 import {
   downloadMedia,
@@ -36,6 +35,7 @@ import {
   formatMediaType,
 } from "@/utils/media";
 import { formatBytes } from "@/utils/string";
+import Loading from "./loading";
 
 interface MediaDetailPageProps {
   id: string;
@@ -54,35 +54,14 @@ export default function MediaDetailPage({
     isError,
     isLoading,
   } = useQuery({
-    queryKey: QUERY_KEYS.MEDIA_DETAIL(workspaceId ?? "", id),
-    queryFn: async (): Promise<Media> => {
-      const response = await fetch(`/api/media/${id}`);
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error || "Failed to fetch media");
-      }
-      return response.json();
-    },
+    ...orpc.media.get.queryOptions({
+      input: { workspaceId: workspaceId ?? "", id },
+    }),
     enabled: Boolean(workspaceId),
   });
 
   const { isPending: isSaving, mutate: updateMedia } = useMutation({
-    mutationFn: async ({ alt, name }: { alt: string | null; name: string }) => {
-      const response = await fetch(`/api/media/${id}`, {
-        body: JSON.stringify({ alt, name }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PATCH",
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error || "Failed to update media");
-      }
-
-      return response.json() as Promise<Media>;
-    },
+    ...orpc.media.update.mutationOptions(),
     onError: (error) => {
       toast.error(
         error instanceof Error ? error.message : "Failed to update media"
@@ -94,11 +73,11 @@ export default function MediaDetailPage({
       }
 
       queryClient.setQueryData(
-        QUERY_KEYS.MEDIA_DETAIL(workspaceId, id),
+        orpc.media.get.key({ input: { workspaceId, id } }),
         updatedMedia
       );
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        queryKey: orpc.media.list.key(),
       });
       toast.success("Saved media details");
     },
@@ -113,7 +92,7 @@ export default function MediaDetailPage({
   }, [media?.blurHash, media?.type]);
 
   if (isLoading) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (isError || !media) {
@@ -143,7 +122,9 @@ export default function MediaDetailPage({
         <MediaDetailsPanel
           isSaving={isSaving}
           media={media}
-          onSave={(values) => updateMedia(values)}
+          onSave={(values) =>
+            workspaceId && updateMedia({ workspaceId, id, ...values })
+          }
         />
       }
       flush

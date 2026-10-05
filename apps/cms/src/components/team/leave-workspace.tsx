@@ -16,19 +16,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
-import { organization, useListOrganizations } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { organization } from "@/lib/auth/client";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
-
-interface ListOrganizationResponse {
-  // biome-ignore lint/suspicious/noExplicitAny: <>
-  metadata?: any;
-  name: string;
-  slug: string;
-  logo?: string | null | undefined | undefined;
-  createdAt: Date;
-  id: string;
-}
 
 interface LeaveWorkspaceModalProps {
   id: string;
@@ -44,8 +34,7 @@ export function LeaveWorkspaceModal({
   setOpen,
 }: LeaveWorkspaceModalProps) {
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
-  const { updateActiveWorkspace } = useWorkspace();
-  const { data: organizations } = useListOrganizations();
+  const { updateActiveWorkspace, workspaceList } = useWorkspace();
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -63,11 +52,11 @@ export function LeaveWorkspaceModal({
 
       toast.success("You have left the workspace.");
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
 
-      const remainingWorkspaces = organizations?.filter(
-        (org: ListOrganizationResponse) => org.id !== id
+      const remainingWorkspaces = workspaceList?.filter(
+        (workspace) => workspace.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {

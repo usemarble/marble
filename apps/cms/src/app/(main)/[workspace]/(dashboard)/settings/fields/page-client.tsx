@@ -23,10 +23,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { FieldsSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { CustomField } from "@/types/fields";
+import { orpc } from "@/lib/orpc";
+import Loading from "./loading";
 
 const CreateCustomFieldSheet = dynamic(
   () => import("@/components/fields/create-custom-field")
@@ -48,11 +47,7 @@ const fieldTypeLabels: Record<string, string> = {
   multiselect: "Multi Select",
 };
 
-export function PageClient({
-  initialFields,
-}: {
-  initialFields?: CustomField[];
-}) {
+export function PageClient() {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const docsHref = "https://docs.marblecms.com/features/custom-fields";
@@ -64,26 +59,15 @@ export function PageClient({
     isError,
     error,
     refetch,
-  } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      const res = await fetch("/api/fields");
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch custom fields: ${res.status} ${res.statusText}`
-        );
-      }
-      const data: CustomField[] = await res.json();
-      return data;
-    },
-    enabled: !!workspaceId,
-    initialData: initialFields,
-  });
+  } = useQuery(
+    orpc.fields.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: !!workspaceId,
+    })
+  );
 
   if (!workspaceId || isLoading) {
-    return <FieldsSettingsSkeleton />;
+    return <Loading />;
   }
 
   if (isError) {
@@ -214,7 +198,9 @@ export function PageClient({
                     onDelete={() => {
                       if (workspaceId) {
                         queryClient.invalidateQueries({
-                          queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
+                          queryKey: orpc.fields.list.key({
+                            input: { workspaceId },
+                          }),
                         });
                       }
                     }}

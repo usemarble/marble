@@ -1,10 +1,15 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  cacheKey,
+  createCacheClient,
+  hashQueryParams,
+} from "@marble/api/lib/cache";
+import { transact } from "@marble/api/lib/transaction";
 import { createRecordId } from "@marble/db/id";
 import { post, postToTag, tag as tagTable } from "@marble/db/schema";
 import { toTagPayload, withChanges } from "@marble/events";
 import { and, asc, count, eq, ne, or, sql } from "drizzle-orm";
-import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { emitEvent } from "@/lib/events";
+import { serviceContext } from "@/lib/context";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
@@ -296,7 +301,6 @@ tags.openapi(createTagRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check for slug uniqueness within workspace
@@ -317,22 +321,43 @@ tags.openapi(createTagRoute, async (c) => {
       );
     }
 
-    const [tagCreated] = await db
-      .insert(tagTable)
-      .values({
-        id: createRecordId(),
-        name: body.name,
-        slug: body.slug,
-        description: body.description ?? null,
-        workspaceId,
-        updatedAt: new Date(),
-      })
-      .returning({
-        id: tagTable.id,
-        name: tagTable.name,
-        slug: tagTable.slug,
-        description: tagTable.description,
-      });
+    const tagCreated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [row] = await tx
+          .insert(tagTable)
+          .values({
+            id: createRecordId(),
+            name: body.name,
+            slug: body.slug,
+            description: body.description ?? null,
+            workspaceId,
+            updatedAt: new Date(),
+          })
+          .returning({
+            id: tagTable.id,
+            name: tagTable.name,
+            slug: tagTable.slug,
+            description: tagTable.description,
+          });
+
+        if (!row) {
+          return null;
+        }
+
+        invalidate(workspaceId, "tags");
+        await emitEvent({
+          type: "tag_created",
+          workspaceId,
+          resourceType: "tag",
+          resourceId: row.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: toTagPayload(row),
+        });
+        return row;
+      }
+    );
 
     if (!tagCreated) {
       return c.json(
@@ -343,25 +368,6 @@ tags.openapi(createTagRoute, async (c) => {
         500 as const
       );
     }
-
-    // Invalidate cache for tags and posts
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "tag_created",
-        workspaceId,
-        resourceType: "tag",
-        resourceId: tagCreated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: toTagPayload(tagCreated),
-      }).catch((error) => {
-        console.error("[tags.create] Failed to emit tag_created:", error);
-      })
-    );
 
     return c.json({ tag: tagCreated }, 201 as const);
   } catch (error) {
@@ -451,7 +457,6 @@ tags.openapi(updateTagRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
@@ -494,23 +499,44 @@ tags.openapi(updateTagRoute, async (c) => {
       }
     }
 
-    const [tagUpdated] = await db
-      .update(tagTable)
-      .set({
-        ...(body.name !== undefined && { name: body.name }),
-        ...(body.slug !== undefined && { slug: body.slug }),
-        ...(body.description !== undefined && {
-          description: body.description,
-        }),
-        updatedAt: new Date(),
-      })
-      .where(eq(tagTable.id, existingTag.id))
-      .returning({
-        id: tagTable.id,
-        name: tagTable.name,
-        slug: tagTable.slug,
-        description: tagTable.description,
-      });
+    const tagUpdated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [row] = await tx
+          .update(tagTable)
+          .set({
+            ...(body.name !== undefined && { name: body.name }),
+            ...(body.slug !== undefined && { slug: body.slug }),
+            ...(body.description !== undefined && {
+              description: body.description,
+            }),
+            updatedAt: new Date(),
+          })
+          .where(eq(tagTable.id, existingTag.id))
+          .returning({
+            id: tagTable.id,
+            name: tagTable.name,
+            slug: tagTable.slug,
+            description: tagTable.description,
+          });
+
+        if (!row) {
+          return null;
+        }
+
+        invalidate(workspaceId, "tags");
+        await emitEvent({
+          type: "tag_updated",
+          workspaceId,
+          resourceType: "tag",
+          resourceId: row.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: withChanges(toTagPayload(row), Object.keys(body)),
+        });
+        return row;
+      }
+    );
 
     if (!tagUpdated) {
       return c.json(
@@ -521,24 +547,6 @@ tags.openapi(updateTagRoute, async (c) => {
         500 as const
       );
     }
-
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "tag_updated",
-        workspaceId,
-        resourceType: "tag",
-        resourceId: tagUpdated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: withChanges(toTagPayload(tagUpdated), Object.keys(body)),
-      }).catch((error) => {
-        console.error("[tags.update] Failed to emit tag_updated:", error);
-      })
-    );
 
     return c.json({ tag: tagUpdated }, 200 as const);
   } catch (error) {
@@ -557,7 +565,6 @@ tags.openapi(deleteTagRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
     const existingTag = await db.query.tag.findFirst({
@@ -577,12 +584,33 @@ tags.openapi(deleteTagRoute, async (c) => {
       );
     }
 
-    const deletedTags = await db
-      .delete(tagTable)
-      .where(eq(tagTable.id, existingTag.id))
-      .returning({ id: tagTable.id });
+    const deleted = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const deletedTags = await tx
+          .delete(tagTable)
+          .where(eq(tagTable.id, existingTag.id))
+          .returning({ id: tagTable.id });
 
-    if (deletedTags.length === 0) {
+        if (deletedTags.length === 0) {
+          return false;
+        }
+
+        invalidate(workspaceId, "tags");
+        await emitEvent({
+          type: "tag_deleted",
+          workspaceId,
+          resourceType: "tag",
+          resourceId: existingTag.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: toTagPayload(existingTag),
+        });
+        return true;
+      }
+    );
+
+    if (!deleted) {
       return c.json(
         {
           error: "Tag not found",
@@ -591,24 +619,6 @@ tags.openapi(deleteTagRoute, async (c) => {
         404 as const
       );
     }
-
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "tag_deleted",
-        workspaceId,
-        resourceType: "tag",
-        resourceId: existingTag.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: toTagPayload(existingTag),
-      }).catch((error) => {
-        console.error("[tags.delete] Failed to emit tag_deleted:", error);
-      })
-    );
 
     return c.json({ id: existingTag.id }, 200 as const);
   } catch (error) {

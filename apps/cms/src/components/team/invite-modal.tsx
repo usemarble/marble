@@ -28,10 +28,10 @@ import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
-import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 
 export const InviteModal = ({
@@ -41,7 +41,7 @@ export const InviteModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { refreshActiveWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const {
@@ -59,9 +59,13 @@ export const InviteModal = ({
 
   const inviteMutation = useMutation({
     mutationFn: async (data: InviteData) => {
+      if (!workspaceId) {
+        throw new Error("No active workspace found");
+      }
       const { data: result, error } = await organization.inviteMember({
         email: data.email,
         role: data.role,
+        organizationId: workspaceId,
       });
 
       if (error) {
@@ -75,9 +79,10 @@ export const InviteModal = ({
       setOpen(false);
       reset();
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.invitations.list.key({
+          input: { workspaceId: workspaceId ?? "" },
+        }),
       });
-      await refreshActiveWorkspace();
     },
     onError: (error) => {
       toast.error(

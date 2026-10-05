@@ -14,7 +14,7 @@ import {
 import { sendExportReadyEmail } from "@marble/email";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { Resend } from "resend";
-import { EXPORT_TTL_MS, getAppUrl } from "@/lib/constants";
+import { EXPORT_TTL_MS } from "@/lib/constants";
 import type { DbClient } from "@/lib/db";
 import { buildZipArchive, stringifyJsonFile } from "@/lib/files";
 
@@ -403,7 +403,7 @@ export async function runExport(db: DbClient, jobId: string) {
 
     if (emailRecipients.length > 0 && env.RESEND_API_KEY) {
       try {
-        const downloadUrl = `${getAppUrl()}/api/data/export/${job.id}/download?token=${token}`;
+        const downloadUrl = `${env.API_URL}/exports/${job.id}/download?token=${token}`;
         const resend = new Resend(env.RESEND_API_KEY);
         let sentCount = 0;
 

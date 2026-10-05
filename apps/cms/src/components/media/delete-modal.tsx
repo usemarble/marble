@@ -14,14 +14,11 @@ import {
   AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  type InfiniteData,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media, MediaListResponse } from "@/types/media";
+import type { Media } from "@/types/media";
 import { AsyncButton } from "../ui/async-button";
 
 interface DeleteMediaModalProps {
@@ -29,30 +26,6 @@ interface DeleteMediaModalProps {
   setIsOpen: (isOpen: boolean) => void;
   mediaToDelete: Media[];
   onDeleteComplete?: (deletedIds: string[]) => void;
-}
-
-function removeDeletedMediaFromPage(
-  page: MediaListResponse,
-  idsToDelete: Set<string>
-): MediaListResponse {
-  const removedCount = page.media.reduce(
-    (count, item) => count + (idsToDelete.has(item.id) ? 1 : 0),
-    0
-  );
-  const media = page.media.filter((item) => !idsToDelete.has(item.id));
-
-  if ("totalCount" in page) {
-    return {
-      ...page,
-      media,
-      totalCount: Math.max(0, page.totalCount - removedCount),
-    };
-  }
-
-  return {
-    ...page,
-    media,
-  };
 }
 
 export function DeleteMediaModal({
@@ -69,69 +42,18 @@ export function DeleteMediaModal({
   const singleItem = isSingleItem ? mediaToDelete[0] : null;
 
   const { mutate: deleteMedia, isPending } = useMutation({
-    mutationFn: async (mediaIds: string[]) => {
-      const response = await fetch("/api/media", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mediaIds }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete media");
-      }
-
-      return response.json();
-    },
-    onMutate: async (mediaIds) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({
-        queryKey: workspaceId ? QUERY_KEYS.MEDIA(workspaceId) : [],
-      });
-
-      // Snapshot all media queries for rollback
-      const previousQueries = queryClient.getQueriesData<
-        InfiniteData<MediaListResponse> | MediaListResponse
-      >({
-        queryKey: workspaceId ? QUERY_KEYS.MEDIA(workspaceId) : [],
-      });
-
-      const idsToDelete = new Set(mediaIds);
-
-      // Optimistically remove items from all media queries
-      if (workspaceId) {
-        queryClient.setQueriesData<
-          InfiniteData<MediaListResponse> | MediaListResponse
-        >({ queryKey: QUERY_KEYS.MEDIA(workspaceId) }, (oldData) => {
-          if (!oldData) {
-            return oldData;
-          }
-          if ("pages" in oldData) {
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page) =>
-                removeDeletedMediaFromPage(page, idsToDelete)
-              ),
-            };
-          }
-          return removeDeletedMediaFromPage(oldData, idsToDelete);
-        });
-      }
-
-      setIsOpen(false);
-
-      const loadingMessage =
+    ...orpc.media.delete.mutationOptions(),
+    onMutate: ({ mediaIds }) => {
+      toast.loading(
         mediaIds.length === 1
           ? "Deleting media..."
-          : `Deleting ${mediaIds.length} items...`;
-      toast.loading(loadingMessage, { id: "deleting-media" });
-
-      return { previousQueries, deletedCount: mediaIds.length };
+          : `Deleting ${mediaIds.length} items...`,
+        { id: "deleting-media" }
+      );
     },
-    onSuccess: (_data, mediaIds, context) => {
-      const deletedCount = context?.deletedCount || 0;
+    onSuccess: (_data, { mediaIds }) => {
+      setIsOpen(false);
+      const deletedCount = mediaIds.length;
       const message =
         deletedCount === 1
           ? "Media deleted successfully"
@@ -139,9 +61,8 @@ export function DeleteMediaModal({
       toast.success(message, { id: "deleting-media" });
 
       if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.MEDIA(workspaceId),
-        });
+        queryClient.invalidateQueries({ queryKey: orpc.media.list.key() });
+        queryClient.invalidateQueries({ queryKey: orpc.media.editor.key() });
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
         });
@@ -149,20 +70,14 @@ export function DeleteMediaModal({
 
       onDeleteComplete?.(mediaIds);
     },
-    onError: (error, _mediaIds, context) => {
-      // Rollback to previous state on error
-      if (context?.previousQueries) {
-        for (const [queryKey, data] of context.previousQueries) {
-          queryClient.setQueryData(queryKey, data);
-        }
-      }
+    onError: (error) => {
       toast.error(error.message, { id: "deleting-media" });
     },
   });
 
   const handleDelete = () => {
-    if (mediaToDelete.length > 0) {
-      deleteMedia(mediaToDelete.map((m) => m.id));
+    if (mediaToDelete.length > 0 && workspaceId) {
+      deleteMedia({ workspaceId, mediaIds: mediaToDelete.map((m) => m.id) });
     }
   };
 

@@ -2,6 +2,7 @@
 
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
+import { generateSlug } from "@marble/utils";
 import type { ChangeEvent } from "react";
 import {
   type Control,
@@ -10,7 +11,6 @@ import {
   useController,
 } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { generateSlug } from "@/utils/string";
 import { FieldInfo } from "./field-info";
 
 interface SlugFieldProps<TFieldValues extends FieldValues> {

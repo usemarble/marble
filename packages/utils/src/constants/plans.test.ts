@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canPerformAction,
   getWorkspacePlan,
   hasHigherPlan,
   isSubscriptionActive,
@@ -202,5 +203,13 @@ describe("getWorkspacePlan", () => {
         NOW
       )
     ).toBe("free");
+  });
+});
+
+describe("canPerformAction", () => {
+  it("gives the AI assistant to paid plans only", () => {
+    expect(canPerformAction("free", "aiAssistant")).toBe(false);
+    expect(canPerformAction("hobby", "aiAssistant")).toBe(true);
+    expect(canPerformAction("pro", "aiAssistant")).toBe(true);
   });
 });

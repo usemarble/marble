@@ -10,7 +10,7 @@ export type MediaType = (typeof MEDIA_TYPES)[number];
 
 export type MediaFilterType = (typeof MEDIA_FILTER_TYPES)[number];
 
-export type UploadType = "avatar" | "logo" | "media";
+export type UploadType = "avatar" | "author-avatar" | "logo" | "media";
 
 export interface Media {
   id: string;
@@ -76,6 +76,7 @@ export interface UploadResponse {
  */
 export interface UploadResponseMap {
   avatar: UploadResponse;
+  "author-avatar": UploadResponse;
   logo: UploadResponse;
   media: Media;
 }

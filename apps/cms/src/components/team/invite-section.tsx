@@ -1,8 +1,9 @@
 "use client";
 
+import type { RouterOutputs } from "@marble/api/routers";
+import { Avatar, AvatarFallback } from "@marble/ui/components/avatar";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
-import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,30 +12,33 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@marble/ui/components/table";
+import {
   ArrowsClockwiseIcon,
   DotsThreeVerticalIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
+import { orpc } from "@/lib/orpc";
 
-interface Invite {
-  id: string;
-  email: string;
-  role: string | null;
-  status: string;
-  expiresAt: string | Date;
-  inviterId: string;
-}
+type Invite = RouterOutputs["workspaces"]["invitations"]["list"][number];
 
 interface InviteSectionProps {
   invitations: Invite[];
+  workspaceId: string;
 }
 
-export function InviteSection({ invitations }: InviteSectionProps) {
-  const { refreshActiveWorkspace } = useWorkspace();
+export function InviteSection({
+  invitations,
+  workspaceId,
+}: InviteSectionProps) {
   const queryClient = useQueryClient();
 
   const pendingInvitations = invitations.filter(
@@ -53,6 +57,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       const { data, error } = await organization.inviteMember({
         email,
         role: role as "owner" | "admin" | "member",
+        organizationId: workspaceId,
         resend: true,
       });
 
@@ -73,9 +78,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.invitations.list.key({
+          input: { workspaceId },
+        }),
       });
-      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(
@@ -110,9 +116,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.invitations.list.key({
+          input: { workspaceId },
+        }),
       });
-      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(
@@ -141,81 +148,105 @@ export function InviteSection({ invitations }: InviteSectionProps) {
   }
 
   return (
-    <Card className="rounded-[20px] border-none bg-surface p-2.5">
-      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Pending Invitations</CardTitle>
-            <CardDescription className="sr-only">
-              {pendingInvitations.length} invitation
-              {pendingInvitations.length !== 1 ? "s" : ""} waiting for response
-            </CardDescription>
-          </div>
-        </div>
-        <div className="space-y-3 divide-y">
-          {pendingInvitations.map((invitation) => (
-            <div
-              className="flex items-center justify-between rounded-sm border p-3"
-              key={invitation.id}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-full bg-muted">
-                  <span className="font-medium text-sm">
-                    {invitation.email.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-sm">{invitation.email}</p>
-                  <Badge className="text-xs capitalize" variant="outline">
+    <section aria-labelledby="invitations-heading" className="space-y-3">
+      <h2 className="font-medium text-sm" id="invitations-heading">
+        Invitations
+      </h2>
+      <div className="overflow-hidden rounded-[20px] bg-surface p-1 [&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table-container]]:overflow-y-hidden">
+        <Table className="-mb-1 h-fit border-separate border-spacing-y-1">
+          <TableHeader>
+            <TableRow className="border-0 text-[13px] hover:bg-transparent">
+              <TableHead className="px-3 text-muted-foreground">User</TableHead>
+              <TableHead className="px-3 text-muted-foreground">Role</TableHead>
+              <TableHead className="px-3 text-muted-foreground">
+                Status
+              </TableHead>
+              <TableHead className="w-12 px-3 text-right text-muted-foreground">
+                <span className="sr-only">Actions</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pendingInvitations.map((invitation) => (
+              <TableRow
+                className="h-[60px] border-0 bg-background hover:bg-background/80"
+                key={invitation.id}
+              >
+                <TableCell className="px-3 py-2 first:rounded-l-[14px]">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-8">
+                      <AvatarFallback>
+                        {invitation.email.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium text-sm">
+                      {invitation.email}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="px-3 py-2">
+                  <Badge className="capitalize" variant="outline">
                     {invitation.role || "member"}
                   </Badge>
-                </div>
-              </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      className="size-8 p-0"
-                      disabled={
-                        resendInviteMutation.isPending ||
-                        cancelInviteMutation.isPending
-                      }
-                      variant="ghost"
-                    >
-                      <span className="sr-only">Open menu</span>
-                      <DotsThreeVerticalIcon size={16} weight="bold" />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    disabled={
-                      resendInviteMutation.isPending ||
-                      cancelInviteMutation.isPending
-                    }
-                    onClick={() => handleResendInvite(invitation)}
-                  >
-                    <ArrowsClockwiseIcon className="size-4" />
-                    Resend Invite
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    disabled={
-                      resendInviteMutation.isPending ||
-                      cancelInviteMutation.isPending
-                    }
-                    onClick={() => handleCancelInvite(invitation)}
-                    variant="destructive"
-                  >
-                    <XIcon className="size-4" />
-                    Cancel Invite
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ))}
-        </div>
+                </TableCell>
+                <TableCell className="px-3 py-2">
+                  <Badge variant="secondary">
+                    {new Date(invitation.expiresAt).getTime() <= Date.now()
+                      ? "Expired"
+                      : "Pending"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="px-3 py-2 last:rounded-r-[14px]">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            className="size-8 p-0"
+                            disabled={
+                              resendInviteMutation.isPending ||
+                              cancelInviteMutation.isPending
+                            }
+                            variant="ghost"
+                          >
+                            <span className="sr-only">
+                              Manage invitation for {invitation.email}
+                            </span>
+                            <DotsThreeVerticalIcon size={16} weight="bold" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          disabled={
+                            resendInviteMutation.isPending ||
+                            cancelInviteMutation.isPending
+                          }
+                          onClick={() => handleResendInvite(invitation)}
+                        >
+                          <ArrowsClockwiseIcon className="size-4" />
+                          Resend Invite
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={
+                            resendInviteMutation.isPending ||
+                            cancelInviteMutation.isPending
+                          }
+                          onClick={() => handleCancelInvite(invitation)}
+                          variant="destructive"
+                        >
+                          <XIcon className="size-4" />
+                          Cancel Invite
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-    </Card>
+    </section>
   );
 }

@@ -16,7 +16,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 
 export const DeleteKeyModal = ({
@@ -34,23 +34,12 @@ export const DeleteKeyModal = ({
   const workspaceId = useWorkspaceId();
 
   const { mutate: deleteKey, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/keys/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorText = await res.json().catch(() => "Unknown error");
-        throw new Error(errorText.error || "Failed to delete key");
-      }
-
-      return true;
-    },
+    ...orpc.keys.delete.mutationOptions(),
     onSuccess: () => {
       toast.success("Key deleted successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.KEYS(workspaceId),
+          queryKey: orpc.keys.key({ input: { workspaceId } }),
         });
       }
       setOpen(false);
@@ -90,7 +79,9 @@ export const DeleteKeyModal = ({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteKey();
+                if (workspaceId) {
+                  deleteKey({ workspaceId, id });
+                }
               }}
               size="sm"
               variant="destructive"

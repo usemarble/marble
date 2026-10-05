@@ -22,7 +22,7 @@ import StarterKit from "@tiptap/starter-kit";
 import type { ParseableElement } from "./types";
 
 const queryHtml = (element: HTMLElement, selector: string) =>
-  (element as ParseableElement).querySelector(selector);
+  (element as unknown as ParseableElement).querySelector(selector);
 
 const linkedMediaHref = (element: HTMLElement, selector: string) => {
   const media = queryHtml(element, selector);

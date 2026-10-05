@@ -2,11 +2,11 @@
 
 import { Input } from "@marble/ui/components/input";
 import { toast } from "@marble/ui/components/sonner";
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
-import Container from "../../shared/container";
 import { AsyncButton } from "../../ui/async-button";
 
 interface ResetFormProps {
@@ -19,6 +19,7 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const router = useRouter();
 
   const handleResetPassword = async () => {
@@ -55,38 +56,52 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
   };
 
   return (
-    <Container className="flex flex-col items-center justify-between py-24">
-      <section className="flex w-full flex-col items-center gap-8">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="font-semibold text-lg leading-7">
-            Reset your password
-          </h1>
-        </div>
-
-        <div className="flex w-full max-w-sm flex-col gap-4">
+    <section className="flex w-full max-w-sm flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h1 className="font-semibold text-lg">Reset your password</h1>
+        <p className="text-muted-foreground text-sm">
+          Choose a new password for your account.
+        </p>
+      </div>
+      <div className="flex w-full flex-col gap-4">
+        <div className="relative">
           <Input
+            autoComplete="new-password"
+            className="pr-9"
             onChange={(e) => setPassword(e.target.value)}
             placeholder="New password"
-            type="password"
+            type={isPasswordVisible ? "text" : "password"}
             value={password}
           />
-          <Input
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-            type="password"
-            value={confirmPassword}
-          />
+          <button
+            aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+            className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
+            onClick={() => setIsPasswordVisible((prev) => !prev)}
+            type="button"
+          >
+            {isPasswordVisible ? (
+              <EyeIcon className="size-4" />
+            ) : (
+              <EyeSlashIcon className="size-4" />
+            )}
+          </button>
         </div>
-
+        <Input
+          autoComplete="new-password"
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm new password"
+          type={isPasswordVisible ? "text" : "password"}
+          value={confirmPassword}
+        />
         <AsyncButton
-          className="flex min-w-48 items-center justify-center"
+          className="flex items-center justify-center"
           disabled={!password || !confirmPassword}
           isLoading={isLoading}
           onClick={handleResetPassword}
         >
           Reset password
         </AsyncButton>
-      </section>
-    </Container>
+      </div>
+    </section>
   );
 }
