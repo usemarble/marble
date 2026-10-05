@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogX,
 } from "@marble/ui/components/dialog";
+import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
   TabsContent,
@@ -19,12 +20,12 @@ import {
 } from "@marble/ui/components/tabs";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { type Dispatch, type SetStateAction, useState } from "react";
-import { toast } from "sonner";
 import { Dropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { client, orpc } from "@/lib/orpc";
 import { MAX_IMPORT_SIZE } from "@/lib/validations/import";
 import { useWorkspace } from "@/providers/workspace";
 import { formatBytes } from "@/utils/string";
@@ -48,30 +49,35 @@ export function PostsImportModal({
   const queryClient = useQueryClient();
   const router = useRouter();
   const { activeWorkspace } = useWorkspace();
+  const createImport = useMutation(orpc.data.imports.create.mutationOptions());
 
   const { mutate: startImport, isPending } = useMutation({
     mutationFn: async (source: ImportSource) => {
-      const init: RequestInit =
-        "file" in source
-          ? (() => {
-              const body = new FormData();
-              body.append("file", source.file);
-              return { method: "POST", body };
-            })()
-          : {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: source.url }),
-            };
-
-      const res = await fetch("/api/data/import", init);
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to start import");
+      if (!activeWorkspace?.id) {
+        throw new Error("Workspace unavailable");
       }
-
-      return (await res.json()) as { id: string };
+      if (!("file" in source)) {
+        throw new Error("URL imports aren't supported yet");
+      }
+      const fileType = source.file.type || "application/octet-stream";
+      const initiated = await client.uploads.initiate({
+        workspaceId: activeWorkspace.id,
+        type: "import",
+        fileType,
+        fileSize: source.file.size,
+        fileName: source.file.name,
+      });
+      await axios.put(initiated.url, source.file, {
+        headers: initiated.headers,
+      });
+      return createImport.mutateAsync({
+        workspaceId: activeWorkspace.id,
+        token: initiated.token,
+        key: initiated.key,
+        fileType,
+        fileSize: source.file.size,
+        fileName: source.file.name,
+      });
     },
     onSuccess: async () => {
       toast.success("Import started");
@@ -79,7 +85,9 @@ export function PostsImportModal({
       setFile(null);
       if (activeWorkspace?.id) {
         await queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.IMPORTS(activeWorkspace.id),
+          queryKey: orpc.data.imports.list.key({
+            input: { workspaceId: activeWorkspace.id },
+          }),
         });
       }
       if (activeWorkspace?.slug) {

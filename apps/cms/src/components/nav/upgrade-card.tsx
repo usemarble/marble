@@ -48,7 +48,7 @@ export function UpgradeCard() {
     try {
       await checkout({
         slug: isFreePlan ? "hobby" : "pro",
-        referenceId: activeWorkspace.id,
+        reference_id: activeWorkspace.id,
       });
     } catch (error) {
       console.error(error);

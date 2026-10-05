@@ -33,18 +33,12 @@ import {
   useController,
 } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { TagModal } from "../../tags/tag-modals";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
 
 interface Option {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface TagResponse {
   id: string;
   name: string;
   slug: string;
@@ -80,20 +74,13 @@ export const TagSelector = <TFieldValues extends FieldValues>({
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  const { data: tags = [], isLoading: isLoadingTags } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.TAGS(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      const res = await fetch("/api/tags");
-      if (!res.ok) {
-        throw new Error("Failed to fetch tags");
-      }
-      const data: TagResponse[] = await res.json();
-      return data;
-    },
-    enabled: !!workspaceId,
-  });
+  const { data: tags = [], isLoading: isLoadingTags } = useQuery(
+    orpc.tags.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      staleTime: 1000 * 60 * 60,
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   // Compute selected tags directly without useEffect
   const selected = useMemo(() => {
@@ -122,14 +109,10 @@ export const TagSelector = <TFieldValues extends FieldValues>({
     }
 
     // Optimistically update React Query cache
-    queryClient.setQueryData(
-      QUERY_KEYS.TAGS(workspaceId),
-      (oldData: TagResponse[] | undefined) =>
-        oldData ? [...oldData, newTag] : [newTag]
-    );
 
-    // Also invalidate to refetch from server
-    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TAGS(workspaceId) });
+    queryClient.invalidateQueries({
+      queryKey: orpc.tags.key({ input: { workspaceId } }),
+    });
 
     const newValue = [...(value || []), newTag.id];
     onChange(newValue);

@@ -3,6 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
+import {
+  type TimezoneValues,
+  timezoneSchema,
+  timezones,
+} from "@marble/utils/workspace";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -12,12 +17,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
-import { timezones } from "@/lib/constants";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type TimezoneValues,
-  timezoneSchema,
-} from "@/lib/validations/workspace";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Timezone() {
@@ -49,13 +49,13 @@ export function Timezone() {
       }
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Updated timezone");
       timezoneForm.reset({
         timezone: timezoneForm.getValues("timezone"),
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: orpc.workspaces.list.key(),
       });
       router.refresh();
     },

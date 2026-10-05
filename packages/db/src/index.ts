@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/performance/noBarrelFile: Public package entrypoint. */
 import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
+import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import ws from "ws";
 import { schema } from "./schema";
 
@@ -36,6 +37,13 @@ if (process.env.NODE_ENV === "production") {
 export { db };
 export { createRecordId } from "./id";
 export type { DrizzleDb };
+
+/**
+ * Any Marble Drizzle client: the CMS's neon-serverless `db` or a Worker's
+ * per-invocation Hyperdrive client. Code shared between the two takes this.
+ */
+export type DbClient = PgDatabase<PgQueryResultHKT, typeof schema>;
+
 export type TransactionClient = Parameters<
   Parameters<DrizzleDb["transaction"]>[0]
 >[0];

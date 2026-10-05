@@ -47,16 +47,11 @@ import {
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalStorage } from "@/hooks/use-localstorage";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { POST_SORTS, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 import type { DataTableProps } from "./data-table";
-
-interface Category {
-  id: string;
-  name: string;
-}
 
 const DataGrid = dynamic(
   () => import("./data-grid").then((mod) => ({ default: mod.DataGrid })),
@@ -118,17 +113,12 @@ export function PostDataView<TData, TValue>({
     setSearchParams({ page: 1, search: debouncedSearch });
   }, [debouncedSearch, initialSearch, setSearchParams]);
 
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: QUERY_KEYS.CATEGORIES(activeWorkspace?.id ?? ""),
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      return res.json();
-    },
-    enabled: !!activeWorkspace?.id,
-  });
+  const { data: categories = [] } = useQuery(
+    orpc.categories.list.queryOptions({
+      input: { workspaceId: activeWorkspace?.id ?? "" },
+      enabled: Boolean(activeWorkspace?.id),
+    })
+  );
   const pagination = useMemo<PaginationState>(
     () => ({
       pageIndex: Math.max(0, page - 1),

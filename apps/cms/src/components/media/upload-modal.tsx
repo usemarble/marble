@@ -42,6 +42,7 @@ export function MediaUploadModal({
       const media = await uploadFile({
         file,
         type: "media",
+        workspaceId: workspaceId ?? "",
       });
       return media;
     },

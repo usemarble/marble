@@ -1,10 +1,15 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  cacheKey,
+  createCacheClient,
+  hashQueryParams,
+} from "@marble/api/lib/cache";
+import { transact } from "@marble/api/lib/transaction";
 import { createRecordId } from "@marble/db/id";
 import { category as categoryTable, post } from "@marble/db/schema";
 import { toCategoryPayload, withChanges } from "@marble/events";
 import { and, asc, count, eq, ne, or, sql } from "drizzle-orm";
-import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { emitEvent } from "@/lib/events";
+import { serviceContext } from "@/lib/context";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   CategoriesListResponseSchema,
@@ -315,7 +320,6 @@ categories.openapi(createCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check for slug uniqueness within workspace
@@ -336,22 +340,43 @@ categories.openapi(createCategoryRoute, async (c) => {
       );
     }
 
-    const [categoryCreated] = await db
-      .insert(categoryTable)
-      .values({
-        id: createRecordId(),
-        name: body.name,
-        slug: body.slug,
-        description: body.description ?? null,
-        workspaceId,
-        updatedAt: new Date(),
-      })
-      .returning({
-        id: categoryTable.id,
-        name: categoryTable.name,
-        slug: categoryTable.slug,
-        description: categoryTable.description,
-      });
+    const categoryCreated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [row] = await tx
+          .insert(categoryTable)
+          .values({
+            id: createRecordId(),
+            name: body.name,
+            slug: body.slug,
+            description: body.description ?? null,
+            workspaceId,
+            updatedAt: new Date(),
+          })
+          .returning({
+            id: categoryTable.id,
+            name: categoryTable.name,
+            slug: categoryTable.slug,
+            description: categoryTable.description,
+          });
+
+        if (!row) {
+          return null;
+        }
+
+        invalidate(workspaceId, "categories");
+        await emitEvent({
+          type: "category_created",
+          workspaceId,
+          resourceType: "category",
+          resourceId: row.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: toCategoryPayload(row),
+        });
+        return row;
+      }
+    );
 
     if (!categoryCreated) {
       return c.json(
@@ -362,30 +387,6 @@ categories.openapi(createCategoryRoute, async (c) => {
         500 as const
       );
     }
-
-    // Invalidate cache for categories and posts
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "category_created",
-        workspaceId,
-        resourceType: "category",
-        resourceId: categoryCreated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: toCategoryPayload(categoryCreated),
-      }).catch((error) => {
-        console.error(
-          "[categories.create] Failed to emit category_created:",
-          error
-        );
-      })
-    );
 
     return c.json({ category: categoryCreated }, 201 as const);
   } catch (error) {
@@ -482,7 +483,6 @@ categories.openapi(updateCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
@@ -525,23 +525,44 @@ categories.openapi(updateCategoryRoute, async (c) => {
       }
     }
 
-    const [categoryUpdated] = await db
-      .update(categoryTable)
-      .set({
-        ...(body.name !== undefined && { name: body.name }),
-        ...(body.slug !== undefined && { slug: body.slug }),
-        ...(body.description !== undefined && {
-          description: body.description,
-        }),
-        updatedAt: new Date(),
-      })
-      .where(eq(categoryTable.id, existingCategory.id))
-      .returning({
-        id: categoryTable.id,
-        name: categoryTable.name,
-        slug: categoryTable.slug,
-        description: categoryTable.description,
-      });
+    const categoryUpdated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [row] = await tx
+          .update(categoryTable)
+          .set({
+            ...(body.name !== undefined && { name: body.name }),
+            ...(body.slug !== undefined && { slug: body.slug }),
+            ...(body.description !== undefined && {
+              description: body.description,
+            }),
+            updatedAt: new Date(),
+          })
+          .where(eq(categoryTable.id, existingCategory.id))
+          .returning({
+            id: categoryTable.id,
+            name: categoryTable.name,
+            slug: categoryTable.slug,
+            description: categoryTable.description,
+          });
+
+        if (!row) {
+          return null;
+        }
+
+        invalidate(workspaceId, "categories");
+        await emitEvent({
+          type: "category_updated",
+          workspaceId,
+          resourceType: "category",
+          resourceId: row.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: withChanges(toCategoryPayload(row), Object.keys(body)),
+        });
+        return row;
+      }
+    );
 
     if (!categoryUpdated) {
       return c.json(
@@ -552,32 +573,6 @@ categories.openapi(updateCategoryRoute, async (c) => {
         500 as const
       );
     }
-
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "category_updated",
-        workspaceId,
-        resourceType: "category",
-        resourceId: categoryUpdated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: withChanges(
-          toCategoryPayload(categoryUpdated),
-          Object.keys(body)
-        ),
-      }).catch((error) => {
-        console.error(
-          "[categories.update] Failed to emit category_updated:",
-          error
-        );
-      })
-    );
 
     return c.json({ category: categoryUpdated }, 200 as const);
   } catch (error) {
@@ -596,7 +591,6 @@ categories.openapi(deleteCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
     const existingCategory = await db.query.category.findFirst({
@@ -639,32 +633,22 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       );
     }
 
-    await db
-      .delete(categoryTable)
-      .where(eq(categoryTable.id, existingCategory.id));
+    await transact(serviceContext(c), async ({ tx, emitEvent, invalidate }) => {
+      await tx
+        .delete(categoryTable)
+        .where(eq(categoryTable.id, existingCategory.id));
 
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
+      invalidate(workspaceId, "categories");
+      await emitEvent({
         type: "category_deleted",
         workspaceId,
         resourceType: "category",
         resourceId: existingCategory.id,
         actorType: "api_key",
-        actorId: apiKeyId,
+        actorId: c.get("apiKeyId"),
         payload: toCategoryPayload(existingCategory),
-      }).catch((error) => {
-        console.error(
-          "[categories.delete] Failed to emit category_deleted:",
-          error
-        );
-      })
-    );
+      });
+    });
 
     return c.json({ id: existingCategory.id }, 200 as const);
   } catch (error) {

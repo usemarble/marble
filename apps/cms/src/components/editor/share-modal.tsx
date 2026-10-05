@@ -22,6 +22,8 @@ import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
@@ -32,33 +34,17 @@ interface ShareModalProps {
 export function ShareModal({ postId }: ShareModalProps) {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
 
   const { canUseFeature } = usePlan();
 
+  const workspaceId = useWorkspaceId();
   const { mutate: generateShareLink, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/share", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId, expiresAt: date }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to generate share link");
-      }
-
-      const data = await res.json();
+    ...orpc.share.create.mutationOptions(),
+    onSuccess: (data) => {
       setShareLink(data.shareLink);
-      setExpiresAt(new Date(data.expiresAt));
-      return data;
-    },
-    onSuccess: () => {
+      setExpiresAt(data.expiresAt);
       toast.success("Link generated successfully");
     },
     onError: (error) => {
@@ -152,9 +138,13 @@ export function ShareModal({ postId }: ShareModalProps) {
               <DialogFooter>
                 <DialogClose size="sm">Close</DialogClose>
                 <AsyncButton
-                  disabled={isPending}
+                  disabled={isPending || !workspaceId}
                   isLoading={isPending}
-                  onClick={() => generateShareLink()}
+                  onClick={() => {
+                    if (workspaceId) {
+                      generateShareLink({ workspaceId, postId });
+                    }
+                  }}
                   size="sm"
                   type="button"
                 >

@@ -24,31 +24,21 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
-import type { PublishingMetricsData } from "@/types/dashboard";
+import { orpc } from "@/lib/orpc";
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 
 export const PublishingActivityCard = () => {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
 
-  const { data: metrics, isPending } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.PUBLISHING_METRICS(workspaceId)
-      : ["publishing-metrics", "disabled"],
-    queryFn: async (): Promise<PublishingMetricsData> => {
-      const response = await fetch("/api/metrics/publishing");
-      if (!response.ok) {
-        throw new Error("Failed to fetch publishing metrics");
-      }
-      return response.json();
-    },
-    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
-  });
+  const { data: metrics, isPending } = useQuery(
+    orpc.workspaces.metrics.publishing.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+    })
+  );
 
-  if (isFetchingWorkspace || !workspaceId || isPending) {
+  if (!workspaceId || isPending) {
     return (
       <Card className="rounded-[20px] border-none bg-surface p-2.5">
         <CardHeader className="gap-0 px-4 pt-4">

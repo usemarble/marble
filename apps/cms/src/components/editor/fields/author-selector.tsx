@@ -37,7 +37,7 @@ import {
   useController,
 } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
@@ -79,18 +79,12 @@ export function AuthorSelector<TFieldValues extends FieldValues>({
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
 
-  const { data: authors = [], isLoading } = useQuery<AuthorOptions[]>({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.AUTHORS(workspaceId!),
-    queryFn: async () => {
-      const response = await fetch("/api/authors");
-      if (!response.ok) {
-        throw new Error("Failed to fetch authors");
-      }
-      return response.json();
-    },
-    enabled: !!workspaceId,
-  });
+  const { data: authors = [], isLoading } = useQuery(
+    orpc.authors.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   // Memoize the primary author to avoid recalculation
   const derivedPrimaryAuthor = useMemo(() => {

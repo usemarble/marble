@@ -1,0 +1,248 @@
+import { isSafeWebhookUrl } from "@marble/utils";
+import { z } from "zod";
+export const VALID_DISCORD_DOMAINS = [
+  "discord.com",
+  "canary.discord.com",
+  "ptb.discord.com",
+];
+export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
+
+export const webhookEventEnum = z.enum([
+  "post_published",
+  "post_unpublished",
+  "post_updated",
+  "post_deleted",
+  "category_created",
+  "category_updated",
+  "category_deleted",
+  "tag_created",
+  "tag_updated",
+  "tag_deleted",
+  "media_uploaded",
+  "media_updated",
+  "media_deleted",
+  "author_created",
+  "author_updated",
+  "author_deleted",
+]);
+
+export const payloadFormatEnum = z.enum(["json", "discord", "slack"]);
+
+export const webhookSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, { message: "Name cannot be empty" })
+      .max(50, { message: "Name cannot be more than 50 characters" }),
+    endpoint: z
+      .string()
+      .url({ message: "Please enter a valid URL" })
+      .refine(
+        (raw) => {
+          try {
+            return new URL(raw).protocol === "https:";
+          } catch {
+            return false;
+          }
+        },
+        { message: "Webhook URL must use HTTPS" }
+      )
+      .refine((raw) => isSafeWebhookUrl(raw), {
+        message: "Webhook URL cannot target private or internal addresses",
+      }),
+    events: z
+      .array(webhookEventEnum)
+      .min(1, { message: "Please select at least one event" }),
+    format: payloadFormatEnum,
+  })
+  .superRefine((data, ctx) => {
+    let hostname: string;
+    try {
+      hostname = new URL(data.endpoint).hostname;
+    } catch {
+      // Endpoint validation already reports malformed URLs.
+      return;
+    }
+
+    switch (data.format) {
+      case "discord":
+        if (!VALID_DISCORD_DOMAINS.includes(hostname)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Discord webhook URL must be from one of: ${VALID_DISCORD_DOMAINS.join(", ")}`,
+            path: ["endpoint"],
+          });
+        }
+        break;
+      case "slack":
+        if (!VALID_SLACK_DOMAINS.includes(hostname)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Slack webhook URL must be from: ${VALID_SLACK_DOMAINS.join(", ")}`,
+            path: ["endpoint"],
+          });
+        }
+        break;
+      default:
+        break;
+    }
+  });
+
+export type WebhookFormValues = z.infer<typeof webhookSchema>;
+
+export const webhookUpdateSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, { message: "Name cannot be empty" })
+      .max(50, { message: "Name cannot be more than 50 characters" })
+      .optional(),
+    endpoint: z
+      .string()
+      .url({ message: "Please enter a valid URL" })
+      .refine(
+        (raw) => {
+          try {
+            return new URL(raw).protocol === "https:";
+          } catch {
+            return false;
+          }
+        },
+        { message: "Webhook URL must use HTTPS" }
+      )
+      .refine((raw) => isSafeWebhookUrl(raw), {
+        message: "Webhook URL cannot target private or internal addresses",
+      })
+      .optional(),
+    events: z
+      .array(webhookEventEnum)
+      .min(1, { message: "Please select at least one event" })
+      .optional(),
+    format: payloadFormatEnum.optional(),
+    enabled: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Only validate endpoint/format relationship if both are provided
+    if (data.endpoint && data.format) {
+      try {
+        const hostname = new URL(data.endpoint).hostname;
+
+        switch (data.format) {
+          case "discord":
+            if (!VALID_DISCORD_DOMAINS.includes(hostname)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Discord webhook URL must be from one of: ${VALID_DISCORD_DOMAINS.join(", ")}`,
+                path: ["endpoint"],
+              });
+            }
+            break;
+          case "slack":
+            if (!VALID_SLACK_DOMAINS.includes(hostname)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Slack webhook URL must be from: ${VALID_SLACK_DOMAINS.join(", ")}`,
+                path: ["endpoint"],
+              });
+            }
+            break;
+          default:
+            break;
+        }
+      } catch {
+        // URL parsing error already handled by endpoint validation
+      }
+    }
+  });
+
+export type WebhookUpdateValues = z.infer<typeof webhookUpdateSchema>;
+
+export type WebhookEvent = z.infer<typeof webhookEventEnum>;
+export type PayloadFormat = z.infer<typeof payloadFormatEnum>;
+
+export const webhookEvents: Array<{
+  id: WebhookEvent;
+  label: string;
+  description: string;
+}> = [
+  {
+    id: "post_published",
+    label: "post.published",
+    description: "When a post is published",
+  },
+  {
+    id: "post_unpublished",
+    label: "post.unpublished",
+    description: "When a post is unpublished",
+  },
+  {
+    id: "post_updated",
+    label: "post.updated",
+    description: "When a post is updated",
+  },
+  {
+    id: "post_deleted",
+    label: "post.deleted",
+    description: "When a post is deleted",
+  },
+  {
+    id: "category_created",
+    label: "category.created",
+    description: "When a category is created",
+  },
+  {
+    id: "category_updated",
+    label: "category.updated",
+    description: "When a category is updated",
+  },
+  {
+    id: "category_deleted",
+    label: "category.deleted",
+    description: "When a category is deleted",
+  },
+  {
+    id: "tag_created",
+    label: "tag.created",
+    description: "When a tag is created",
+  },
+  {
+    id: "tag_updated",
+    label: "tag.updated",
+    description: "When a tag is updated",
+  },
+  {
+    id: "tag_deleted",
+    label: "tag.deleted",
+    description: "When a tag is deleted",
+  },
+  {
+    id: "media_uploaded",
+    label: "media.uploaded",
+    description: "When media is uploaded",
+  },
+  {
+    id: "media_updated",
+    label: "media.updated",
+    description: "When media is updated",
+  },
+  {
+    id: "media_deleted",
+    label: "media.deleted",
+    description: "When media is deleted",
+  },
+  {
+    id: "author_created",
+    label: "author.created",
+    description: "When an author is created",
+  },
+  {
+    id: "author_updated",
+    label: "author.updated",
+    description: "When an author is updated",
+  },
+  {
+    id: "author_deleted",
+    label: "author.deleted",
+    description: "When an author is deleted",
+  },
+];

@@ -1,8 +1,19 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { emptyPost } from "@marble/api/lib/post-defaults";
+import {
+  type PostEditorValues,
+  type PostValues,
+  postEditorSchema,
+} from "@marble/api/lib/post-validation";
 import { toast } from "@marble/ui/components/sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { notFound, useParams, useRouter } from "next/navigation";
 import {
   createContext,
@@ -13,16 +24,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { FormProvider, type Resolver, useForm } from "react-hook-form";
-import { emptyPost } from "@/lib/data/post";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type PostEditorValues,
-  type PostValues,
-  postEditorSchema,
-} from "@/lib/validations/post";
+import { FormProvider, useForm } from "react-hook-form";
+import type { z } from "zod";
+import { orpc } from "@/lib/orpc";
+import { useWorkspace } from "@/providers/workspace";
 import type { CustomField } from "@/types/fields";
 import PageLoader from "../shared/page-loader";
+
+type PostEditorInput = z.input<typeof postEditorSchema>;
 
 type EditorMode = "create" | "update";
 
@@ -33,7 +42,7 @@ interface EditorBootstrap {
 
 interface EditorDataContextValue {
   fieldDefinitions: CustomField[];
-  form: ReturnType<typeof useForm<PostEditorValues>>;
+  form: ReturnType<typeof useForm<PostEditorInput, unknown, PostEditorValues>>;
   hasUnsavedChanges: boolean;
   isReady: boolean;
   isSubmitting: boolean;
@@ -98,57 +107,6 @@ function buildCustomFieldPayload(
   );
 }
 
-async function fetchEditorBootstrap(
-  postId?: string
-): Promise<EditorBootstrap | null> {
-  if (!postId) {
-    const response = await fetch("/api/fields");
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch custom fields");
-    }
-
-    const fields: CustomField[] = await response.json();
-
-    return {
-      fields,
-      values: buildEditorValues(fields),
-    };
-  }
-
-  const [postResponse, customFieldsResponse] = await Promise.all([
-    fetch(`/api/posts/${postId}`),
-    fetch(`/api/posts/${postId}/fields`),
-  ]);
-
-  if (postResponse.status === 404 || customFieldsResponse.status === 404) {
-    return null;
-  }
-
-  if (!postResponse.ok) {
-    throw new Error("Failed to fetch post");
-  }
-
-  if (!customFieldsResponse.ok) {
-    throw new Error("Failed to fetch post custom fields");
-  }
-
-  const post = (await postResponse.json()) as PostValues;
-  const customFieldData = (await customFieldsResponse.json()) as {
-    fields: CustomField[];
-    values: Record<string, string>;
-  };
-
-  return {
-    fields: customFieldData.fields,
-    values: buildEditorValues(
-      customFieldData.fields,
-      post,
-      customFieldData.values
-    ),
-  };
-}
-
 export function EditorDataProvider({
   children,
   postId,
@@ -159,39 +117,73 @@ export function EditorDataProvider({
   const router = useRouter();
   const params = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspace();
+  const workspaceId = activeWorkspace?.id;
   const mode: EditorMode = postId ? "update" : "create";
   const [hasHydrated, setHasHydrated] = useState(false);
   const didInitialize = useRef(false);
   const beforeSubmitCallbacks = useRef(new Set<() => void>());
 
-  const form = useForm<PostEditorValues>({
-    resolver: zodResolver(postEditorSchema) as Resolver<PostEditorValues>,
+  const form = useForm<PostEditorInput, unknown, PostEditorValues>({
+    resolver: zodResolver(postEditorSchema),
     defaultValues: buildEditorValues([]),
   });
 
-  const bootstrapQuery = useQuery({
-    queryKey: ["editor-bootstrap", params.workspace, postId ?? "new"],
-    staleTime: 1000 * 60 * 5,
-    queryFn: () => fetchEditorBootstrap(postId),
-  });
-
-  useEffect(() => {
-    if (bootstrapQuery.data === undefined) {
+  const postQuery = useQuery(
+    orpc.posts.get.queryOptions({
+      input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
+      staleTime: 1000 * 60 * 5,
+    })
+  );
+  const postFieldsQuery = useQuery(
+    orpc.posts.fields.get.queryOptions({
+      input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
+      staleTime: 1000 * 60 * 5,
+    })
+  );
+  const newFieldsQuery = useQuery(
+    orpc.posts.fields.list.queryOptions({
+      input: workspaceId && !postId ? { workspaceId } : skipToken,
+      staleTime: 1000 * 60 * 5,
+    })
+  );
+  const bootstrap = useMemo<EditorBootstrap | undefined>(() => {
+    if (!postId) {
+      return newFieldsQuery.data
+        ? {
+            fields: newFieldsQuery.data,
+            values: buildEditorValues(newFieldsQuery.data),
+          }
+        : undefined;
+    }
+    if (!(postQuery.data && postFieldsQuery.data)) {
       return;
     }
+    return {
+      fields: postFieldsQuery.data.fields,
+      values: buildEditorValues(
+        postFieldsQuery.data.fields,
+        postQuery.data,
+        postFieldsQuery.data.values
+      ),
+    };
+  }, [newFieldsQuery.data, postFieldsQuery.data, postId, postQuery.data]);
+  const bootstrapError = postId
+    ? (postQuery.error ?? postFieldsQuery.error)
+    : newFieldsQuery.error;
 
-    if (bootstrapQuery.data === null) {
-      setHasHydrated(true);
+  useEffect(() => {
+    if (bootstrap === undefined) {
       return;
     }
 
     if (!didInitialize.current) {
-      form.reset(bootstrapQuery.data.values);
+      form.reset(bootstrap.values);
       didInitialize.current = true;
     }
 
     setHasHydrated(true);
-  }, [bootstrapQuery.data, form]);
+  }, [bootstrap, form]);
 
   useEffect(() => {
     if (!form.formState.isDirty) {
@@ -207,81 +199,34 @@ export function EditorDataProvider({
     return () => window.removeEventListener("beforeunload", beforeUnload);
   }, [form.formState.isDirty]);
 
-  const createMutation = useMutation({
-    mutationFn: async (values: PostEditorValues) => {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        body: JSON.stringify({
-          ...values,
-          customFields: buildCustomFieldPayload(
-            bootstrapQuery.data?.fields ?? [],
-            values.customFields
-          ),
-        }),
-      });
+  const createMutation = useMutation(
+    orpc.posts.create.mutationOptions({
+      onSuccess: async (data) => {
+        toast.success("Post created");
+        await queryClient.invalidateQueries({
+          queryKey: orpc.posts.list.key({ input: { workspaceId } }),
+        });
+        router.push(`/${params.workspace}/editor/p/${data.id}`);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || "Failed to create post");
-      }
-
-      return (await response.json()) as { id: string };
-    },
-    onSuccess: async (data) => {
-      toast.success("Post created");
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.POSTS(params.workspace),
-      });
-      router.push(`/${params.workspace}/editor/p/${data.id}`);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async (values: PostEditorValues) => {
-      if (!postId) {
-        throw new Error("Missing post ID");
-      }
-
-      const response = await fetch(`/api/posts/${postId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          ...values,
-          customFields: buildCustomFieldPayload(
-            bootstrapQuery.data?.fields ?? [],
-            values.customFields
-          ),
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error || "Failed to update post");
-      }
-
-      return values;
-    },
-    onSuccess: async (values) => {
-      toast.success("Post updated");
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.POSTS(params.workspace),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.POST(params.workspace, postId ?? ""),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ["editor-bootstrap", params.workspace, postId ?? "new"],
-        }),
-      ]);
-      form.reset(values);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const updateMutation = useMutation(
+    orpc.posts.update.mutationOptions({
+      onSuccess: async () => {
+        toast.success("Post updated");
+        await queryClient.invalidateQueries({
+          queryKey: orpc.posts.key({ input: { workspaceId } }),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   const handleInvalidSubmit = useCallback(() => {
     const formErrors = form.formState.errors;
@@ -294,8 +239,8 @@ export function EditorDataProvider({
     }
 
     const customFieldErrors = formErrors.customFields;
-    if (customFieldErrors && bootstrapQuery.data) {
-      for (const field of bootstrapQuery.data.fields) {
+    if (customFieldErrors && bootstrap) {
+      for (const field of bootstrap.fields) {
         if (customFieldErrors[field.id]) {
           invalidFields.add(field.name);
         }
@@ -307,18 +252,36 @@ export function EditorDataProvider({
         ? `Missing or invalid fields: ${Array.from(invalidFields).join(", ")}`
         : "Please fix the highlighted fields"
     );
-  }, [bootstrapQuery.data, form.formState.errors]);
+  }, [bootstrap, form.formState.errors]);
 
   const handleValidSubmit = useCallback(
     async (values: PostEditorValues) => {
-      if (mode === "update") {
-        await updateMutation.mutateAsync(values);
+      if (!workspaceId) {
+        throw new Error("Missing workspace ID");
+      }
+      const input = {
+        ...values,
+        workspaceId,
+        customFields: buildCustomFieldPayload(
+          bootstrap?.fields ?? [],
+          values.customFields
+        ),
+      };
+      if (postId) {
+        await updateMutation.mutateAsync({ ...input, id: postId });
+        form.reset(values);
         return;
       }
-
-      await createMutation.mutateAsync(values);
+      await createMutation.mutateAsync(input);
     },
-    [createMutation, mode, updateMutation]
+    [
+      bootstrap?.fields,
+      createMutation,
+      form,
+      postId,
+      updateMutation,
+      workspaceId,
+    ]
   );
 
   const registerBeforeSubmit = useCallback((callback: () => void) => {
@@ -337,12 +300,12 @@ export function EditorDataProvider({
   }, [form, handleInvalidSubmit, handleValidSubmit]);
 
   const contextValue = useMemo<EditorDataContextValue>(() => {
-    const fieldDefinitions = bootstrapQuery.data?.fields ?? [];
+    const fieldDefinitions = bootstrap?.fields ?? [];
     return {
       fieldDefinitions,
       form,
       hasUnsavedChanges: form.formState.isDirty,
-      isReady: bootstrapQuery.isSuccess && hasHydrated,
+      isReady: Boolean(bootstrap) && hasHydrated,
       isSubmitting: createMutation.isPending || updateMutation.isPending,
       mode,
       postId,
@@ -350,8 +313,7 @@ export function EditorDataProvider({
       submit,
     };
   }, [
-    bootstrapQuery.data?.fields,
-    bootstrapQuery.isSuccess,
+    bootstrap,
     createMutation.isPending,
     form,
     form.formState.isDirty,
@@ -363,16 +325,14 @@ export function EditorDataProvider({
     updateMutation.isPending,
   ]);
 
-  if (bootstrapQuery.isLoading || (bootstrapQuery.isSuccess && !hasHydrated)) {
+  if (bootstrapError) {
+    if ("code" in bootstrapError && bootstrapError.code === "NOT_FOUND") {
+      return notFound();
+    }
+    throw bootstrapError;
+  }
+  if (!bootstrap || !hasHydrated) {
     return <PageLoader />;
-  }
-
-  if (bootstrapQuery.data === null) {
-    return notFound();
-  }
-
-  if (bootstrapQuery.isError || !bootstrapQuery.data) {
-    throw bootstrapQuery.error;
   }
 
   return (

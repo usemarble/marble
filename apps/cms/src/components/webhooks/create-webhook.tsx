@@ -1,6 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  type PayloadFormat,
+  type WebhookEvent,
+  type WebhookFormValues,
+  webhookEvents,
+  webhookSchema,
+} from "@marble/api/lib/webhook-validation";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import { Input } from "@marble/ui/components/input";
@@ -24,21 +31,13 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type PayloadFormat,
-  type WebhookEvent,
-  type WebhookFormValues,
-  webhookEvents,
-  webhookSchema,
-} from "@/lib/validations/webhook";
+import { orpc } from "@/lib/orpc";
 import { Discord, Slack } from "../shared/icons";
 
 const formatOptions = [
@@ -72,7 +71,7 @@ const formatOptions = [
 ];
 
 interface CreateWebhookSheetProps {
-  children?: React.ReactNode;
+  children?: React.ReactElement;
 }
 
 function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
@@ -101,8 +100,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const watchedEvents = useWatch({ control, name: "events" });
   const watchedFormat = useWatch({ control, name: "format" });
 
-  const router = useRouter();
-
   const detectFormat = (url: string): PayloadFormat => {
     const endpoint = url.trim();
     if (!endpoint) {
@@ -123,21 +120,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
-    mutationFn: (data: WebhookFormValues) =>
-      fetch("/api/webhooks", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+    ...orpc.webhooks.create.mutationOptions(),
     onSuccess: () => {
       toast.success("Webhook created successfully");
       reset();
       setIsOpen(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+          queryKey: orpc.webhooks.key({ input: { workspaceId } }),
         });
       }
-      router.refresh();
     },
     onError: () => {
       toast.error("Failed to create webhook");
@@ -173,14 +165,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   const onSubmit = (data: WebhookFormValues) => {
-    createWebhook(data);
+    if (workspaceId) {
+      createWebhook({ ...data, workspaceId });
+    }
   };
 
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
       <SheetTrigger
         render={
-          (children as React.ReactElement) || (
+          children || (
             <Button>
               <PlusIcon className="mr-2 size-4" />
               New Webhook

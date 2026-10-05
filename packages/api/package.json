@@ -1,0 +1,42 @@
+{
+  "name": "@marble/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ai/*": "./src/ai/*.ts",
+    "./context": "./src/context.ts",
+    "./routers": "./src/routers/index.ts",
+    "./services/*": "./src/services/*.ts",
+    "./lib/*": "./src/lib/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@marble/auth": "workspace:*",
+    "@marble/db": "workspace:*",
+    "@marble/events": "workspace:*",
+    "@marble/parser": "workspace:*",
+    "@marble/utils": "workspace:*",
+    "@orpc/server": "1.15.4",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.39.0",
+    "ai": "7.0.127",
+    "aws4fetch": "^1.0.20",
+    "date-fns": "^4.4.0",
+    "drizzle-orm": "^0.45.2",
+    "evlog": "2.29.0",
+    "nanoid": "^5.1.16",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

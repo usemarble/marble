@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createCacheClient } from "@marble/api/lib/cache";
 import { createRecordId } from "@marble/db/id";
 import {
   isFieldWorkspaceKeyConflict,
@@ -10,7 +11,6 @@ import {
   fieldValue,
 } from "@marble/db/schema";
 import { and, asc, count, desc, eq, ne, or } from "drizzle-orm";
-import { createCacheClient } from "@/lib/cache";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,

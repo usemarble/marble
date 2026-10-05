@@ -1,16 +1,24 @@
 import { getSchema, type JSONContent } from "@tiptap/core";
-import { parseHTML } from "linkedom";
+import { DOMParser } from "linkedom";
 import { DOMParser as PMDOMParser } from "prosemirror-model";
 import { htmlExtensions } from "./extensions";
 import { EMPTY_TIPTAP_DOC } from "./types";
 
-type MarkdownElement = HTMLElement & {
-  childNodes: NodeListOf<ChildNode>;
+interface ChildNode {
+  nodeType: number;
+  nodeName: string;
+  textContent: string | null;
+}
+
+interface MarkdownElement extends ChildNode {
+  childNodes: ArrayLike<ChildNode>;
   getAttribute: (name: string) => string | null;
   hasAttribute: (name: string) => boolean;
+  outerHTML: string;
+  parentElement: MarkdownElement | null;
   querySelector: (selector: string) => MarkdownElement | null;
-  querySelectorAll: (selector: string) => NodeListOf<MarkdownElement>;
-};
+  querySelectorAll: (selector: string) => ArrayLike<MarkdownElement>;
+}
 
 const blockNodes = new Set([
   "ADDRESS",
@@ -258,8 +266,9 @@ export function htmlToTiptap(html: string): JSONContent {
   }
 
   const schema = getSchema(htmlExtensions);
-  const { document } = parseHTML(
-    `<!doctype html><html><body>${html}</body></html>`
+  const document = new DOMParser().parseFromString(
+    `<!doctype html><html><body>${html}</body></html>`,
+    "text/html"
   );
 
   return PMDOMParser.fromSchema(schema)
@@ -276,11 +285,13 @@ export function htmlToMarkdown(html: string): string {
     return "";
   }
 
-  const { document } = parseHTML(
-    `<!doctype html><html><body>${html}</body></html>`
+  const document = new DOMParser().parseFromString(
+    `<!doctype html><html><body>${html}</body></html>`,
+    "text/html"
   );
 
-  return Array.from(document.body.childNodes)
+  const body = document.body as unknown as MarkdownElement;
+  return Array.from(body.childNodes)
     .map((child) => nodeToMarkdown(child))
     .join("")
     .trim();

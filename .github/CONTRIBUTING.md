@@ -130,7 +130,6 @@ Packages contain internal shared modules used across different applications:
 
    - Paste it into the relevant env files:
    - `apps/api/.env` → `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=<YOUR_STRING_HERE>`
-   - `apps/cms/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
    - `packages/db/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
 
    - Run migrations:
@@ -156,9 +155,7 @@ Packages contain internal shared modules used across different applications:
    pnpm db:migrate
    ```
 
-   If you’re using the local Docker DB, set `DATABASE_URL` in these env files:
-   - `apps/cms/.env`
-   - `packages/db/.env`
+   If you’re using the local Docker DB, set `DATABASE_URL` in `packages/db/.env`:
 
    Example:
    ```bash
@@ -253,7 +250,6 @@ This will:
 
    You'll need to add these to:
    - `apps/api/.env` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
-   - `apps/cms/.env` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
 
 ### Option 2: Docker (Local)
 
@@ -271,11 +267,9 @@ Expected Redis services:
 
 Set these in your env files:
 - `apps/api/.env` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
-- `apps/cms/.env` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
 
 These values match the local defaults in:
 - `apps/api/.env.example`
-- `apps/cms/.env.example`
 - `docker-compose.yml` (`SRH_TOKEN=justusemarble`, `8079:80`, `6379:6379`)
 
 Stop services when done:

@@ -5,75 +5,35 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { MediaDataTable } from "@/components/media/media-data-table";
-import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
+import { orpc } from "@/lib/orpc";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
-import { useWorkspace } from "@/providers/workspace";
-import type {
-  Media,
-  MediaPaginatedListResponse,
-  MediaQueryKey,
-} from "@/types/media";
+import { useMediaPageFilters } from "@/lib/search-params";
+import type { Media, MediaQueryKey } from "@/types/media";
 import { toMediaType } from "@/utils/media";
+import Loading from "./loading";
 
-function PageClient({
-  initialMedia,
-  initialMediaKey,
-}: {
-  initialMedia?: MediaPaginatedListResponse;
-  initialMediaKey?: string;
-}) {
+function PageClient() {
   const workspaceId = useWorkspaceId();
-  const { isFetchingWorkspace } = useWorkspace();
   const [{ page, perPage, search, sort, type }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
-  const currentMediaKey = JSON.stringify({
-    page,
-    perPage,
-    search,
-    sort,
-    type: normalizedType,
-  });
-
   const { data, error, isError, isLoading, isFetching } = useQuery({
-    queryKey: [
-      // biome-ignore lint/style/noNonNullAssertion: <>
-      ...QUERY_KEYS.MEDIA(workspaceId!),
-      { page, perPage, search, sort, type: normalizedType },
-    ],
-    queryFn: async () => {
-      try {
-        const url = getMediaApiUrl("/api/media", {
-          page,
-          perPage,
-          search: search || null,
-          sort,
-          type: normalizedType,
-        });
-
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch media: ${res.status} ${res.statusText}`
-          );
-        }
-        const data: MediaPaginatedListResponse = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch media"
-        );
-        throw error;
-      }
-    },
-    enabled: !!workspaceId && !isFetchingWorkspace,
+    ...orpc.media.list.queryOptions({
+      input: {
+        workspaceId: workspaceId ?? "",
+        page,
+        perPage,
+        search: search || null,
+        sort,
+        type: normalizedType,
+      },
+    }),
+    enabled: !!workspaceId,
     placeholderData: keepPreviousData,
-    initialData: initialMediaKey === currentMediaKey ? initialMedia : undefined,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
@@ -116,7 +76,11 @@ function PageClient({
       const errors: Array<{ file: string; error: string }> = [];
       for (const file of Array.from(files)) {
         try {
-          await uploadFile({ file, type: "media" });
+          await uploadFile({
+            file,
+            type: "media",
+            workspaceId: workspaceId ?? "",
+          });
           uploaded += 1;
         } catch (error) {
           errors.push({
@@ -149,8 +113,8 @@ function PageClient({
     setIsUploading(false);
   };
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+  if (!workspaceId || isLoading) {
+    return <Loading />;
   }
 
   if (isError) {

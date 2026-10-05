@@ -14,27 +14,33 @@ Do not run `prisma migrate` against any shared environment.
 
 ## Runtime clients
 
-Two clients, because the two runtimes need different drivers. Pick by consumer,
-not by preference.
+The Workers are the only runtime that reads the database. `apps/cms` (Next.js)
+holds no database access: it goes through the API Worker.
 
 | Consumer | Import | Driver | Connection source |
 | --- | --- | --- | --- |
-| `apps/cms` (Next.js) | `@marble/db` → `db` | neon-serverless over WebSocket, pooled | `DATABASE_URL` |
 | `apps/api`, `apps/jobs` (Workers) | `@marble/db/hyperdrive` → `createHyperdriveClient()` | `pg.Client`, one per invocation | Cloudflare `HYPERDRIVE` binding |
 
-The CMS client is a long-lived pool created once per process. The Hyperdrive
-client is **not** — create one per invocation (a client can't be reused across
-requests) and don't close it. The Workers runtime cleans up Worker-to-Hyperdrive
+Create the Hyperdrive client once per invocation (a client can't be reused
+across requests) and don't close it. The Workers runtime cleans up Worker-to-Hyperdrive
 connections when the invocation ends, after any `waitUntil` work, and Hyperdrive
 only holds an origin connection for the length of each query or transaction.
 Closing it early kills queries that background tasks are still running, which
 is how API-triggered webhooks were lost between #380 and the fix.
 
+## Testing against Postgres
+
+`@marble/db/testing` exports `createTestDatabase()`: it creates a throwaway
+database on the docker-compose Postgres (`docker compose up -d`), applies every
+migration in `drizzle/` to it and returns a Hyperdrive-shaped client. Call it in
+`beforeAll` and `close()` in `afterAll`; each test file gets its own database, so
+files run in parallel. Set `TEST_POSTGRES_URL` to use a different server.
+
 ## Environment variables
 
 | Variable | Used by | Notes |
 | --- | --- | --- |
-| `DATABASE_URL` | CMS runtime | Pooled connection string (`-pooler` host). |
+| `DATABASE_URL` | Scripts and Drizzle Kit fallback | Connection string for `db:*` commands when `DIRECT_URL` is unset. |
 | `DIRECT_URL` | Drizzle Kit only | Direct, non-pooled connection. Migrations need a session-level connection, which a transaction pooler cannot give. |
 
 `drizzle.config.ts` resolves `DIRECT_URL ?? DATABASE_URL`, so set `DIRECT_URL`

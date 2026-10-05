@@ -1,5 +1,3 @@
-import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
-import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { lastVisitedWorkspace } from "./constants";
 
 /**
@@ -20,6 +18,11 @@ export const setLastVisitedWorkspace = (
  * @param cookies The RequestCookies or ReadonlyRequestCookies object to read from.
  * @returns The slug of the last visited workspace, or undefined if not set.
  */
-export const getLastVisitedWorkspace = (
-  cookies: RequestCookies | ReadonlyRequestCookies
-): string | undefined => cookies.get(lastVisitedWorkspace)?.value;
+export const getLastVisitedWorkspace = (): string | undefined => {
+  const value = document.cookie
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith(`${lastVisitedWorkspace}=`))
+    ?.slice(lastVisitedWorkspace.length + 1);
+  return value || undefined;
+};

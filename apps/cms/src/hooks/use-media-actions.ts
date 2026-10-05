@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import type { MediaQueryKey } from "@/types/media";
 
-export function useMediaActions(mediaQueryKey: MediaQueryKey) {
+export function useMediaActions(_mediaQueryKey: MediaQueryKey) {
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
@@ -11,13 +11,8 @@ export function useMediaActions(mediaQueryKey: MediaQueryKey) {
     if (!workspaceId) {
       return;
     }
-    queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
-
-    const allMediaPrefixKey = QUERY_KEYS.MEDIA(workspaceId);
-    queryClient.invalidateQueries({
-      queryKey: allMediaPrefixKey,
-      exact: false,
-    });
+    queryClient.invalidateQueries({ queryKey: orpc.media.list.key() });
+    queryClient.invalidateQueries({ queryKey: orpc.media.editor.key() });
   };
 
   const handleUploadComplete = () => handleActionComplete();

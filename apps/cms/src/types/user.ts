@@ -1,29 +1,13 @@
-import type { User } from "better-auth";
+import type { RouterInputs, RouterOutputs } from "@marble/api/routers";
 
-export interface UserProfile extends Omit<User, "emailVerified"> {
-  id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-  emailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  workspaceRole: string | null;
-  // accountId: string | null;
-  activeWorkspace: {
-    id: string;
-    name: string;
-    slug: string;
-  } | null;
-}
+/** The signed-in user, as `me.get` returns it. */
+export type UserProfile = RouterOutputs["me"]["get"];
 
 export interface UserContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isFetchingUser: boolean;
-  updateUser: (
-    updates: Partial<Pick<UserProfile, "name" | "image">>
-  ) => Promise<void>;
+  updateUser: (updates: RouterInputs["me"]["update"]) => Promise<void>;
   isUpdatingUser: boolean;
   signOut: () => Promise<void>;
   isSigningOut: boolean;

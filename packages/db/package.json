@@ -7,7 +7,8 @@
     "./schema": "./src/schema/index.ts",
     "./hyperdrive": "./src/hyperdrive.ts",
     "./id": "./src/id.ts",
-    "./pg-errors": "./src/pg-errors.ts"
+    "./pg-errors": "./src/pg-errors.ts",
+    "./testing": "./src/testing.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

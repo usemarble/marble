@@ -1,1 +1,1 @@
-export const lastVisitedWorkspace = "last-visited-workspace";
+export const lastVisitedWorkspace = "marble.last-visited-workspace";

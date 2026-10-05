@@ -37,7 +37,7 @@ export default function ResetRequestForm() {
     try {
       const { error } = await authClient.requestPasswordReset({
         email,
-        redirectTo: "/reset",
+        redirectTo: new URL("/reset", window.location.origin).href,
       });
 
       if (error) {

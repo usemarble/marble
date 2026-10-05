@@ -20,7 +20,7 @@ import { SettingsSection } from "@/components/settings/section";
 import { CopyButton } from "@/components/ui/copy-button";
 import { organization } from "@/lib/auth/client";
 import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Logo() {
@@ -48,9 +48,9 @@ export function Logo() {
       }
       return res;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: orpc.workspaces.list.key(),
       });
       toast.success("Logo updated");
     },
@@ -65,7 +65,12 @@ export function Logo() {
   });
 
   const { mutate: uploadLogo, isPending: isUpdatingLogo } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "logo" }),
+    mutationFn: (file: File) =>
+      uploadFile({
+        file,
+        type: "logo",
+        workspaceId: activeWorkspace?.id ?? "",
+      }),
     onSuccess: (data) => {
       const { url } = data;
       if (!url || !activeWorkspace?.id) {

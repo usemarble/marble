@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import {
   canInviteMoreMembers,
   canPerformAction,
@@ -9,14 +7,12 @@ import {
   isOverLimit,
   type PlanLimits,
   type PlanType,
-} from "@/lib/plans";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+} from "@marble/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
-import type { UsageDashboardData } from "@/types/dashboard";
-
-interface BillingUsage {
-  media: number;
-}
 
 export function usePlan() {
   const { activeWorkspace } = useWorkspace();
@@ -26,10 +22,7 @@ export function usePlan() {
     [activeWorkspace?.subscription]
   );
 
-  const currentMemberCount = useMemo(
-    () => activeWorkspace?.members?.length || 0,
-    [activeWorkspace?.members]
-  );
+  const currentMemberCount = activeWorkspace?.memberCount ?? 0;
 
   const planLimits: PlanLimits = useMemo(
     () => getPlanLimits(currentPlan),
@@ -52,22 +45,15 @@ export function usePlan() {
   const checkLimits = (usage: Parameters<typeof isOverLimit>[1]) =>
     isOverLimit(currentPlan, usage);
 
-  const workspaceId = activeWorkspace?.id;
+  const workspaceId = useWorkspaceId();
 
-  const { data } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.USAGE_DASHBOARD(workspaceId)
-      : ["usage-dashboard", "disabled"],
-    queryFn: async (): Promise<UsageDashboardData> => {
-      const response = await fetch("/api/metrics/usage");
-      if (!response.ok) {
-        throw new Error("Failed to fetch usage metrics");
-      }
-      return response.json();
-    },
-    enabled: Boolean(workspaceId),
-    staleTime: 1000 * 60 * 10,
-  });
+  const { data } = useQuery(
+    orpc.workspaces.metrics.usage.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+      staleTime: 1000 * 60 * 10,
+    })
+  );
 
   const isFreePlan = currentPlan === "free";
   const isHobbyPlan = currentPlan === "hobby";

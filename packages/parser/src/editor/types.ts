@@ -11,7 +11,10 @@ export const EMPTY_TIPTAP_DOC: JSONContent = { type: "doc", content: [] };
  * server. It keeps custom parser helpers independent from browser-only DOM
  * types while preserving enough API surface for extension `parseHTML` hooks.
  */
-export type ParseableElement = HTMLElement & {
+export interface ParseableElement {
+  getAttribute: (name: string) => string | null;
+  parentElement: ParseableElement | null;
   querySelector: (selector: string) => ParseableElement | null;
+  tagName: string;
   textContent: string | null;
-};
+}

@@ -18,7 +18,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 
 interface DeleteCustomFieldModalProps {
   fieldId: string;
@@ -40,25 +40,14 @@ export function DeleteCustomFieldModal({
   const queryClient = useQueryClient();
 
   const { mutate: deleteField, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/fields/${fieldId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to delete field");
-      }
-
-      return true;
-    },
+    ...orpc.fields.delete.mutationOptions(),
     onSuccess: () => {
       toast.success("Custom field deleted");
       onDelete();
       onOpenChange(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
+          queryKey: orpc.fields.list.key({ input: { workspaceId } }),
         });
       }
       if (params.workspace) {
@@ -102,7 +91,9 @@ export function DeleteCustomFieldModal({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteField();
+                if (workspaceId) {
+                  deleteField({ workspaceId, id: fieldId });
+                }
               }}
               size="sm"
               variant="destructive"

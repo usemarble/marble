@@ -1,7 +1,8 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import PageLoader from "@/components/shared/page-loader";
-import { getServerSession } from "@/lib/auth/session";
+import { authClient } from "@/lib/auth/client";
 import PageClient from "./page-client";
 
 export default async function InvitePage(props: {
@@ -11,7 +12,7 @@ export default async function InvitePage(props: {
   const { id } = params;
 
   return (
-    <div className="grid h-screen w-full place-content-center bg-muted">
+    <div className="flex min-h-dvh w-full items-center justify-center bg-background">
       <Suspense fallback={<PageLoader />}>
         <InvitePageComponent code={id} />
       </Suspense>
@@ -20,9 +21,11 @@ export default async function InvitePage(props: {
 }
 
 async function InvitePageComponent({ code }: { code: string }) {
-  const session = await getServerSession({ allowUnverified: true });
+  const { data: session } = await authClient.getSession({
+    fetchOptions: { headers: await headers() },
+  });
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     return redirect(`/login/?from=/join/${code}`);
   }
 

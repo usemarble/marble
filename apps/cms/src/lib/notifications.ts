@@ -1,31 +1,9 @@
-export interface NotificationPreferences {
-  user: {
-    marketing: boolean;
-    product: boolean;
-  };
-  workspace: {
-    usageAlerts: boolean;
-    subscriptions: boolean;
-  };
-}
-
 export interface NotificationToggleItem {
   key: string;
   scope: "user" | "workspace";
   label: string;
   description: string;
 }
-
-export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
-  user: {
-    marketing: false,
-    product: true,
-  },
-  workspace: {
-    usageAlerts: true,
-    subscriptions: true,
-  },
-};
 
 export const USER_NOTIFICATION_ITEMS: NotificationToggleItem[] = [
   {

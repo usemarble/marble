@@ -4,26 +4,26 @@ import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
+import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import { getPlanTrialCopy, PRICING_PLANS } from "@marble/utils";
 import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { invoiceTableColumns } from "@/components/invoice/columns";
 import { InvoiceDataTable } from "@/components/invoice/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { BillingSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
 import { authClient, checkout } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 function PageClient() {
   const [checkoutLoading, setCheckoutLoading] = useState<
     "hobby" | "hobby-yearly" | "pro" | "pro-yearly" | null
   >(null);
   const [isYearly, setIsYearly] = useState(true);
-  const { activeWorkspace, isFetchingWorkspace, isOwner } = useWorkspace();
+  const { activeWorkspace, isOwner } = useWorkspace();
   const { currentPlan, isFreePlan, isProPlan } = usePlan();
 
   const proTrialCopy = getPlanTrialCopy("pro");
@@ -55,8 +55,8 @@ function PageClient() {
     return isYearly ? "pro-yearly" : "pro";
   };
 
-  if (isFetchingWorkspace || !activeWorkspace) {
-    return <BillingSettingsSkeleton />;
+  if (!activeWorkspace) {
+    return <Loading />;
   }
 
   const handleCheckout = async (
@@ -71,7 +71,7 @@ function PageClient() {
     try {
       await checkout({
         slug: plan,
-        referenceId: activeWorkspace.id,
+        reference_id: activeWorkspace.id,
       });
     } catch (error) {
       console.error(error);

@@ -25,7 +25,7 @@ import { useState } from "react";
 import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Delete() {
@@ -40,9 +40,12 @@ export function Delete() {
 
   const { mutate: deleteWorkspace, isPending } = useMutation({
     mutationFn: async ({ organizationId }: { organizationId: string }) => {
-      await organization.delete({
+      const { error } = await organization.delete({
         organizationId,
       });
+      if (error) {
+        throw new Error(error.message);
+      }
     },
     onSuccess: async () => {
       const remainingWorkspaces = workspaceList?.filter(
@@ -56,7 +59,7 @@ export function Delete() {
 
       // Invalidate the workspace list query since we lost one
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+        queryKey: orpc.workspaces.list.key(),
       });
 
       // Get the first remaining workspace

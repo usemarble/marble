@@ -104,7 +104,7 @@ export function UpgradeModal({
     try {
       await checkout({
         slug: interval === "monthly" ? content.plan : `${content.plan}-yearly`,
-        referenceId: activeWorkspace.id,
+        reference_id: activeWorkspace.id,
       });
     } catch (error) {
       console.error(error);
