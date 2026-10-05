@@ -6,6 +6,7 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,6 +36,7 @@ export function LoginForm() {
     useLocalStorage<AuthMethod | null>("lastUsedAuthMethod", null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const callbackURL = safeRedirectPath(searchParams?.get("from"));
 
   async function onSubmit(data: CredentialData) {
@@ -49,6 +51,9 @@ export function LoginForm() {
         {
           onSuccess: (_ctx) => {
             setLastUsedAuthMethod("email");
+            // A session that expired without signing out leaves the previous
+            // account's queries cached in this tab.
+            queryClient.clear();
             toast.success("Welcome!");
             router.push(callbackURL);
           },
