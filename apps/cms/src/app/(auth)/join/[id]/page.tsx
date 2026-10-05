@@ -12,7 +12,7 @@ export default async function InvitePage(props: {
   const { id } = params;
 
   return (
-    <div className="grid h-screen w-full place-content-center bg-muted">
+    <div className="flex min-h-dvh w-full items-center justify-center bg-background">
       <Suspense fallback={<PageLoader />}>
         <InvitePageComponent code={id} />
       </Suspense>
