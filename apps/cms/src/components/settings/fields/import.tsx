@@ -3,9 +3,9 @@
 import { FileImportIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PostsImportModal } from "@/components/posts/import-modal";
 import { SettingsSection } from "@/components/settings/section";
 import { ActivityIndicator } from "@/components/ui/activity-indicator";
@@ -87,6 +87,8 @@ export function Import() {
   const { activeWorkspace } = useWorkspace();
   const workspaceId = useWorkspaceId();
   const workspaceSlug = activeWorkspace?.slug;
+  const queryClient = useQueryClient();
+  const completedJobIds = useRef(new Set<string>());
 
   const { data, isError } = useQuery({
     ...orpc.data.imports.list.queryOptions({
@@ -100,6 +102,31 @@ export function Import() {
         : false;
     },
   });
+
+  // Imports write posts, categories and tags on the server, so lists cached
+  // before a job finished won't include them until they're refetched.
+  useEffect(() => {
+    const newlyCompleted = (data?.jobs ?? []).filter(
+      (job) =>
+        job.status === "completed" && !completedJobIds.current.has(job.id)
+    );
+
+    if (!workspaceId || newlyCompleted.length === 0) {
+      return;
+    }
+
+    for (const job of newlyCompleted) {
+      completedJobIds.current.add(job.id);
+    }
+
+    for (const queryKey of [
+      orpc.posts.key({ input: { workspaceId } }),
+      orpc.categories.key({ input: { workspaceId } }),
+      orpc.tags.key({ input: { workspaceId } }),
+    ]) {
+      queryClient.invalidateQueries({ queryKey });
+    }
+  }, [data, queryClient, workspaceId]);
 
   const latestJobs = data?.jobs ?? [];
 
