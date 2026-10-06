@@ -14,8 +14,7 @@ Do not run `prisma migrate` against any shared environment.
 
 ## Runtime clients
 
-The Workers are the only runtime that reads the database. `apps/cms` (Next.js)
-holds no database access: it goes through the API Worker.
+The Workers are the only runtime that reads the database.
 
 | Consumer | Import | Driver | Connection source |
 | --- | --- | --- | --- |
