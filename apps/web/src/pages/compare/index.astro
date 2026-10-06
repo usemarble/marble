@@ -5,14 +5,14 @@
   import ArrowRight from "@/components/icons/ArrowRight.astro";
   import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
-  import { COMPARISONS, COMPARISONS_CHECKED } from "@/lib/constants/compare";
+  import { COMPARISONS } from "@/lib/constants/compare";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { buildBreadcrumbJsonLd } from "@/lib/seo";
 
   const PRINCIPLES = [
     "We compare the workflow for publishing posts to a site, not feature counts.",
-    `Claims about other products link to their official pricing or docs, last checked ${COMPARISONS_CHECKED}.`,
+    "Claims about other products link to their official pricing or docs. Each comparison shows when its sources were last checked.",
     "Every page says when the other product is the better choice.",
   ];
 
@@ -23,7 +23,7 @@
 ---
 <Layout
   title={`Compare Marble with Other CMS Platforms - ${SITE.TITLE}`}
-  description="Compare Marble with Ghost and Sanity: what each platform is built for, how publishing works, and when the other product is the better fit."
+  description="Compare Marble with Ghost, Sanity, and Payload: what each platform is built for, how publishing works, and when the other product is the better fit."
   structuredData={structuredData}
 >
   <div>

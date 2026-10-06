@@ -6,11 +6,7 @@
   import ResourceList from "@/components/sections/ResourceList.astro";
   import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
-  import {
-    COMPARISONS,
-    COMPARISONS_CHECKED,
-    type ComparisonSource,
-  } from "@/lib/constants/compare";
+  import { COMPARISONS, type ComparisonSource } from "@/lib/constants/compare";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
@@ -161,9 +157,7 @@
             Marble and {name}, side by side
           </h2>
           <p class="text-muted-foreground md:text-lg">
-            The differences that change which product fits. Plan and product
-            details link to {name}'s own documentation. Last checked
-            {COMPARISONS_CHECKED}.
+            {`The differences that change which product fits. Plan and product details link to ${name}'s own documentation. Last checked ${comparison.checked}.`}
           </p>
         </div>
         <div

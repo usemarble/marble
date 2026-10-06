@@ -2,11 +2,9 @@
  * Marble comparison pages, rendered by src/pages/compare.
  *
  * Every claim about another product must link to that vendor's own pricing
- * page or documentation. Re-check those sources and bump COMPARISONS_CHECKED
- * whenever this file changes.
+ * page or documentation. Re-check a comparison's sources and update its
+ * checked date whenever its claims change.
  */
-
-export const COMPARISONS_CHECKED = "September 2026";
 
 export interface ComparisonSource {
   label: string;
@@ -23,6 +21,8 @@ export interface ComparisonRow {
 export interface Comparison {
   slug: string;
   name: string;
+  /** When this comparison's official sources were last checked. */
+  checked: string;
   /** One line shown on the /compare hub. */
   summary: string;
   meta: {
@@ -113,10 +113,66 @@ const SANITY = {
   },
 };
 
+const PAYLOAD = {
+  getStarted: {
+    label: "Payload: Get started, hosting, and pricing",
+    href: "https://payloadcms.com/get-started",
+  },
+  installation: {
+    label: "Payload docs: Installation",
+    href: "https://payloadcms.com/docs/getting-started/installation",
+  },
+  collections: {
+    label: "Payload docs: Collections",
+    href: "https://payloadcms.com/docs/configuration/collections",
+  },
+  richText: {
+    label: "Payload docs: Rich text editor",
+    href: "https://payloadcms.com/docs/rich-text/overview",
+  },
+  converters: {
+    label: "Payload docs: Lexical converters",
+    href: "https://payloadcms.com/docs/rich-text/converters",
+  },
+  localApi: {
+    label: "Payload docs: Local API",
+    href: "https://payloadcms.com/docs/local-api/overview",
+  },
+  deployment: {
+    label: "Payload docs: Production deployment",
+    href: "https://payloadcms.com/docs/production/deployment",
+  },
+  versions: {
+    label: "Payload docs: Versions",
+    href: "https://payloadcms.com/docs/versions/overview",
+  },
+  drafts: {
+    label: "Payload docs: Drafts and scheduled publishing",
+    href: "https://payloadcms.com/docs/versions/drafts",
+  },
+  jobs: {
+    label: "Payload docs: Jobs queue",
+    href: "https://payloadcms.com/docs/jobs-queue/overview",
+  },
+  localization: {
+    label: "Payload docs: Localization",
+    href: "https://payloadcms.com/docs/configuration/localization",
+  },
+  accessControl: {
+    label: "Payload docs: Access control",
+    href: "https://payloadcms.com/docs/access-control/overview",
+  },
+  hooks: {
+    label: "Payload docs: Hooks",
+    href: "https://payloadcms.com/docs/hooks/overview",
+  },
+};
+
 export const COMPARISONS: Comparison[] = [
   {
     slug: "ghost",
     name: "Ghost",
+    checked: "September 2026",
     summary:
       "Ghost bundles a themed website, newsletters, and memberships. Marble delivers posts to a site you build.",
     meta: {
@@ -288,6 +344,7 @@ export const COMPARISONS: Comparison[] = [
   {
     slug: "sanity",
     name: "Sanity",
+    checked: "September 2026",
     summary:
       "Sanity models any content in code with a configurable Studio. Marble is a ready-made CMS for posts.",
     meta: {
@@ -453,6 +510,194 @@ export const COMPARISONS: Comparison[] = [
         question: "Which costs less, Marble or Sanity?",
         answer:
           "It depends on your team size and traffic. Marble charges per workspace: $5 a month for up to 5 members or $20 for up to 10. Sanity's Free plan includes 20 seats, and Growth costs $15 per seat per month. Sanity's plans also include far more API requests, which matters if your site calls the API on every page view.",
+      },
+    ],
+  },
+  {
+    slug: "payload",
+    name: "Payload",
+    checked: "October 2026",
+    summary:
+      "Payload gives you a configurable CMS and backend inside Next.js. Marble hosts an editor and API for posts.",
+    meta: {
+      title: "Marble vs Payload: Which CMS Fits Your Blog?",
+      description:
+        "Compare Marble and Payload for your blog: setup, editing, content models, hosting, and pricing. See when each headless CMS is the better fit.",
+    },
+    intro:
+      "Payload is an open-source CMS and application backend that runs inside Next.js. You define collections in TypeScript and choose how to deploy the app and database. Marble is a hosted headless CMS built around posts, with an editor and API ready on signup. Both can power a blog; the choice depends on how much of the content system you want to build and control.",
+    chooseMarble: [
+      "Your content is mostly blog posts, articles, and changelogs on a site you build.",
+      "Writers need a ready editor, with authors, categories, and tags already set up.",
+      "You want Marble to host the CMS and media while you manage your frontend.",
+      "You want HTML or Markdown from an API, with workspace plans at $0, $5, or $20 a month.",
+    ],
+    chooseCompetitor: [
+      "You need collections for products, pages, or other content alongside your blog.",
+      "You want the CMS inside your Next.js app, with direct database access through Payload's Local API.",
+      "Your project needs configurable access rules, localized fields, version history, or scheduled publishing.",
+      "You want to customize the editor and own the deployment, database, and application code.",
+    ],
+    rows: [
+      {
+        topic: "Built for",
+        marble: "Blog posts, articles, and changelogs on a site you build.",
+        competitor:
+          "A configurable CMS and backend for websites and applications. Its website template includes a frontend and layout builder.",
+        sources: [PAYLOAD.getStarted, PAYLOAD.collections],
+      },
+      {
+        topic: "Content model",
+        marble:
+          "Posts with authors, one category, tags, and typed custom fields you add in the dashboard.",
+        competitor:
+          "Collections and fields defined in TypeScript. You can model posts, pages, products, and relationships between them.",
+        sources: [PAYLOAD.collections],
+      },
+      {
+        topic: "Getting started",
+        marble:
+          "Create a workspace and start writing. Connect your site with an API key.",
+        competitor:
+          "Start from a template or add Payload to a Next.js app. Configure your collections, database adapter, and deployment.",
+        sources: [PAYLOAD.installation, PAYLOAD.getStarted],
+      },
+      {
+        topic: "Editing and rich text",
+        marble:
+          "A hosted rich text editor. The API returns sanitized HTML by default, or Markdown.",
+        competitor:
+          "A customizable Lexical editor that stores rich text as JSON. Payload provides converters for JSX, HTML, and Markdown.",
+        sources: [PAYLOAD.richText, PAYLOAD.converters],
+      },
+      {
+        topic: "Content delivery",
+        marble:
+          "REST API with filtering and pagination, plus a TypeScript SDK.",
+        competitor:
+          "REST and GraphQL APIs, plus a Local API for querying your database directly from server code.",
+        sources: [PAYLOAD.localApi],
+      },
+      {
+        topic: "Frameworks",
+        marble:
+          "The hosted API works with Next.js, Astro, or any frontend that can make HTTP requests.",
+        competitor:
+          "The CMS runs in Next.js. Other frontends can fetch content through its REST or GraphQL API.",
+        sources: [PAYLOAD.installation, PAYLOAD.localApi],
+      },
+      {
+        topic: "Hosting and maintenance",
+        marble:
+          "Marble hosts the CMS and media library. You host and maintain your own website.",
+        competitor:
+          "Deploy wherever Next.js runs. Your project needs a database and persistent file storage; you manage those services and app updates.",
+        sources: [PAYLOAD.deployment],
+      },
+      {
+        topic: "API usage",
+        marble:
+          "5,000 requests a month on Free, 25,000 on Hobby, 50,000 on Pro.",
+        competitor:
+          "Requests run on your deployment. Capacity and costs depend on your app, database, and hosting provider.",
+        sources: [PAYLOAD.deployment, PAYLOAD.localApi],
+      },
+      {
+        topic: "Drafts and version history",
+        marble:
+          "Draft and published posts. Read drafts with a scoped private API key; share draft links on Hobby and Pro.",
+        competitor:
+          "Enable drafts, autosave, and version history per collection. Editors can compare versions and restore earlier content.",
+        sources: [PAYLOAD.versions, PAYLOAD.drafts],
+      },
+      {
+        topic: "Scheduled publishing",
+        marble: "Not available yet.",
+        competitor:
+          "Supported when configured. Enable scheduled publish or unpublish actions and arrange for the jobs queue to run.",
+        sources: [PAYLOAD.drafts, PAYLOAD.jobs],
+      },
+      {
+        topic: "Localization",
+        marble:
+          "No built-in locale workflow. You can organize translated posts and metadata yourself.",
+        competitor:
+          "Built-in field localization, configured with your project's locales.",
+        sources: [PAYLOAD.localization],
+      },
+      {
+        topic: "Team permissions",
+        marble:
+          "Owner, Admin, and Member roles. 1 team member on Free, 5 on Hobby, 10 on Pro.",
+        competitor:
+          "Access rules in code for collections, globals, and fields. Permissions can depend on roles, document data, and the operation.",
+        sources: [PAYLOAD.accessControl],
+      },
+      {
+        topic: "Publishing integrations",
+        marble:
+          "Configure webhooks in the dashboard, with signed payloads, retries, and delivery logs.",
+        competitor:
+          "Use lifecycle hooks to call other services or revalidate pages. Queue background work with Payload's jobs system.",
+        sources: [PAYLOAD.hooks, PAYLOAD.jobs],
+      },
+      {
+        topic: "License and pricing",
+        marble:
+          "AGPL-3.0 source code. Hosted Free plan; Hobby is $5/month and Pro is $20/month per workspace.",
+        competitor:
+          "MIT-licensed core with no software license fee. Budget for hosting, a database, and storage. Enterprise support and features are available through sales.",
+        sources: [PAYLOAD.getStarted, PAYLOAD.deployment],
+      },
+    ],
+    workflow: {
+      competitor: [
+        "Start with Payload's website template, or add it to your Next.js app and define a posts collection.",
+        "Connect a database, set access rules, and deploy the app with persistent media storage.",
+        "Write in the Admin Panel and publish, with drafts and versions enabled if you need them.",
+        "Fetch posts with the Local API or HTTP APIs, render the rich text, and configure hooks for publishing updates.",
+      ],
+      marble: [
+        "Create a workspace. The editor, media library, and post model are ready.",
+        "Write a post and set its authors, category, tags, and metadata.",
+        "Publish, then fetch the post through the SDK or REST API and render its HTML or Markdown.",
+        "Configure a webhook to revalidate or rebuild your frontend when posts change.",
+      ],
+    },
+    migration: {
+      title: "Moving blog posts from Payload to Marble",
+      steps: [
+        `Read the posts you want to move through Payload's <a href="${PAYLOAD.localApi.href}" target="_blank" rel="noopener">Local API</a> or REST API. The export shape depends on your collections and fields.`,
+        `Convert each post to Markdown. For Lexical bodies, use Payload's <a href="${PAYLOAD.converters.href}" target="_blank" rel="noopener">converters</a> and check how custom blocks and relationships are represented.`,
+        `Set title, slug, and description in each file's frontmatter. Upload the .md files individually or as a ZIP of up to 100; Marble creates drafts for review (<a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">import docs</a>).`,
+        "Review the drafts and restore publication dates, author assignments, categories, tags, and custom fields before publishing. The file importer doesn't automatically map all of that metadata.",
+        "Upload media to Marble and replace old image URLs before retiring your Payload deployment. Preserve post slugs or add redirects in your frontend.",
+        "Marble doesn't replace arbitrary collections, user authentication, or custom backend logic. Keep those parts of your application running, and move only the publishing content that fits Marble's post model.",
+      ],
+    },
+    faqs: [
+      {
+        question: "Is Marble a good Payload alternative for a blog?",
+        answer:
+          "Yes, if you want a hosted editor and API for articles, blog posts, and changelogs. Payload is a better fit when you need custom collections, detailed access rules, localized fields, or a CMS that lives inside your application.",
+      },
+      {
+        question: "Can Payload work with Astro or another frontend?",
+        answer: `Yes. Payload runs in Next.js, but other frontends can fetch content through its REST or GraphQL API. Its <a href="${PAYLOAD.localApi.href}" target="_blank" rel="noopener">Local API</a> is for server code running with Payload, rather than a remote browser or separate frontend. Marble's hosted API can also serve any framework.`,
+      },
+      {
+        question: "Is Payload free, and which CMS costs less?",
+        answer: `Payload's MIT-licensed core is free. You pay for the infrastructure your deployment uses; enterprise support and features are available through sales (<a href="${PAYLOAD.getStarted.href}" target="_blank" rel="noopener">Payload's current options</a>). Marble has a hosted Free plan, with Hobby at $5/month and Pro at $20/month per workspace. Which costs less depends on traffic, hosting choices, and the work needed to maintain your setup.`,
+      },
+      {
+        question: "Can I customize Marble's content model like Payload's?",
+        answer:
+          "Marble lets you add typed custom fields to posts, but it doesn't let you define arbitrary collections or replace the editor with your own components. Payload's collections and configurable editor give you more control when your project needs it.",
+      },
+      {
+        question: "Can I migrate an entire Payload application to Marble?",
+        answer:
+          "No. You can move blog posts that fit Marble's model after converting their content and mapping metadata. Application users, custom collections, access rules, and backend logic need to stay in Payload or move to another backend. Marble has no direct Payload importer.",
       },
     ],
   },
