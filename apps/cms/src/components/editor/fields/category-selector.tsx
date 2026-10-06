@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@marble/ui/components/select";
 import { PlusIcon } from "@phosphor-icons/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   type Control,
@@ -46,7 +46,6 @@ export function CategorySelector<TFieldValues extends FieldValues>({
 
   const [showCategoyModal, setShowCategoryModal] = useState(false);
   const workspaceId = useWorkspaceId();
-  const queryClient = useQueryClient();
 
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery(
     orpc.categories.list.queryOptions({
@@ -60,10 +59,6 @@ export function CategorySelector<TFieldValues extends FieldValues>({
     if (!workspaceId) {
       return;
     }
-
-    queryClient.invalidateQueries({
-      queryKey: orpc.categories.key({ input: { workspaceId } }),
-    });
 
     onChange(newCategory.id);
   };
@@ -84,7 +79,12 @@ export function CategorySelector<TFieldValues extends FieldValues>({
           value={value || null}
         >
           <SelectTrigger className="w-full bg-editor-field shadow-none">
-            <SelectValue />
+            <SelectValue>
+              {value
+                ? (categories.find((category) => category.id === value)?.name ??
+                  "Loading category...")
+                : "Choose a category"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
