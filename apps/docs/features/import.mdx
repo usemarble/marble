@@ -26,7 +26,32 @@ Marble queues the import and starts processing it in the background. You can lea
 | `.md` / `.mdx`   | Creates a single draft post from the file.                                                 |
 | `.zip` archive   | Creates one draft post per `.md` or `.mdx` file in the archive. Other entries are skipped. |
 
-For each file Marble pulls the title from frontmatter when available, otherwise from the first heading, otherwise from the filename. Imported posts are always created as **drafts** so you can review them before publishing.
+Imported posts are always created as **drafts** so you can review them before publishing.
+
+## Frontmatter
+
+Marble reads standard YAML frontmatter keys from each file. When a key is missing, the post falls back to a sensible default:
+
+| Field          | Frontmatter keys                                  | When missing                                                   |
+| -------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| Title          | `title`                                           | The first `#` heading, then the filename                       |
+| Description    | `description`, `excerpt`, `summary`               | The first ~160 characters of the post's text, then the title   |
+| Published date | `date`, `publishedAt`, `published_at`, `pubDate`  | The time of the import                                         |
+| Category       | `category`, or the first entry in `categories`    | **Uncategorized**                                              |
+| Tags           | `tags`, as a list or a comma-separated string     | No tags                                                        |
+| Slug           | `slug`                                            | Generated from the title                                       |
+
+Categories and tags are matched to existing ones by slug, so `category: Coding` lands in your **Coding** category. Any that don't exist yet are created for you.
+
+```md
+---
+title: Connect a Docker container
+date: 2024-01-15
+description: Run Tailscale as a sidecar container.
+category: Coding
+tags: [docker, networking]
+---
+```
 
 <Warning>
   URL-based imports are **not supported**. You must upload a file or ZIP archive.

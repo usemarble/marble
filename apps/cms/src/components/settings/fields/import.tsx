@@ -3,9 +3,9 @@
 import { FileImportIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PostsImportModal } from "@/components/posts/import-modal";
 import { SettingsSection } from "@/components/settings/section";
 import { ActivityIndicator } from "@/components/ui/activity-indicator";
@@ -78,14 +78,8 @@ function isActiveImportStatus(status: ImportJob["status"]) {
   );
 }
 
-function getImportedPostsHref(workspaceSlug: string, categoryId?: string) {
-  const params = new URLSearchParams({ status: "draft" });
-
-  if (categoryId) {
-    params.set("category", categoryId);
-  }
-
-  return `/${workspaceSlug}/posts?${params.toString()}`;
+function getImportedPostsHref(workspaceSlug: string) {
+  return `/${workspaceSlug}/posts?status=draft`;
 }
 
 export function Import() {
@@ -93,6 +87,8 @@ export function Import() {
   const { activeWorkspace } = useWorkspace();
   const workspaceId = useWorkspaceId();
   const workspaceSlug = activeWorkspace?.slug;
+  const queryClient = useQueryClient();
+  const completedJobIds = useRef(new Set<string>());
 
   const { data, isError } = useQuery({
     ...orpc.data.imports.list.queryOptions({
@@ -107,17 +103,32 @@ export function Import() {
     },
   });
 
-  const { data: categories = [] } = useQuery(
-    orpc.categories.list.queryOptions({
-      input: { workspaceId: workspaceId ?? "" },
-      enabled: Boolean(workspaceId),
-    })
-  );
+  // Imports write posts, categories and tags on the server, so lists cached
+  // before a job finished won't include them until they're refetched.
+  useEffect(() => {
+    const newlyCompleted = (data?.jobs ?? []).filter(
+      (job) =>
+        job.status === "completed" && !completedJobIds.current.has(job.id)
+    );
+
+    if (!workspaceId || newlyCompleted.length === 0) {
+      return;
+    }
+
+    for (const job of newlyCompleted) {
+      completedJobIds.current.add(job.id);
+    }
+
+    for (const queryKey of [
+      orpc.posts.key({ input: { workspaceId } }),
+      orpc.categories.key({ input: { workspaceId } }),
+      orpc.tags.key({ input: { workspaceId } }),
+    ]) {
+      queryClient.invalidateQueries({ queryKey });
+    }
+  }, [data, queryClient, workspaceId]);
 
   const latestJobs = data?.jobs ?? [];
-  const uncategorizedCategoryId = categories.find(
-    (category) => category.slug === "uncategorized"
-  )?.id;
 
   return (
     <>
@@ -174,12 +185,7 @@ export function Import() {
                   <Button
                     nativeButton={false}
                     render={
-                      <Link
-                        href={getImportedPostsHref(
-                          workspaceSlug,
-                          uncategorizedCategoryId
-                        )}
-                      >
+                      <Link href={getImportedPostsHref(workspaceSlug)}>
                         View posts
                       </Link>
                     }

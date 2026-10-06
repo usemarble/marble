@@ -1,9 +1,25 @@
+import { markdownToTiptap } from "@marble/parser/markdown";
 import { strFromU8, unzipSync } from "fflate";
 import matter from "gray-matter";
 import type { ImportMarkdownFile, ParsedMarkdownImport } from "@/types/import";
 
 const MAX_ZIP_MARKDOWN_FILES = 100;
 const MAX_ZIP_EXTRACTED_BYTES = 20 * 1024 * 1024;
+const MAX_DESCRIPTION_LENGTH = 160;
+
+const DESCRIPTION_KEYS = ["description", "excerpt", "summary"];
+const DATE_KEYS = ["date", "publishedAt", "published_at", "pubDate"];
+
+/** Blocks whose text doesn't read as prose in a generated description. */
+const NON_PROSE_NODES = new Set([
+  "heading",
+  "codeBlock",
+  "table",
+  "image",
+  "horizontalRule",
+]);
+
+type TiptapNode = ReturnType<typeof markdownToTiptap>;
 
 /** Returns true when a zip entry should be treated as importable Markdown. */
 function isMarkdownImportFile(filename: string) {
@@ -122,23 +138,131 @@ function stringFromFrontmatter(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-/** Normalizes comma-separated or YAML-list tag frontmatter into strings. */
-function tagsFromFrontmatter(value: unknown) {
-  if (typeof value === "string" && value.trim()) {
-    return value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-  }
+/** Returns the first usable string among several frontmatter aliases. */
+function firstStringFromFrontmatter(
+  data: Record<string, unknown>,
+  keys: string[]
+) {
+  for (const key of keys) {
+    const value = stringFromFrontmatter(data[key]);
 
-  if (Array.isArray(value)) {
-    return value
-      .filter((tag): tag is string => typeof tag === "string")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
+    if (value) {
+      return value;
+    }
   }
 
   return undefined;
+}
+
+/** Normalizes comma-separated or YAML-list frontmatter into strings. */
+function listFromFrontmatter(value: unknown) {
+  let entries: string[] = [];
+
+  if (typeof value === "string") {
+    entries = value.split(",");
+  } else if (Array.isArray(value)) {
+    entries = value.filter(
+      (entry): entry is string => typeof entry === "string"
+    );
+  }
+
+  const list = entries.map((entry) => entry.trim()).filter(Boolean);
+  return list.length > 0 ? list : undefined;
+}
+
+/** Reads tags, dropping the `#` prefix some note apps write. */
+function tagsFromFrontmatter(value: unknown) {
+  const tags = listFromFrontmatter(value)
+    ?.map((tag) => tag.replace(/^#+/, "").trim())
+    .filter(Boolean);
+
+  return tags && tags.length > 0 ? tags : undefined;
+}
+
+/** Reads a single category from `category`, or the first of `categories`. */
+function categoryFromFrontmatter(data: Record<string, unknown>) {
+  if (Array.isArray(data.category)) {
+    return listFromFrontmatter(data.category)?.[0];
+  }
+
+  return (
+    stringFromFrontmatter(data.category) ||
+    listFromFrontmatter(data.categories)?.[0]
+  );
+}
+
+/**
+ * Reads a publish date from YAML dates or date strings. Dates without a time
+ * parse as UTC midnight; those move to noon UTC so the calendar day stays the
+ * same when the dashboard shows it in a local timezone.
+ */
+function dateFromFrontmatter(data: Record<string, unknown>) {
+  for (const key of DATE_KEYS) {
+    const value = data[key];
+    let date: Date | undefined;
+    let isDateOnly = false;
+
+    if (value instanceof Date) {
+      date = new Date(value);
+      // YAML has already parsed the text, so an unquoted `2024-01-15` and
+      // `2024-01-15T00:00:00Z` look the same. Treat UTC midnight as date-only.
+      isDateOnly = date.getTime() % 86_400_000 === 0;
+    } else if (typeof value === "string" && /\d{4}/.test(value)) {
+      date = new Date(value.trim());
+      isDateOnly = !/\d:\d/.test(value);
+    }
+
+    if (!date || Number.isNaN(date.getTime())) {
+      continue;
+    }
+
+    if (isDateOnly) {
+      date.setUTCHours(12);
+    }
+
+    return date;
+  }
+
+  return undefined;
+}
+
+/** Joins a node's text, separating blocks with spaces and skipping non-prose. */
+function proseText(nodes: TiptapNode[] = []): string {
+  return nodes
+    .map((node) => {
+      if (node.type === "text") {
+        return node.text ?? "";
+      }
+
+      if (node.type === "hardBreak") {
+        return " ";
+      }
+
+      if (node.type && NON_PROSE_NODES.has(node.type)) {
+        return "";
+      }
+
+      return ` ${proseText(node.content)} `;
+    })
+    .join("");
+}
+
+/** Builds a short plain-text description from the post's opening prose. */
+function descriptionFromContent(contentJson: TiptapNode) {
+  const text = proseText(contentJson.content)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (text.length <= MAX_DESCRIPTION_LENGTH) {
+    return text;
+  }
+
+  const cut = text.slice(0, MAX_DESCRIPTION_LENGTH);
+  const lastSpace = cut.lastIndexOf(" ");
+  const excerpt = lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+
+  return `${excerpt.replace(/[\s,.;:!?-]+$/, "")}…`;
 }
 
 /** Returns true when a line starts top-level MDX import syntax. */
@@ -231,6 +355,12 @@ export function parseMarkdownImport(filename: string, markdown: string) {
     contentTitle(content) ||
     filenameTitle(filename);
   const fallbackSlug = generateSlug(title) || generateSlug(filename) || "post";
+  const contentJson = markdownToTiptap(content);
+  const description =
+    firstStringFromFrontmatter(parsed.data, DESCRIPTION_KEYS) ||
+    descriptionFromContent(contentJson) ||
+    title ||
+    "Untitled";
 
   return {
     sourceRef: filename,
@@ -239,8 +369,10 @@ export function parseMarkdownImport(filename: string, markdown: string) {
       ? generateSlug(String(parsed.data.slug))
       : fallbackSlug,
     content,
-    description: stringFromFrontmatter(parsed.data.description) || "",
-    rawCategory: stringFromFrontmatter(parsed.data.category),
+    contentJson,
+    description,
+    publishedAt: dateFromFrontmatter(parsed.data),
+    rawCategory: categoryFromFrontmatter(parsed.data),
     rawTags: tagsFromFrontmatter(parsed.data.tags),
     rawAuthor: stringFromFrontmatter(parsed.data.author),
   } satisfies ParsedMarkdownImport;
