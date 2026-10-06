@@ -98,36 +98,13 @@ export const ExtensionKit = ({
   // Mod-Shift-ArrowUp/ArrowDown to move blocks
   BlockMove,
 
+  // Only the empty top-level block under the caret gets the placeholder, so
+  // figure captions, tables, blockquotes and lists never show it. Don't turn
+  // on `includeChildren`: it builds decorations before `editor.state` is
+  // updated, so anything read from the editor here is one transaction stale.
   Placeholder.configure({
-    includeChildren: true,
-    placeholder: ({ editor, node, pos }) => {
-      if (!editor) {
-        return placeholder ?? "";
-      }
-
-      const parent = editor.state.doc.resolve(pos).parent;
-      if (parent.type.name === "figure" && node.type.name === "paragraph") {
-        return "";
-      }
-
-      // Hide placeholder inside tables, blockquotes, code blocks, and lists
-      if (
-        editor.isActive("table") ||
-        editor.isActive("tableCell") ||
-        editor.isActive("tableHeader") ||
-        editor.isActive("blockquote") ||
-        editor.isActive("codeBlock") ||
-        editor.isActive("bulletList") ||
-        editor.isActive("orderedList") ||
-        editor.isActive("taskList") ||
-        editor.isActive("listItem") ||
-        editor.isActive("taskItem")
-      ) {
-        return "";
-      }
-
-      return placeholder ?? "";
-    },
+    placeholder: ({ node }) =>
+      node.type.name === "codeBlock" ? "" : (placeholder ?? ""),
     emptyEditorClass:
       "before:text-muted-foreground before:content-[attr(data-placeholder)] before:float-left before:h-0 before:pointer-events-none",
     emptyNodeClass:
