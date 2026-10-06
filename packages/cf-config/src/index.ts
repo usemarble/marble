@@ -67,19 +67,25 @@ const resources = {
   },
 } as const;
 
-/**
- * Public URL for each mode's bucket. Production is left to the API's default
- * (cdn.marblecms.com); other modes must set it, or media URLs they persist
- * would point at the production CDN, which doesn't hold their objects.
- */
+/** Public URL (CDN) for each mode's bucket. */
 const storagePublicUrls = {
+  production: "https://cdn.marblecms.com",
   staging: "https://cdn-staging.marblecms.com",
   dev: "https://pub-c659f2325f0d4bfdb8a6c4b32626dd02.r2.dev",
-} as const satisfies Record<Exclude<Mode, "production">, string>;
+} as const satisfies Record<Mode, string>;
 
 export function storagePublicUrl(mode: Mode) {
-  return mode === "production" ? undefined : storagePublicUrls[mode];
+  return storagePublicUrls[mode];
 }
+
+/**
+ * The Cloudflare account that owns every Marble resource. Account IDs aren't
+ * secret; R2 access needs the S3 API keys.
+ */
+const accountId = "3fade0cee31eae101fc646319ce3b7ef";
+
+/** R2's S3-compatible endpoint, used to presign upload and download URLs. */
+export const r2S3Endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
 
 export function storageBucketName(mode: Mode) {
   return resources[mode].bucket;

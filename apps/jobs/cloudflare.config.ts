@@ -52,6 +52,7 @@ export default defineConfig((ctx) => {
         QUEUE_WEBHOOK_DELIVERIES: bindings.text(queue.webhookDeliveries),
         QUEUE_TASKS: bindings.text(queue.tasks),
         QUEUE_DLQ: bindings.text(queue.dlq),
+        MODE: bindings.text(mode),
         APP_URL: bindings.text(appUrl(mode)),
         API_URL: bindings.text(apiUrl(mode)),
         RESEND_API_KEY: bindings.secret(),

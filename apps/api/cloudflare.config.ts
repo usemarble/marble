@@ -4,6 +4,7 @@ import {
   baseWorker,
   dataBindings,
   queues,
+  r2S3Endpoint,
   resolveMode,
   storageBucketName,
   storagePublicUrl,
@@ -36,7 +37,6 @@ const polarProducts = {
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode);
   const queue = queues(mode);
-  const publicUrl = storagePublicUrl(mode);
   const dashboardOrigin = appUrl(mode);
   const products = polarProducts[mode];
 
@@ -51,12 +51,8 @@ export default defineConfig((ctx) => {
         ...dataBindings(mode),
         EVENT_QUEUE: bindings.queue<EventMessage>({ name: queue.events }),
         TASK_QUEUE: bindings.queue<TaskMessage>({ name: queue.tasks }),
-        STORAGE_PUBLIC_URL: bindings.text(
-          publicUrl ?? "https://cdn.marblecms.com"
-        ),
-        R2_S3_ENDPOINT: bindings.text(
-          "https://3fade0cee31eae101fc646319ce3b7ef.r2.cloudflarestorage.com"
-        ),
+        STORAGE_PUBLIC_URL: bindings.text(storagePublicUrl(mode)),
+        R2_S3_ENDPOINT: bindings.text(r2S3Endpoint),
         R2_BUCKET_NAME: bindings.text(storageBucketName(mode)),
         MODE: bindings.text(mode),
         APP_URL: bindings.text(dashboardOrigin),

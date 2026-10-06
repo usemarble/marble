@@ -4,6 +4,7 @@ import { evlog } from "evlog/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import "./lib/logger";
 import { aiChat } from "./handlers/ai-chat";
 import { exportDownload } from "./handlers/export-download";
 import { registrationAnalytics } from "./handlers/registration-analytics";
