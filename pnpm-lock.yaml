@@ -482,7 +482,7 @@ importers:
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))
       evlog:
         specifier: 2.29.0
-        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1)(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
+        version: 2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1(supports-color@10.2.2))(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
@@ -511,6 +511,9 @@ importers:
       vite:
         specifier: 8.3.1
         version: 8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(supports-color@10.2.2)(tsx@4.23.12)(yaml@2.9.0)
 
   apps/mcp:
     dependencies:
@@ -18680,7 +18683,7 @@ snapshots:
     dependencies:
       eventsource-parser: 3.1.1
 
-  evlog@2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1)(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)):
+  evlog@2.29.0(@orpc/server@1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0)))(ai@6.0.266(zod@4.6.5))(express@5.2.1(supports-color@10.2.2))(h3@1.15.11)(hono@4.13.8)(next@16.3.6(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.0)(@types/node@22.20.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(ofetch@1.5.1)(react@19.3.0)(vite@8.3.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0)):
     optionalDependencies:
       '@orpc/server': 1.15.4(@opentelemetry/api@1.9.0)(crossws@0.3.5)(ws@8.21.3(bufferutil@4.1.0))
       ai: 6.0.266(zod@4.6.5)

@@ -1,3 +1,5 @@
+import type { markdownToTiptap } from "@marble/parser/markdown";
+
 /** Markdown or MDX content discovered from a single file or zip entry. */
 export interface ImportMarkdownFile {
   sourceRef: string;
@@ -10,8 +12,10 @@ export interface ParsedMarkdownImport {
   title: string;
   slug: string;
   content: string;
+  contentJson: ReturnType<typeof markdownToTiptap>;
   description: string;
+  publishedAt?: Date;
   rawCategory?: string;
-  rawTags?: string | string[];
+  rawTags?: string[];
   rawAuthor?: string;
 }
