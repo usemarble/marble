@@ -33,6 +33,12 @@ Deploy:
 pnpm --filter api run deploy
 ```
 
+Workers Builds deploys `main` (production) and `staging` (`--mode staging`)
+on push, running `db:migrate` first. Set or rotate secrets with
+`npx cf deploy --secrets-file <env file>` from a terminal, not with the
+dashboard or `wrangler secret put`: a change made outside `cf deploy` makes the
+next non-interactive deploy abort until one interactive `cf deploy` is run.
+
 ## Dashboard router (`/rpc`)
 
 The dashboard's backend lives in `@marble/api`; this Worker mounts it at
@@ -63,4 +69,3 @@ Locally, `cf dev` needs the docker-compose Postgres and Redis and a `.dev.vars`
 (or `.env`) with the secrets declared in `cloudflare.config.ts`; point
 `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE`, `REDIS_URL` and
 `REDIS_TOKEN` at them as in `.env.example`.
-
