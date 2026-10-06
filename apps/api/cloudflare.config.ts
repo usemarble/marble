@@ -13,10 +13,6 @@ import {
 import type { EventMessage, TaskMessage } from "@marble/events";
 import { bindings, defineConfig } from "cf/config";
 
-/**
- * Polar product IDs aren't secret. Staging and dev share the sandbox
- * organization's products.
- */
 const sandboxProducts = {
   hobbyMonthly: "e98c76bc-b8b5-4f75-8760-a604ecc0af88",
   hobbyYearly: "3c676289-33e0-4043-a4a5-9e9fc19751a2",
@@ -44,8 +40,6 @@ export default defineConfig((ctx) => {
     worker: {
       ...baseWorker,
       name: workerName("marble-api", mode),
-      // Production's api.marblecms.com is managed in the dashboard; only the
-      // staging domain is declared here.
       ...(mode === "staging" && { domains: ["api-staging.marblecms.com"] }),
       env: {
         ...dataBindings(mode),
@@ -71,14 +65,12 @@ export default defineConfig((ctx) => {
         POLAR_HOBBY_YEARLY_PRODUCT_ID: bindings.text(products.hobbyYearly),
         POLAR_PRO_MONTHLY_PRODUCT_ID: bindings.text(products.proMonthly),
         POLAR_PRO_YEARLY_PRODUCT_ID: bindings.text(products.proYearly),
-        // Registration analytics only run in production.
         DATABUDDY_CLIENT_ID: bindings.text(
           mode === "production" ? "CG1SRcfYdIQoCeBrPpbJ_" : ""
         ),
         DATABUDDY_WEB_CLIENT_ID: bindings.text(
           mode === "production" ? "Dq_1D8IsZscrCY2rNneFZ" : ""
         ),
-        // cf deploy deletes any secret not declared here.
         AI_GATEWAY_API_KEY: bindings.secret(),
         BETTER_AUTH_SECRET: bindings.secret(),
         R2_ACCESS_KEY_ID: bindings.secret(),
