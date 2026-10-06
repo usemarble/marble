@@ -1,6 +1,6 @@
 import { createRecordId } from "@marble/db/id";
 import { isPgUniqueViolation } from "@marble/db/pg-errors";
-import { author, category, importJob, post } from "@marble/db/schema";
+import { author, category, importJob, post, tag } from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
 import { generateSlug } from "@/utils/import-content";
@@ -168,28 +168,108 @@ export async function getImportAuthor(
   return result;
 }
 
-export async function getUncategorizedCategory(
+/** Finds a workspace category or tag by slug, creating it when missing. */
+async function findOrCreateTaxonomy(
   db: DbClient,
-  workspaceId: string
+  table: typeof category | typeof tag,
+  workspaceId: string,
+  name: string,
+  slug: string
 ) {
-  const [result] = await db
-    .insert(category)
-    .values({
-      id: createRecordId(),
-      ...UNCATEGORIZED_CATEGORY,
-      workspaceId,
-    })
-    .onConflictDoUpdate({
-      target: [category.workspaceId, category.slug],
-      set: { updatedAt: new Date() },
-    })
-    .returning({ id: category.id });
+  const findExisting = async () => {
+    const [existing] = await db
+      .select({ id: table.id })
+      .from(table)
+      .where(and(eq(table.workspaceId, workspaceId), eq(table.slug, slug)))
+      .limit(1);
+    return existing?.id;
+  };
 
-  if (!result) {
-    throw new Error("Could not resolve uncategorized category");
+  const existingId = await findExisting();
+
+  if (existingId) {
+    return existingId;
   }
 
-  return result;
+  const [created] = await db
+    .insert(table)
+    .values({ id: createRecordId(), name, slug, workspaceId })
+    .onConflictDoNothing({ target: [table.workspaceId, table.slug] })
+    .returning({ id: table.id });
+
+  // A concurrent import can create the same slug between the lookup and insert.
+  const id = created?.id ?? (await findExisting());
+
+  if (!id) {
+    throw new Error(`Could not resolve "${name}"`);
+  }
+
+  return id;
+}
+
+/**
+ * Resolves frontmatter categories and tags to workspace records by slug,
+ * creating missing ones. Lookups are memoized for the length of one import.
+ */
+export function createImportTaxonomy(db: DbClient, workspaceId: string) {
+  const categoryIds = new Map<string, string>();
+  const tagIds = new Map<string, string>();
+
+  const resolve = async (
+    cache: Map<string, string>,
+    table: typeof category | typeof tag,
+    name: string,
+    slug: string
+  ) => {
+    const cached = cache.get(slug);
+
+    if (cached) {
+      return cached;
+    }
+
+    const id = await findOrCreateTaxonomy(db, table, workspaceId, name, slug);
+    cache.set(slug, id);
+    return id;
+  };
+
+  return {
+    /** Returns the named category, or Uncategorized when there isn't one. */
+    category(name?: string) {
+      const slug = name ? generateSlug(name) : "";
+
+      if (!(name && slug)) {
+        return resolve(
+          categoryIds,
+          category,
+          UNCATEGORIZED_CATEGORY.name,
+          UNCATEGORIZED_CATEGORY.slug
+        );
+      }
+
+      return resolve(categoryIds, category, name, slug);
+    },
+
+    /** Returns unique tag IDs, skipping names that don't produce a slug. */
+    async tags(names: string[] = []) {
+      const bySlug = new Map<string, string>();
+
+      for (const name of names) {
+        const slug = generateSlug(name);
+
+        if (slug && !bySlug.has(slug)) {
+          bySlug.set(slug, name);
+        }
+      }
+
+      const ids: string[] = [];
+
+      for (const [slug, name] of bySlug) {
+        ids.push(await resolve(tagIds, tag, name, slug));
+      }
+
+      return ids;
+    },
+  };
 }
 
 export async function getImportJob(db: DbClient, jobId: string) {

@@ -14,7 +14,11 @@ const SERVER_URL =
   process.env.TEST_POSTGRES_URL ??
   "postgresql://usemarble:justusemarble@localhost:5432/postgres";
 
-const MIGRATIONS_FOLDER = fileURLToPath(new URL("../drizzle", import.meta.url));
+// A string, not a URL: Workers projects (apps/jobs) typecheck this file with a
+// global URL that Node's fileURLToPath types don't accept.
+const MIGRATIONS_FOLDER = fileURLToPath(
+  new URL("../drizzle", import.meta.url).href
+);
 
 export interface TestDatabase {
   db: HyperdriveDb;

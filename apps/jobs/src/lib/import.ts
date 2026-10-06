@@ -1,7 +1,13 @@
 import { env } from "cloudflare:workers";
 import { createRecordId } from "@marble/db/id";
-import { importItem, importJob, post, postToAuthor } from "@marble/db/schema";
-import { markdownToHtml, markdownToTiptap } from "@marble/parser/markdown";
+import {
+  importItem,
+  importJob,
+  post,
+  postToAuthor,
+  postToTag,
+} from "@marble/db/schema";
+import { markdownToHtml } from "@marble/parser/markdown";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
@@ -11,38 +17,41 @@ import {
   parseMarkdownImport,
 } from "@/utils/import-content";
 import {
+  createImportTaxonomy,
   failImportJob,
   getImportAuthor,
   getImportJob,
   getSlugAttempt,
-  getUncategorizedCategory,
   getUniquePostSlug,
   isUniqueConstraintError,
   MAX_UNIQUE_SLUG_ATTEMPTS,
 } from "@/utils/import-records";
 
 type ImportJob = NonNullable<Awaited<ReturnType<typeof getImportJob>>>;
+type ImportTaxonomy = ReturnType<typeof createImportTaxonomy>;
 
 async function importMarkdownFile({
   authorId,
-  categoryId,
   db,
   file,
   job,
   now,
+  taxonomy,
 }: {
   authorId: string;
-  categoryId: string;
   db: DbClient;
   file: ImportMarkdownFile;
   job: ImportJob;
   now: Date;
+  taxonomy: ImportTaxonomy;
 }) {
   try {
     const parsed = parseMarkdownImport(file.sourceRef, file.content);
     const htmlContent = await markdownToHtml(parsed.content);
-    const contentJson = markdownToTiptap(parsed.content);
+    const { contentJson } = parsed;
     const cleanContent = sanitizeHtml(htmlContent);
+    const categoryId = await taxonomy.category(parsed.rawCategory);
+    const tagIds = await taxonomy.tags(parsed.rawTags);
 
     for (let attempt = 0; attempt < MAX_UNIQUE_SLUG_ATTEMPTS; attempt += 1) {
       const slug = await getUniquePostSlug(
@@ -71,6 +80,7 @@ async function importMarkdownFile({
             rawTags: parsed.rawTags,
             rawAuthor: parsed.rawAuthor,
             resolvedCategoryId: categoryId,
+            resolvedTagIds: tagIds,
           });
 
           await tx.insert(post).values({
@@ -84,7 +94,7 @@ async function importMarkdownFile({
             contentJson,
             description: parsed.description,
             categoryId,
-            publishedAt: now,
+            publishedAt: parsed.publishedAt ?? now,
             workspaceId: job.workspaceId,
           });
 
@@ -92,6 +102,12 @@ async function importMarkdownFile({
             a: authorId,
             b: postId,
           });
+
+          if (tagIds.length > 0) {
+            await tx
+              .insert(postToTag)
+              .values(tagIds.map((tagId) => ({ a: postId, b: tagId })));
+          }
 
           await tx
             .update(importItem)
@@ -200,7 +216,7 @@ export async function runImport(db: DbClient, jobId: string) {
     return;
   }
 
-  const category = await getUncategorizedCategory(db, job.workspaceId);
+  const taxonomy = createImportTaxonomy(db, job.workspaceId);
   const authorRecord = await getImportAuthor(db, job);
   const now = new Date();
   let importedItems = 0;
@@ -220,11 +236,11 @@ export async function runImport(db: DbClient, jobId: string) {
   for (const file of files) {
     const result = await importMarkdownFile({
       authorId: authorRecord.id,
-      categoryId: category.id,
       db,
       file,
       job,
       now,
+      taxonomy,
     });
 
     if (result === "imported") {

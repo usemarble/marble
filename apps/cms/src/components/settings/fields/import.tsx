@@ -78,14 +78,8 @@ function isActiveImportStatus(status: ImportJob["status"]) {
   );
 }
 
-function getImportedPostsHref(workspaceSlug: string, categoryId?: string) {
-  const params = new URLSearchParams({ status: "draft" });
-
-  if (categoryId) {
-    params.set("category", categoryId);
-  }
-
-  return `/${workspaceSlug}/posts?${params.toString()}`;
+function getImportedPostsHref(workspaceSlug: string) {
+  return `/${workspaceSlug}/posts?status=draft`;
 }
 
 export function Import() {
@@ -107,17 +101,7 @@ export function Import() {
     },
   });
 
-  const { data: categories = [] } = useQuery(
-    orpc.categories.list.queryOptions({
-      input: { workspaceId: workspaceId ?? "" },
-      enabled: Boolean(workspaceId),
-    })
-  );
-
   const latestJobs = data?.jobs ?? [];
-  const uncategorizedCategoryId = categories.find(
-    (category) => category.slug === "uncategorized"
-  )?.id;
 
   return (
     <>
@@ -174,12 +158,7 @@ export function Import() {
                   <Button
                     nativeButton={false}
                     render={
-                      <Link
-                        href={getImportedPostsHref(
-                          workspaceSlug,
-                          uncategorizedCategoryId
-                        )}
-                      >
+                      <Link href={getImportedPostsHref(workspaceSlug)}>
                         View posts
                       </Link>
                     }
