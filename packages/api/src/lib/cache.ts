@@ -64,61 +64,39 @@ export function createCacheClient(url: string, token: string) {
     },
 
     /**
-     * Cache-aside pattern: get from cache or fetch and cache
+     * Cache-aside pattern: get from cache or fetch and cache.
+     *
+     * Redis failures fall back to the fetcher; the fetcher's own errors
+     * propagate, so a failed query isn't run twice. `null` and `undefined`
+     * (e.g. a post that doesn't exist) are returned without being cached.
      */
     async getOrSet<T>(
       key: string,
       fetcher: () => Promise<T>,
       ttl = DEFAULT_TTL
     ): Promise<T> {
-      try {
-        const cached = await redis.get<T>(key);
-        if (cached !== null) {
-          console.log(`[Cache] HIT: ${key}`);
-          return cached;
-        }
-
-        console.log(`[Cache] MISS: ${key}`);
-        const fresh = await fetcher();
-        const serialized = JSON.stringify(fresh);
-        if (serialized.length > MAX_CACHE_VALUE_BYTES) {
-          console.warn(
-            `[Cache] SKIP SET: ${key} is ${serialized.length} bytes, exceeds ${MAX_CACHE_VALUE_BYTES} byte limit`
-          );
-          return fresh;
-        }
-        await redis.set(key, fresh, { ex: ttl });
-        return fresh;
-      } catch (error) {
-        console.error(`[Cache] getOrSet error for ${key}:`, error);
-        return fetcher();
+      const cached = await this.get<T>(key);
+      if (cached !== null) {
+        return cached;
       }
+
+      console.log(`[Cache] MISS: ${key}`);
+      const fresh = await fetcher();
+      if (fresh !== null && fresh !== undefined) {
+        await this.set(key, fresh, ttl);
+      }
+      return fresh;
     },
 
     /**
      * Cache-aside pattern for count queries
-     * Optimized for caching numeric count values
      */
     async getOrSetCount<T extends number>(
       key: string,
       fetcher: () => Promise<T>,
       ttl = DEFAULT_TTL
     ): Promise<T> {
-      try {
-        const cached = await redis.get<T>(key);
-        if (cached !== null) {
-          console.log(`[Cache] HIT (count): ${key}`);
-          return cached;
-        }
-
-        console.log(`[Cache] MISS (count): ${key}`);
-        const fresh = await fetcher();
-        await redis.set(key, fresh, { ex: ttl });
-        return fresh;
-      } catch (error) {
-        console.error(`[Cache] getOrSetCount error for ${key}:`, error);
-        return fetcher();
-      }
+      return this.getOrSet(key, fetcher, ttl);
     },
 
     /**
