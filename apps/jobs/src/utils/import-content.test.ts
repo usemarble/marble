@@ -109,10 +109,15 @@ Read this first.
       "post.md",
       '---\npublishedAt: "2024-03-02T08:00:00+02:00"\n---\nBody'
     );
+    const midnight = parseMarkdownImport(
+      "post.md",
+      '---\ndate: "2024-01-15T00:00:00Z"\n---\nBody'
+    );
 
     expect(withTime.publishedAt).toEqual(new Date("2024-01-15T09:30:00Z"));
     expect(quoted.publishedAt).toEqual(new Date("2024-03-02T12:00:00Z"));
     expect(camelCase.publishedAt).toEqual(new Date("2024-03-02T06:00:00Z"));
+    expect(midnight.publishedAt).toEqual(new Date("2024-01-15T00:00:00Z"));
   });
 
   it.each([

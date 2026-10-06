@@ -200,18 +200,23 @@ function dateFromFrontmatter(data: Record<string, unknown>) {
   for (const key of DATE_KEYS) {
     const value = data[key];
     let date: Date | undefined;
+    let isDateOnly = false;
 
     if (value instanceof Date) {
       date = new Date(value);
+      // YAML has already parsed the text, so an unquoted `2024-01-15` and
+      // `2024-01-15T00:00:00Z` look the same. Treat UTC midnight as date-only.
+      isDateOnly = date.getTime() % 86_400_000 === 0;
     } else if (typeof value === "string" && /\d{4}/.test(value)) {
       date = new Date(value.trim());
+      isDateOnly = !/\d:\d/.test(value);
     }
 
     if (!date || Number.isNaN(date.getTime())) {
       continue;
     }
 
-    if (date.getTime() % 86_400_000 === 0) {
+    if (isDateOnly) {
       date.setUTCHours(12);
     }
 
