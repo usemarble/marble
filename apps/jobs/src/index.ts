@@ -16,7 +16,12 @@ import { handleOutboxSweep } from "@/scheduled/outbox";
 import type { Env } from "@/types/env";
 
 // Services shared with the API log through evlog.
-initWorkersLogger({ env: { service: "marble-jobs" } });
+initWorkersLogger({
+  env: {
+    service: "marble-jobs",
+    environment: process.env.MODE ?? "production",
+  },
+});
 
 export default {
   async fetch() {
