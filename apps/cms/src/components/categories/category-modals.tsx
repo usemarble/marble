@@ -83,6 +83,14 @@ export const CategoryModal = ({
         setOpen(false);
         toast.success("Category created successfully");
         if (workspaceId) {
+          queryClient.setQueryData(
+            orpc.categories.list.queryOptions({ input: { workspaceId } })
+              .queryKey,
+            (categories = []) => [
+              ...categories.filter((category) => category.id !== data.id),
+              { ...data, postsCount: 0 },
+            ]
+          );
           queryClient.invalidateQueries({
             queryKey: orpc.categories.key({ input: { workspaceId } }),
           });
