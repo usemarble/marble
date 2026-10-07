@@ -9,7 +9,8 @@
   },
   "scripts": {
     "lint": "biome check .",
-    "format": "biome --write ."
+    "format": "biome --write .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
@@ -54,6 +55,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
   }
 }
