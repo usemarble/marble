@@ -1,13 +1,14 @@
 "use client";
 
 import { toast } from "@marble/ui/components/sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import NotFound from "@/app/not-found";
@@ -46,8 +47,12 @@ export function WorkspaceProvider({
   workspaceSlug,
 }: WorkspaceProviderProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const { data: session } = useSession();
+  const activationPaused = useRef(false);
+  const activationRequests = useRef(new Set<Promise<void>>());
+  const [isRemovingWorkspace, setIsRemovingWorkspace] = useState(false);
   const [recheckedSlug, setRecheckedSlug] = useState<string | null>(null);
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     null
@@ -82,20 +87,80 @@ export function WorkspaceProvider({
   const activeOrganizationId = session?.session.activeOrganizationId;
 
   useEffect(() => {
-    if (!(workspaceId && session) || activeOrganizationId === workspaceId) {
+    if (
+      isRemovingWorkspace ||
+      activationPaused.current ||
+      !(workspaceId && session) ||
+      activeOrganizationId === workspaceId
+    ) {
       return;
     }
-    organization
+
+    let cancelled = false;
+    const request = organization
       .setActive({ organizationId: workspaceId })
       .then(({ error: setActiveError }) => {
-        if (setActiveError) {
+        if (setActiveError && !cancelled && !activationPaused.current) {
           toast.error(setActiveError.message || "Failed to activate workspace");
         }
       })
       .catch((setActiveError) => {
-        console.error("Failed to activate workspace", setActiveError);
+        if (!cancelled && !activationPaused.current) {
+          console.error("Failed to activate workspace", setActiveError);
+        }
+      })
+      .finally(() => {
+        activationRequests.current.delete(request);
       });
-  }, [activeOrganizationId, session, workspaceId]);
+    activationRequests.current.add(request);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeOrganizationId, isRemovingWorkspace, session, workspaceId]);
+
+  const removeWorkspace = useCallback(
+    async (organizationId: string, action: "delete" | "leave") => {
+      if (activationPaused.current) {
+        throw new Error("A workspace removal is already in progress");
+      }
+
+      // Pause immediately, before React renders or Better Auth refreshes the
+      // session. Drain requests already sent so none can finish after removal.
+      activationPaused.current = true;
+      setIsRemovingWorkspace(true);
+
+      try {
+        await Promise.all(activationRequests.current);
+        const { error: removalError } = await organization[action]({
+          organizationId,
+        });
+        if (removalError) {
+          throw new Error(removalError.message || "Failed to remove workspace");
+        }
+      } catch (removalError) {
+        activationPaused.current = false;
+        setIsRemovingWorkspace(false);
+        throw removalError;
+      }
+
+      // Keep activation paused until the outgoing provider unmounts. Its last
+      // workspace stays visible while the list refreshes and navigation lands.
+      queryClient.invalidateQueries({
+        queryKey: orpc.workspaces.list.key(),
+      });
+      const nextWorkspace = workspaceList?.find(
+        (workspace) => workspace.id !== organizationId
+      );
+      if (nextWorkspace) {
+        setLastVisitedWorkspace(nextWorkspace.slug);
+      }
+      router.replace(
+        nextWorkspace ? workspacePath(nextWorkspace.slug) : "/new"
+      );
+    },
+    [queryClient, router, workspaceList]
+  );
 
   useEffect(() => {
     if (activeWorkspace) {
@@ -139,6 +204,7 @@ export function WorkspaceProvider({
     <WorkspaceContext.Provider
       value={{
         activeWorkspace,
+        removeWorkspace,
         updateActiveWorkspace,
         workspaceList: workspaceList ?? null,
         isOwner: currentUserRole === "owner",

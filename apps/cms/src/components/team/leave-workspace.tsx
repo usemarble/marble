@@ -12,12 +12,8 @@ import {
   AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
-import { organization } from "@/lib/auth/client";
-import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 interface LeaveWorkspaceModalProps {
@@ -34,44 +30,14 @@ export function LeaveWorkspaceModal({
   setOpen,
 }: LeaveWorkspaceModalProps) {
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
-  const { updateActiveWorkspace, workspaceList } = useWorkspace();
-  const queryClient = useQueryClient();
-  const router = useRouter();
+  const { removeWorkspace } = useWorkspace();
 
   const handleLeaveWorkspace = async () => {
     setIsLeavingWorkspace(true);
 
     try {
-      const { error } = await organization.leave({
-        organizationId: id,
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
+      await removeWorkspace(id, "leave");
       toast.success("You have left the workspace.");
-      queryClient.invalidateQueries({
-        queryKey: orpc.workspaces.list.key(),
-      });
-
-      const remainingWorkspaces = workspaceList?.filter(
-        (workspace) => workspace.id !== id
-      );
-
-      if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
-        router.push("/new");
-        return;
-      }
-
-      const nextWorkspace = remainingWorkspaces[0];
-      if (!nextWorkspace) {
-        router.push("/new");
-        return;
-      }
-
-      await updateActiveWorkspace(nextWorkspace);
-      router.push(`/${nextWorkspace.slug}`);
     } catch (error) {
       console.error("Failed to leave workspace:", error);
       toast.error(

@@ -19,62 +19,22 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { SettingsSection } from "@/components/settings/section";
 import { AsyncButton } from "@/components/ui/async-button";
-import { organization } from "@/lib/auth/client";
-import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 export function Delete() {
-  const { activeWorkspace, isOwner, workspaceList } = useWorkspace();
-  const { updateActiveWorkspace } = useWorkspace();
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const { activeWorkspace, isOwner, removeWorkspace } = useWorkspace();
   const [confirmationText, setConfirmationText] = useState("");
 
   const CONFIRMATION_PHRASE = "delete my workspace";
   const isConfirmationValid = confirmationText === CONFIRMATION_PHRASE;
 
   const { mutate: deleteWorkspace, isPending } = useMutation({
-    mutationFn: async ({ organizationId }: { organizationId: string }) => {
-      const { error } = await organization.delete({
-        organizationId,
-      });
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-    onSuccess: async () => {
-      const remainingWorkspaces = workspaceList?.filter(
-        (org) => org.id !== activeWorkspace?.id
-      );
-
-      if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
-        router.push("/new");
-        return;
-      }
-
-      // Invalidate the workspace list query since we lost one
-      queryClient.invalidateQueries({
-        queryKey: orpc.workspaces.list.key(),
-      });
-
-      // Get the first remaining workspace
-      const nextWorkspace = remainingWorkspaces[0];
-
-      // If there are no remaining workspaces, redirect to the new workspace page
-      if (!nextWorkspace) {
-        router.push("/new");
-        return;
-      }
-
-      // Set the first remaining workspace as active and redirect
-      await updateActiveWorkspace(nextWorkspace);
-      router.push(`/${nextWorkspace.slug}`);
-    },
+    mutationFn: ({ organizationId }: { organizationId: string }) =>
+      removeWorkspace(organizationId, "delete"),
     onError: () => {
       toast.error("Failed to delete workspace.");
     },
