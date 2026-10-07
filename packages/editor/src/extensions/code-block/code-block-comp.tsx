@@ -35,6 +35,21 @@ const LANGUAGES = [
   { value: "sql", label: "SQL" },
   { value: "go", label: "Go" },
   { value: "rust", label: "Rust" },
+  { value: "yaml", label: "YAML" },
+  { value: "markdown", label: "Markdown" },
+  { value: "toml", label: "TOML" },
+  { value: "xml", label: "XML" },
+  { value: "dockerfile", label: "Dockerfile" },
+  { value: "diff", label: "Diff" },
+  { value: "graphql", label: "GraphQL" },
+  { value: "java", label: "Java" },
+  { value: "kotlin", label: "Kotlin" },
+  { value: "swift", label: "Swift" },
+  { value: "c", label: "C" },
+  { value: "cpp", label: "C++" },
+  { value: "csharp", label: "C#" },
+  { value: "php", label: "PHP" },
+  { value: "ruby", label: "Ruby" },
 ] as const;
 
 /** Common aliases that map to a supported language value. */
@@ -48,6 +63,15 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   htm: "html",
   golang: "go",
   rs: "rust",
+  yml: "yaml",
+  md: "markdown",
+  docker: "dockerfile",
+  patch: "diff",
+  gql: "graphql",
+  kt: "kotlin",
+  "c++": "cpp",
+  cs: "csharp",
+  rb: "ruby",
   plaintext: "text",
   plain: "text",
   txt: "text",
@@ -153,6 +177,7 @@ export const CodeBlockComp = ({
                   {LANGUAGES.map((lang) => (
                     <CommandItem
                       key={lang.value}
+                      keywords={[lang.label]}
                       onSelect={() => handleSelect(lang.value)}
                       value={lang.value}
                     >
