@@ -5,6 +5,10 @@ export type Workspace = RouterOutputs["workspaces"]["list"][number];
 
 export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
+  removeWorkspace: (
+    workspaceId: string,
+    action: "delete" | "leave"
+  ) => Promise<void>;
   updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
   workspaceList: Workspace[] | null;
   isOwner: boolean;
