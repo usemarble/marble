@@ -52,9 +52,11 @@ async function insertMarkdownFiles(editor: Editor, files: File[]) {
 /**
  * Whether the clipboard's HTML only wraps its plain text, in which case the
  * text should be read as Markdown rather than pasted as HTML:
- * - Copying from a plain-text page (a raw `.md` file open in the browser)
- *   gives one bare `<pre>`, which would paste as a single code block. Code
- *   samples on web pages come as `<pre><code>` or with highlighting spans.
+ * - Chrome shows a plain-text page (a raw `.md` file) as one `<pre>` styled
+ *   `word-wrap: break-word; white-space: pre-wrap`, and copies it that way.
+ *   It would otherwise paste as a single code block. A code sample copied
+ *   from a site has `<code>` or highlighting inside, its own id or classes,
+ *   or at least not that styling, so it stays a code block.
  * - VS Code adds syntax-highlighted HTML, and says which language it was.
  */
 function isWrappedPlainText(data: DataTransfer): boolean {
@@ -69,11 +71,20 @@ function isWrappedPlainText(data: DataTransfer): boolean {
 
   const html = data.getData("text/html");
   const { body } = new DOMParser().parseFromString(html, "text/html");
-  const [first, ...rest] = Array.from(body.children);
+  const [pre, ...rest] = Array.from(body.children);
+  if (
+    !(pre instanceof HTMLElement) ||
+    pre.tagName !== "PRE" ||
+    rest.length > 0 ||
+    pre.childElementCount > 0
+  ) {
+    return false;
+  }
+
   return (
-    first?.tagName === "PRE" &&
-    rest.length === 0 &&
-    first.childElementCount === 0
+    pre.attributes.length === 1 &&
+    pre.style.whiteSpace === "pre-wrap" &&
+    pre.style.overflowWrap === "break-word"
   );
 }
 
