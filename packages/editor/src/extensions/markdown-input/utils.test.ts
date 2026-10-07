@@ -122,6 +122,12 @@ describe("stripFrontmatter", () => {
     expect(stripFrontmatter("---\ntitle: Hi\n---\nBody")).toBe("Body");
   });
 
+  it("removes frontmatter that opens with a comment", () => {
+    expect(stripFrontmatter("---\n# generated\n\ntitle: Hi\n---\nBody")).toBe(
+      "Body"
+    );
+  });
+
   it("leaves a divider that isn't frontmatter", () => {
     const markdown = "---\nJust a divider\n---\n";
     expect(stripFrontmatter(markdown)).toBe(markdown);

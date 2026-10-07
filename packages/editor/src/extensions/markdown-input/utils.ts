@@ -164,7 +164,11 @@ const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
  */
 export function stripFrontmatter(markdown: string): string {
   const match = markdown.match(FRONTMATTER);
-  if (!(match && /^[\w-]+:/.test(match[1] ?? ""))) {
+  // YAML allows blank lines and `#` comments before the first key
+  const firstLine = match?.[1]
+    ?.split(/\r?\n/)
+    .find((line) => line.trim() !== "" && !line.trimStart().startsWith("#"));
+  if (!(match && firstLine && /^[\w-]+:/.test(firstLine))) {
     return markdown;
   }
   return markdown.slice(match[0].length);

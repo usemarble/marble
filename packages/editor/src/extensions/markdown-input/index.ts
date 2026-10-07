@@ -22,21 +22,28 @@ function isMarkdownFile(file: File) {
 function insertMarkdown(editor: Editor, markdown: string): boolean {
   try {
     const content = parseMarkdown(editor, markdown);
+    let inserted = false;
     try {
-      return editor.commands.insertContent(content);
+      inserted = editor.commands.insertContent(content);
     } catch {
-      // The parsed document breaks a schema rule, e.g. an image mid-sentence
-      // (figures are blocks) or at the start of a list item. Render it to DOM
-      // and parse that back, which makes ProseMirror repair the structure.
-      const { schema } = editor;
-      const dom = DOMSerializer.fromSchema(schema).serializeFragment(
-        schema.nodeFromJSON(content).content
-      );
-      const doc = ProseMirrorDOMParser.fromSchema(schema).parse(dom, {
-        preserveWhitespace: "full",
-      });
-      return editor.commands.insertContent(doc.content);
+      // Handled below. With `enableContentCheck` on, Tiptap returns false
+      // for the same content instead of throwing.
     }
+    if (inserted) {
+      return true;
+    }
+
+    // The parsed document breaks a schema rule, e.g. an image mid-sentence
+    // (figures are blocks) or at the start of a list item. Render it to DOM
+    // and parse that back, which makes ProseMirror repair the structure.
+    const { schema } = editor;
+    const dom = DOMSerializer.fromSchema(schema).serializeFragment(
+      schema.nodeFromJSON(content).content
+    );
+    const doc = ProseMirrorDOMParser.fromSchema(schema).parse(dom, {
+      preserveWhitespace: "full",
+    });
+    return editor.commands.insertContent(doc.content);
   } catch (error) {
     console.error("Failed to insert markdown:", error);
     return false;
@@ -45,7 +52,11 @@ function insertMarkdown(editor: Editor, markdown: string): boolean {
 
 async function insertMarkdownFiles(editor: Editor, files: File[]) {
   for (const file of files) {
-    insertMarkdown(editor, await file.text());
+    try {
+      insertMarkdown(editor, await file.text());
+    } catch (error) {
+      console.error(`Failed to read ${file.name}:`, error);
+    }
   }
 }
 
