@@ -1,4 +1,5 @@
-import type { JSONContent } from "@tiptap/core";
+import type { Editor, JSONContent } from "@tiptap/core";
+import type { Mark, Schema } from "@tiptap/pm/model";
 
 function captionContent(caption?: string): JSONContent[] {
   return caption
@@ -154,21 +155,63 @@ function liftFiguresFromParagraphs(content: JSONContent): JSONContent {
   return content;
 }
 
+const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+
 /**
- * Transforms an array of JSON content, converting images to figures
- * and lifting figures out of invalid contexts
+ * Removes a leading YAML frontmatter block. Markdown itself has no
+ * frontmatter, so it would otherwise come through as a divider followed by a
+ * heading made of the keys.
  */
-export function transformContent(
-  json: JSONContent | JSONContent[]
-): JSONContent | JSONContent[] {
-  if (Array.isArray(json)) {
-    // First transform images to figures
-    const transformed = json.map((item) => transformImageToFigure(item));
-    // Then lift figures out of paragraphs
-    return transformed.map((item) => liftFiguresFromParagraphs(item));
+export function stripFrontmatter(markdown: string): string {
+  const match = markdown.match(FRONTMATTER);
+  if (!(match && /^[\w-]+:/.test(match[1] ?? ""))) {
+    return markdown;
   }
-  // First transform images to figures
-  const transformed = transformImageToFigure(json);
-  // Then lift figures out of paragraphs
-  return liftFiguresFromParagraphs(transformed);
+  return markdown.slice(match[0].length);
+}
+
+/**
+ * Inline code excludes every other mark, but Markdown nests them freely
+ * (`` [`npm`](url) ``, `` **`--force`** ``), and one such text node makes the
+ * editor reject the whole paste. Settles each clash the way ProseMirror's
+ * HTML parser does (code wins), except against a link: dropping the link
+ * would lose its URL, dropping code only loses the monospace.
+ */
+function resolveMarkClashes(node: JSONContent, schema: Schema): JSONContent {
+  const resolved = { ...node };
+
+  if (node.marks?.length) {
+    const hasLink = node.marks.some((mark) => mark.type === "link");
+    let marks: readonly Mark[] = [];
+    for (const mark of node.marks) {
+      if (!(hasLink && mark.type === "code")) {
+        marks = schema.markFromJSON(mark).addToSet(marks);
+      }
+    }
+    resolved.marks = marks.map((mark) => mark.toJSON());
+  }
+
+  if (node.content) {
+    resolved.content = node.content.map((child) =>
+      resolveMarkClashes(child, schema)
+    );
+  }
+
+  return resolved;
+}
+
+/**
+ * Parses Markdown into editor content: frontmatter dropped, images turned
+ * into figures, and mark combinations the editor can't hold resolved.
+ */
+export function parseMarkdown(
+  editor: Pick<Editor, "markdown" | "schema">,
+  markdown: string
+): JSONContent {
+  const json = editor.markdown?.parse(stripFrontmatter(markdown)) ?? {
+    type: "doc",
+    content: [],
+  };
+  const content = liftFiguresFromParagraphs(transformImageToFigure(json));
+  return resolveMarkClashes(content, editor.schema);
 }

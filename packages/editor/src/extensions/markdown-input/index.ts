@@ -1,7 +1,81 @@
-import { Extension } from "@tiptap/core";
+import { type Editor, Extension } from "@tiptap/core";
+import {
+  DOMSerializer,
+  DOMParser as ProseMirrorDOMParser,
+} from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
-import { looksLikeMarkdown, transformContent } from "./utils";
+import { looksLikeMarkdown, parseMarkdown } from "./utils";
+
+function isMarkdownFile(file: File) {
+  return (
+    file.name.endsWith(".md") ||
+    file.name.endsWith(".markdown") ||
+    file.type === "text/markdown"
+  );
+}
+
+/**
+ * Inserts Markdown at the selection. Returns false if it couldn't be
+ * inserted, so a paste can fall back to the default plain-text paste.
+ */
+function insertMarkdown(editor: Editor, markdown: string): boolean {
+  try {
+    const content = parseMarkdown(editor, markdown);
+    try {
+      return editor.commands.insertContent(content);
+    } catch {
+      // The parsed document breaks a schema rule, e.g. an image mid-sentence
+      // (figures are blocks) or at the start of a list item. Render it to DOM
+      // and parse that back, which makes ProseMirror repair the structure.
+      const { schema } = editor;
+      const dom = DOMSerializer.fromSchema(schema).serializeFragment(
+        schema.nodeFromJSON(content).content
+      );
+      const doc = ProseMirrorDOMParser.fromSchema(schema).parse(dom, {
+        preserveWhitespace: "full",
+      });
+      return editor.commands.insertContent(doc.content);
+    }
+  } catch (error) {
+    console.error("Failed to insert markdown:", error);
+    return false;
+  }
+}
+
+async function insertMarkdownFiles(editor: Editor, files: File[]) {
+  for (const file of files) {
+    insertMarkdown(editor, await file.text());
+  }
+}
+
+/**
+ * Whether the clipboard's HTML only wraps its plain text, in which case the
+ * text should be read as Markdown rather than pasted as HTML:
+ * - Copying from a plain-text page (a raw `.md` file open in the browser)
+ *   gives one bare `<pre>`, which would paste as a single code block. Code
+ *   samples on web pages come as `<pre><code>` or with highlighting spans.
+ * - VS Code adds syntax-highlighted HTML, and says which language it was.
+ */
+function isWrappedPlainText(data: DataTransfer): boolean {
+  const vscode = data.getData("vscode-editor-data");
+  if (vscode) {
+    try {
+      return JSON.parse(vscode).mode === "markdown";
+    } catch {
+      return false;
+    }
+  }
+
+  const html = data.getData("text/html");
+  const { body } = new DOMParser().parseFromString(html, "text/html");
+  const [first, ...rest] = Array.from(body.children);
+  return (
+    first?.tagName === "PRE" &&
+    rest.length === 0 &&
+    first.childElementCount === 0
+  );
+}
 
 /**
  * Unified extension for handling markdown input via paste and file drop
@@ -20,81 +94,29 @@ export const MarkdownInput = Extension.create({
         props: {
           handlePaste: (_view: EditorView, event: ClipboardEvent) => {
             const { editor } = this;
+            const data = event.clipboardData;
+            if (!data) {
+              return false;
+            }
 
-            // First, check for markdown files in clipboard
-            const files = Array.from(event.clipboardData?.files || []);
-            const markdownFiles = files.filter(
-              (file) =>
-                file.name.endsWith(".md") ||
-                file.name.endsWith(".markdown") ||
-                file.type === "text/markdown"
-            );
-
+            const markdownFiles = Array.from(data.files).filter(isMarkdownFile);
             if (markdownFiles.length > 0) {
-              // Handle pasted markdown files
               event.preventDefault();
-
-              for (const file of markdownFiles) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const text = e.target?.result as string;
-                  if (text) {
-                    try {
-                      const json = editor?.markdown?.parse(text);
-                      if (json) {
-                        const transformedContent = transformContent(json);
-                        editor.commands.insertContent(transformedContent);
-                      }
-                    } catch (error) {
-                      console.error("Failed to parse markdown file:", error);
-                    }
-                  }
-                };
-                reader.readAsText(file);
-              }
-
+              insertMarkdownFiles(editor, markdownFiles);
               return true;
             }
 
-            // If HTML is available, let the normal HTML paste pipeline handle it
-            const html = event.clipboardData?.getData("text/html");
-            if (html) {
-              return false;
-            }
-
-            // If no HTML, check if clipboard text looks like markdown
-            const text = event.clipboardData?.getData("text/plain");
-
-            if (!text) {
-              return false;
-            }
-
+            const text = data.getData("text/plain");
             if (!looksLikeMarkdown(text)) {
               return false;
             }
 
-            // Prevent default paste behavior
-            event.preventDefault();
-
-            try {
-              // Parse markdown to JSON using Tiptap's markdown extension
-              const json = editor?.markdown?.parse(text) ?? {
-                type: "doc",
-                content: [],
-              };
-
-              // Transform Image nodes to Figure nodes
-              const transformedContent = transformContent(json);
-
-              // Insert the parsed and transformed content
-              editor.commands.insertContent(transformedContent);
-
-              return true;
-            } catch (error) {
-              console.error("Failed to parse markdown:", error);
-              // Fall back to default paste behavior
+            // Rich HTML (a web page, Google Docs) pastes better as HTML
+            if (data.getData("text/html") && !isWrappedPlainText(data)) {
               return false;
             }
+
+            return insertMarkdown(editor, text);
           },
 
           handleDrop: (_view: EditorView, event: DragEvent, _slice, moved) => {
@@ -103,16 +125,8 @@ export const MarkdownInput = Extension.create({
               return false;
             }
 
-            const { editor } = this;
             const files = Array.from(event.dataTransfer?.files || []);
-
-            // Check if any files are markdown files
-            const markdownFiles = files.filter(
-              (file) =>
-                file.name.endsWith(".md") ||
-                file.name.endsWith(".markdown") ||
-                file.type === "text/markdown"
-            );
+            const markdownFiles = files.filter(isMarkdownFile);
 
             if (markdownFiles.length === 0) {
               // Let other plugins handle this
@@ -121,31 +135,7 @@ export const MarkdownInput = Extension.create({
 
             // Prevent default browser behavior
             event.preventDefault();
-
-            // Process all markdown files
-            for (const file of markdownFiles) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const text = e.target?.result as string;
-                if (text) {
-                  try {
-                    // Parse markdown to JSON
-                    const json = editor?.markdown?.parse(text);
-                    if (json) {
-                      // Transform Image nodes to Figure nodes
-                      const transformedContent = transformContent(json);
-                      // Insert at drop position
-                      editor.commands.insertContent(transformedContent);
-                    }
-                  } catch (error) {
-                    console.error("Failed to parse markdown file:", error);
-                  }
-                }
-              };
-              reader.readAsText(file);
-            }
-
-            // Return true to indicate we handled this event
+            insertMarkdownFiles(this.editor, markdownFiles);
             return true;
           },
         },

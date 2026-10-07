@@ -17,6 +17,7 @@ import { CodeBlock } from "./code-block";
 import { Figure } from "./figure";
 import { ImageUpload } from "./image-upload";
 import { MarkdownInput } from "./markdown-input";
+import { OrderedList } from "./ordered-list";
 import { configureSlashCommand } from "./slash-command";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
 import { Twitter } from "./twitter/index";
@@ -57,11 +58,7 @@ export const ExtensionKit = ({
       linkOnPaste: true,
       openOnClick: false,
     },
-    orderedList: {
-      HTMLAttributes: {
-        class: cn("list-outside list-decimal pl-4"),
-      },
-    },
+    orderedList: false, // Using OrderedList with a Markdown parsing fix
     listItem: {
       HTMLAttributes: {
         class: cn("leading-normal"),
@@ -89,6 +86,12 @@ export const ExtensionKit = ({
       class: "rounded-full",
       color: "var(--primary)",
       width: 3,
+    },
+  }),
+
+  OrderedList.configure({
+    HTMLAttributes: {
+      class: cn("list-outside list-decimal pl-4"),
     },
   }),
 
