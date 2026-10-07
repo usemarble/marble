@@ -54,7 +54,7 @@ export function LoginForm() {
             // A session that expired without signing out leaves the previous
             // account's queries cached in this tab.
             queryClient.clear();
-            toast.success("Welcome!");
+            toast.success("Welcome back!");
             router.push(callbackURL);
           },
           onError: (ctx) => {
@@ -204,11 +204,6 @@ export function LoginForm() {
             isLoading={isCredentialsLoading}
             type="submit"
           >
-            <LastUsedBadge
-              className="border-input"
-              show={lastUsedAuthMethod === "email"}
-              variant="secondary"
-            />
             Continue
           </AsyncButton>
         </div>
