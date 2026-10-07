@@ -158,10 +158,13 @@ export const AuthorSheet = ({
 
   const { mutate: updateAuthor, isPending: isUpdating } = useMutation(
     orpc.authors.update.mutationOptions({
-      onSuccess: () => {
-        setOpen(false);
-        toast.success("Author updated successfully");
+      onSuccess: (data) => {
         if (workspaceId) {
+          queryClient.setQueryData(
+            orpc.authors.list.queryOptions({ input: { workspaceId } }).queryKey,
+            (authors) =>
+              authors?.map((author) => (author.id === data.id ? data : author))
+          );
           queryClient.invalidateQueries({
             queryKey: orpc.authors.key({ input: { workspaceId } }),
           });
@@ -169,6 +172,8 @@ export const AuthorSheet = ({
             queryKey: orpc.posts.key({ input: { workspaceId } }),
           });
         }
+        setOpen(false);
+        toast.success("Author updated successfully");
         resetAuthorForm();
       },
       onError: (error) => {

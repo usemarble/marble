@@ -63,12 +63,14 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AuthorSheet
-        authorData={author}
-        mode="update"
-        open={showEditModal}
-        setOpen={setShowEditModal}
-      />
+      {showEditModal && (
+        <AuthorSheet
+          authorData={author}
+          mode="update"
+          open={showEditModal}
+          setOpen={setShowEditModal}
+        />
+      )}
 
       <DeleteAuthorModal
         id={author.id}
