@@ -2,6 +2,8 @@
   "extends": "@marble/tsconfig/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "paths": {
       "@marble/ui/*": ["./src/*"]
     }
