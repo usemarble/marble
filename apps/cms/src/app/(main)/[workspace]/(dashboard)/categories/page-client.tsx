@@ -10,6 +10,7 @@ import { useState } from "react";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import Loading from "./loading";
@@ -42,9 +43,7 @@ function PageClient() {
 
   if (error) {
     return (
-      <DashboardBody>
-        <p className="text-muted-foreground text-sm">{error.message}</p>
-      </DashboardBody>
+      <PageError message={error.message} title="Unable to load categories" />
     );
   }
 

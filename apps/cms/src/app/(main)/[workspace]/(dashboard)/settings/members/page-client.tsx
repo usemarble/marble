@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { PlanLimitBanner } from "@/components/billing/plan-limit-banner";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
@@ -49,11 +50,7 @@ function PageClient() {
 
   const error = membersError ?? invitationsError;
   if (error) {
-    return (
-      <DashboardBody size="compact">
-        <p className="text-muted-foreground text-sm">{error.message}</p>
-      </DashboardBody>
-    );
+    return <PageError message={error.message} title="Unable to load members" />;
   }
 
   if (!(activeWorkspace && user && members && invitations)) {

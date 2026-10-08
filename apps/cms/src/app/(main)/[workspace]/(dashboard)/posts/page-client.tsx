@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { columns } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
+import { PageError } from "@/components/shared/page-error";
 import { orpc } from "@/lib/orpc";
 import { usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
@@ -67,11 +68,12 @@ function PageClient() {
 
   if (isError && !data) {
     return (
-      <DashboardBody className="grid min-h-[calc(100vh-56px)] place-items-center">
-        <p className="text-muted-foreground text-sm">
-          {error instanceof Error ? error.message : "Could not load posts."}
-        </p>
-      </DashboardBody>
+      <PageError
+        message={
+          error instanceof Error ? error.message : "Could not load posts."
+        }
+        title="Unable to load posts"
+      />
     );
   }
 

@@ -6,6 +6,7 @@ import { MediaUsageCard } from "@/components/home/media-usage-card";
 import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import Loading from "./loading";
@@ -26,9 +27,10 @@ export default function PageClient() {
 
   if (isError) {
     return (
-      <div className="text-muted-foreground text-sm">
-        Unable to load dashboard metrics right now.
-      </div>
+      <PageError
+        message="Unable to load dashboard metrics right now."
+        title="Unable to load dashboard metrics"
+      />
     );
   }
 

@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -39,11 +40,7 @@ function PageClient() {
   }
 
   if (error) {
-    return (
-      <DashboardBody>
-        <p className="text-muted-foreground text-sm">{error.message}</p>
-      </DashboardBody>
-    );
+    return <PageError message={error.message} title="Unable to load tags" />;
   }
 
   return (

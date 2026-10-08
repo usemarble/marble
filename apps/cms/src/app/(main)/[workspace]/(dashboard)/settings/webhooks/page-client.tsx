@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import {
   WebhookDataTable,
   WebhooksEmptyState,
@@ -31,7 +32,9 @@ export function PageClient() {
   }
 
   if (error) {
-    return <DashboardBody size="compact">{error.message}</DashboardBody>;
+    return (
+      <PageError message={error.message} title="Unable to load webhooks" />
+    );
   }
 
   if (webhooks?.length === 0) {
