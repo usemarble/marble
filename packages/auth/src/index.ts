@@ -251,6 +251,9 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
       },
     },
     advanced: {
+      ipAddress: {
+        ipAddressHeaders: ["cf-connecting-ip"],
+      },
       useSecureCookies: env.MODE !== "dev",
       database: {
         // Prisma applied @default(cuid()) in the client; Drizzle has no DB default.
