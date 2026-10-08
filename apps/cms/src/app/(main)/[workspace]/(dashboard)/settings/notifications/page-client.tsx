@@ -4,6 +4,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import {
   type NotificationToggleItem,
@@ -144,11 +145,10 @@ function PageClient() {
 
   if (error || !preferences) {
     return (
-      <DashboardBody>
-        <p className="text-muted-foreground text-sm">
-          {error?.message ?? "Failed to load notification preferences"}
-        </p>
-      </DashboardBody>
+      <PageError
+        message={error?.message ?? "Failed to load notification preferences"}
+        title="Unable to load notification preferences"
+      />
     );
   }
 

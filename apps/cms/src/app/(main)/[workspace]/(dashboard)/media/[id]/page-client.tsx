@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { VideoPlayer } from "@/components/media/video-player";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { blurhashToDataUrl } from "@/lib/blurhash";
 import { orpc } from "@/lib/orpc";
@@ -97,13 +98,12 @@ export default function MediaDetailPage({
 
   if (isError || !media) {
     return (
-      <DashboardBody showHeader={false}>
-        <div className="grid min-h-[calc(100vh-56px)] place-items-center p-8">
-          <p className="text-muted-foreground text-sm">
-            {error instanceof Error ? error.message : "Could not load media."}
-          </p>
-        </div>
-      </DashboardBody>
+      <PageError
+        message={
+          error instanceof Error ? error.message : "Could not load media."
+        }
+        title="Unable to load media"
+      />
     );
   }
 

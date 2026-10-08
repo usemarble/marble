@@ -49,6 +49,7 @@ import { Fragment, useEffect, useState } from "react";
 import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { WebhookDetailSettingsSkeleton } from "@/components/settings/loading-skeletons";
+import { PageError } from "@/components/shared/page-error";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -138,13 +139,12 @@ export default function WebhookDetailPage() {
 
   if (isError || !data || !webhook) {
     return (
-      <DashboardBody showHeader={false}>
-        <div className="grid min-h-[calc(100vh-56px)] place-items-center p-8">
-          <p className="text-muted-foreground text-sm">
-            {error instanceof Error ? error.message : "Could not load webhook."}
-          </p>
-        </div>
-      </DashboardBody>
+      <PageError
+        message={
+          error instanceof Error ? error.message : "Could not load webhook."
+        }
+        title="Unable to load webhook"
+      />
     );
   }
 

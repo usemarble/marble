@@ -5,6 +5,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { MediaDataTable } from "@/components/media/media-data-table";
+import { PageError } from "@/components/shared/page-error";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
@@ -119,11 +120,12 @@ function PageClient() {
 
   if (isError) {
     return (
-      <DashboardBody className="grid min-h-[calc(100vh-56px)] place-items-center">
-        <p className="text-muted-foreground text-sm">
-          {error instanceof Error ? error.message : "Could not load media."}
-        </p>
-      </DashboardBody>
+      <PageError
+        message={
+          error instanceof Error ? error.message : "Could not load media."
+        }
+        title="Unable to load media"
+      />
     );
   }
 

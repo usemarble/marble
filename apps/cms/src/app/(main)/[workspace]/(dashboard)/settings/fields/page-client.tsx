@@ -23,6 +23,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import Loading from "./loading";
@@ -72,20 +73,15 @@ export function PageClient() {
 
   if (isError) {
     return (
-      <DashboardBody
-        className="grid h-full place-content-center"
-        size="compact"
-      >
-        <div className="flex max-w-96 flex-col items-center gap-4 text-center">
-          <p className="font-medium">Unable to load custom fields</p>
-          <p className="text-muted-foreground text-sm">
-            {error instanceof Error
-              ? error.message
-              : "Something went wrong while loading your workspace fields."}
-          </p>
-          <Button onClick={() => refetch()}>Retry</Button>
-        </div>
-      </DashboardBody>
+      <PageError
+        message={
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while loading your workspace fields."
+        }
+        onRetry={() => refetch()}
+        title="Unable to load custom fields"
+      />
     );
   }
 

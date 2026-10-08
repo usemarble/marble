@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
+import { PageError } from "@/components/shared/page-error";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import Loading from "./loading";
@@ -27,11 +28,7 @@ function PageClient() {
   }
 
   if (error) {
-    return (
-      <DashboardBody>
-        <p className="text-muted-foreground text-sm">{error.message}</p>
-      </DashboardBody>
-    );
+    return <PageError message={error.message} title="Unable to load authors" />;
   }
 
   return (
