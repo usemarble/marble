@@ -11,6 +11,82 @@ afterEach(() => {
 });
 
 describe("Worker auth configuration", () => {
+  it.each([
+    ["203.0.113.42", "203.0.113.42"],
+    // Better Auth normalizes IPv6 addresses to /64 by default.
+    ["2001:db8::42", "2001:0db8:0000:0000:0000:0000:0000:0000"],
+  ])(
+    "stores the Cloudflare client IP %s when signing in",
+    async (ipAddress, storedIpAddress) => {
+      const auth = createAuth({ db, env: testEnv() });
+      const context = await auth.$context;
+      const user = {
+        id: "ip-user",
+        name: "IP User",
+        email: "ip@staging.invalid",
+        emailVerified: true,
+        image: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      vi.spyOn(context.internalAdapter, "findUserByEmail").mockResolvedValue({
+        user,
+        accounts: [
+          {
+            id: "ip-account",
+            accountId: user.id,
+            userId: user.id,
+            providerId: "credential",
+            password: "hashed-password",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+      });
+      vi.spyOn(context.password, "verify").mockResolvedValue(true);
+      const create = vi.spyOn(context.adapter, "create").mockResolvedValue({
+        id: "ip-session",
+        userId: user.id,
+        token: "ip-session-token",
+        ipAddress: storedIpAddress,
+        userAgent: "",
+        expiresAt: new Date(Date.now() + 60_000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      vi.spyOn(context.adapter, "findOne").mockResolvedValue(user);
+      vi.spyOn(auth.options.secondaryStorage, "get").mockResolvedValue(null);
+      vi.spyOn(auth.options.secondaryStorage, "set").mockResolvedValue();
+
+      const response = await auth.handler(
+        new Request("http://localhost:8787/api/auth/sign-in/email", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            origin: "http://localhost:3000",
+            "cf-connecting-ip": ipAddress,
+            "x-forwarded-for": "198.51.100.10",
+          },
+          body: JSON.stringify({
+            email: user.email,
+            password: "correct-horse-battery",
+          }),
+        })
+      );
+
+      expect(response.status).toBe(200);
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: "session",
+          data: expect.objectContaining({
+            ipAddress: storedIpAddress,
+            userId: user.id,
+          }),
+        })
+      );
+    }
+  );
+
   it("handles the default auth path without a database query", async () => {
     const auth = createAuth({ db, env: testEnv() });
     const response = await auth.handler(
