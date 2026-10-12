@@ -1,5 +1,6 @@
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { protectedProcedure, workspaceProcedure } from "./index";
@@ -80,7 +81,10 @@ describe("workspaceProcedure", () => {
 
     await expect(
       clientFor(sessionFor(outsider)).workspace({ workspaceId: id })
-    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    ).rejects.toMatchObject({
+      code: "FORBIDDEN",
+      data: { reason: "not_a_member", workspaceId: id },
+    });
   });
 
   it("answers a workspace that doesn't exist the same way", async () => {
@@ -88,7 +92,41 @@ describe("workspaceProcedure", () => {
 
     await expect(
       clientFor(sessionFor(someone)).workspace({ workspaceId: "nope" })
-    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    ).rejects.toMatchObject({
+      code: "FORBIDDEN",
+      data: { reason: "not_a_member", workspaceId: "nope" },
+    });
+  });
+
+  it("preserves the membership reason and workspace ID in the RPC response", async () => {
+    const outsider = await seedUser(testDb.db);
+    const { id } = await seedWorkspace(testDb.db);
+    const handler = new RPCHandler(router);
+    const result = await handler.handle(
+      new Request("http://localhost/rpc/workspace", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ json: { workspaceId: id } }),
+      }),
+      {
+        prefix: "/rpc",
+        context: createTestContext(testDb.db, {
+          session: sessionFor(outsider),
+        }).context,
+      }
+    );
+
+    expect(result.matched).toBe(true);
+    if (!result.matched) {
+      throw new Error("Workspace procedure did not match");
+    }
+    expect(result.response.status).toBe(403);
+    expect(await result.response.json()).toMatchObject({
+      json: {
+        code: "FORBIDDEN",
+        data: { reason: "not_a_member", workspaceId: id },
+      },
+    });
   });
 
   it("checks the workspaceId in the input, not the session's active organization", async () => {
