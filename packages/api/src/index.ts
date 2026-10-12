@@ -52,6 +52,7 @@ export const workspaceProcedure = protectedProcedure.use(
     if (!membership) {
       throw new ORPCError("FORBIDDEN", {
         message: "You do not have access to this workspace",
+        data: { reason: "not_a_member", workspaceId },
       });
     }
 
