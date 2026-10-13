@@ -67,16 +67,18 @@ Deliveries use a 15 second fetch timeout. Network errors, timeouts, and non-2xx
 responses are recorded as attempts. Failed deliveries are retried by the queue
 until the delivery reaches `maxAttempts`.
 
-Rate-limited deliveries (`429`) honor `Retry-After` delay seconds or HTTP dates.
-Without a valid header, they use exponential backoff starting at 60 seconds,
-with positive jitter and a one-hour cap. `503` responses also honor a valid
-`Retry-After`; other failures keep the queue's 60-second delay. The existing
-three-attempt delivery limit is unchanged.
+Rate-limited deliveries (`429`) honor `Retry-After` delay seconds or HTTP dates
+up to seven days ahead. Longer waits are treated as invalid so a receiver
+cannot keep deliveries queued indefinitely. Without a valid header, retries
+use exponential backoff starting at 60 seconds, with positive jitter and a
+one-hour cap. `503` responses also honor a valid `Retry-After`; other failures
+keep the queue's 60-second delay. The existing three-attempt delivery limit is
+unchanged.
 
 Receiver cooldowns are stored per delivery in `nextRetryAt`, so duplicate queue
 messages cannot send early. Deadlines longer than the queue's 24-hour delay
-limit are processed in delayed chunks, preserving the full deadline. Waiting
-messages are re-enqueued before acknowledgment and do not consume HTTP
+limit are processed in delayed chunks, preserving the accepted deadline.
+Waiting messages are re-enqueued before acknowledgment and do not consume HTTP
 attempts or the queue retry budget. A receiver's cooldown can therefore extend
 past the normal retry window; an absolute delivery expiry is a separate policy.
 

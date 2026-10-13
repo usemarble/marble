@@ -96,6 +96,87 @@ describe("dashboard webhooks", () => {
     ).toMatchObject({ failureIncidentId: "incident-1" });
   });
 
+  it.each([
+    { enabled: true, status: "pending" },
+    { enabled: true, status: "sending" },
+    { enabled: false, status: "pending" },
+    { enabled: false, status: "sending" },
+  ] as const)(
+    "preserves incidents and $status emails when a full update keeps enabled=$enabled",
+    async ({ enabled, status }) => {
+      const f = await fixture();
+      const hook = await f.client.create(f.input);
+      const startedAt = new Date("2026-10-01T12:00:00.000Z");
+      const incident = {
+        enabled,
+        consecutiveFailures: 20,
+        failureStartedAt: startedAt,
+        lastFailureAt: startedAt,
+        lastDeliveryOutcomeAt: startedAt,
+        failureIncidentId: "incident-1",
+        lastFailureEmailAt: startedAt,
+        disabledAt: enabled ? null : startedAt,
+        disabledReason: enabled ? null : "HTTP 503",
+      };
+      await testDb.db
+        .update(webhookEndpoint)
+        .set(incident)
+        .where(eq(webhookEndpoint.id, hook.id));
+      await testDb.db.insert(webhookNotification).values({
+        id: `${hook.id}-${status}`,
+        webhookEndpointId: hook.id,
+        workspaceId: f.input.workspaceId,
+        incidentId: incident.failureIncidentId,
+        kind: enabled ? "warning" : "disabled",
+        status,
+        claimedAt: status === "sending" ? startedAt : null,
+        payload: {
+          endpointName: hook.name,
+          endpointUrl: hook.url,
+          workspaceName: "Test workspace",
+          dashboardUrl: `https://app.marblecms.com/workspace/settings/webhooks/${hook.id}`,
+          consecutiveFailures: incident.consecutiveFailures,
+          failureStartedAt: startedAt.toISOString(),
+          latestStatusCode: 503,
+          latestError: "Service unavailable",
+          disableGraceDays: 3,
+        },
+        recipientEmails: [f.user.email],
+      });
+      const notificationsBefore =
+        await testDb.db.query.webhookNotification.findMany({
+          where: eq(webhookNotification.webhookEndpointId, hook.id),
+        });
+
+      expect(
+        await f.client.update({
+          ...f.input,
+          id: hook.id,
+          name: "Edited",
+          enabled,
+        })
+      ).toMatchObject({
+        name: "Edited",
+        enabled,
+        consecutiveFailures: incident.consecutiveFailures,
+        failureStartedAt: startedAt.toISOString(),
+        lastFailureEmailAt: startedAt.toISOString(),
+        disabledAt: incident.disabledAt?.toISOString() ?? null,
+        disabledReason: incident.disabledReason,
+      });
+      expect(
+        await testDb.db.query.webhookEndpoint.findFirst({
+          where: eq(webhookEndpoint.id, hook.id),
+        })
+      ).toMatchObject(incident);
+      expect(
+        await testDb.db.query.webhookNotification.findMany({
+          where: eq(webhookNotification.webhookEndpointId, hook.id),
+        })
+      ).toEqual(notificationsBefore);
+    }
+  );
+
   it("re-enabling clears an incident and cancels its unsent emails", async () => {
     const f = await fixture();
     const hook = await f.client.create(f.input);

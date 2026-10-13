@@ -240,6 +240,31 @@ describe("webhook receiver cooldowns", () => {
   });
 
   it.each([429, 503])(
+    "uses bounded retries instead of an endless cooldown chain on %i",
+    async (status) => {
+      mocks.fetch.mockResolvedValue(
+        new Response("unavailable", {
+          status,
+          headers: { "retry-after": "999999999" },
+        })
+      );
+      const { message, batch } = makeBatch();
+      await handleWebhookDeliveryQueue(batch);
+      expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
+        status: "retrying",
+        nextRetryAt: status === 429 ? new Date(NOW.getTime() + 61_000) : null,
+      });
+      if (status === 429) {
+        expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 61 });
+      } else {
+        expect(message.retry).toHaveBeenCalledWith();
+      }
+      expect(message.ack).not.toHaveBeenCalled();
+      expect(mocks.enqueue).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each([429, 503])(
     "honors %i retry headers when reading the response body fails",
     async (status) => {
       const body = new ReadableStream({

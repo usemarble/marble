@@ -101,4 +101,21 @@ describe("receiver retry policy", () => {
       )
     ).toBe(2);
   });
+
+  it("honors the seven-day ceiling for delay seconds and HTTP dates", () => {
+    const requested = new Date("2026-10-20T12:00:00.000Z");
+    const scheduled = new Date("2026-10-20T12:00:01.000Z");
+    expect(retryAt(429, "604800")).toEqual(scheduled);
+    expect(retryAt(503, requested.toUTCString())).toEqual(scheduled);
+  });
+
+  it.each([
+    "604801",
+    "999999999",
+    "Tue, 20 Oct 2026 12:00:01 GMT",
+    "Thu, 13 Oct 2050 12:00:00 GMT",
+  ])("uses normal backoff instead of an excessive cooldown: %s", (header) => {
+    expect(retryAt(429, header)).toEqual(new Date(NOW.getTime() + 61_000));
+    expect(retryAt(503, header)).toBeNull();
+  });
 });

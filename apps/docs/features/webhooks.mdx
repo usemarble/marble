@@ -90,7 +90,7 @@ A failed delivery without a recorded attempt does not establish that the endpoin
 
 If your endpoint returns `429 Too Many Requests`, Marble respects the `Retry-After` header before retrying that delivery. The header can contain a number of seconds, such as `Retry-After: 120`, or an HTTP date. Marble also respects this header on `503 Service Unavailable` responses.
 
-Without a valid `Retry-After` header, `429` retries use increasing delays starting at 60 seconds, with a small random delay to spread retry traffic. Other failures use the usual 60-second retry delay. Deliveries currently have a maximum of three attempts, including the initial request.
+Marble accepts `Retry-After` deadlines up to seven days ahead. Longer waits are treated as invalid to prevent deliveries from remaining queued indefinitely. Without a valid header, `429` retries use increasing delays starting at 60 seconds, with a small random delay to spread retry traffic. Other failures use the usual 60-second retry delay. Deliveries currently have a maximum of three attempts, including the initial request.
 
 ### Failure alerts and automatic disabling
 

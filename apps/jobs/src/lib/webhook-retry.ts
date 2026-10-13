@@ -3,6 +3,7 @@ export const MAX_QUEUE_DELAY_SECONDS = 24 * 60 * 60;
 
 const BASE_RATE_LIMIT_DELAY_SECONDS = 60;
 const MAX_RATE_LIMIT_DELAY_SECONDS = 60 * 60;
+const MAX_RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_JITTER_SECONDS = 30;
 const MAX_DATE_TIMESTAMP = 8_640_000_000_000_000;
 
@@ -35,7 +36,8 @@ function parseRetryAfter(value: string | null, now: Date): number | null {
 
   if (
     !Number.isFinite(timestamp) ||
-    timestamp > MAX_DATE_TIMESTAMP - MAX_JITTER_SECONDS * 1000
+    timestamp > MAX_DATE_TIMESTAMP - MAX_JITTER_SECONDS * 1000 ||
+    timestamp - now.getTime() > MAX_RETRY_AFTER_MS
   ) {
     return null;
   }
@@ -68,9 +70,9 @@ export class WebhookDeliveryRetryError extends Error {
 }
 
 /**
- * Honor Retry-After on 429 and 503. Without a usable header, only 429 gets
- * exponential backoff; other failures retain the consumer's default delay.
- * Positive jitter never advances a retry ahead of the receiver's deadline.
+ * Honor Retry-After up to seven days on 429 and 503. Without a usable header,
+ * only 429 gets exponential backoff; other failures retain the default delay.
+ * Positive jitter never advances a retry ahead of an accepted deadline.
  */
 export function getWebhookRetryAt(
   response: Pick<Response, "status" | "headers">,

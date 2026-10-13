@@ -187,7 +187,8 @@ export async function updateWebhook(
     }
     const now = new Date();
     const resetIncident =
-      values.enabled !== undefined ||
+      (values.enabled !== undefined &&
+        values.enabled !== foundWebhook.enabled) ||
       (endpoint !== undefined && endpoint !== foundWebhook.url);
     const [row] = await tx
       .update(webhookEndpoint)
