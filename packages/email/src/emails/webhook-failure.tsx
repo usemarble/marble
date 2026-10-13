@@ -1,13 +1,14 @@
 import {
   Body,
+  Column,
   Container,
   Head,
   Heading,
   Html,
   Img,
-  Link,
   Preview,
   pixelBasedPreset,
+  Row,
   Section,
   Tailwind,
   Text,
@@ -30,8 +31,6 @@ export interface WebhookFailureEmailProps {
   disableGraceDays: number;
 }
 
-const MAX_ERROR_LENGTH = 1000;
-
 function displayEndpointUrl(endpointUrl: string): string {
   try {
     const url = new URL(endpointUrl);
@@ -45,6 +44,19 @@ function displayEndpointUrl(endpointUrl: string): string {
   }
 }
 
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function plural(count: number, word: string): string {
+  return `${count.toLocaleString("en-US")} ${word}${count === 1 ? "" : "s"}`;
+}
+
 export const WebhookFailureEmail = ({
   workspaceName,
   endpointName,
@@ -54,23 +66,26 @@ export const WebhookFailureEmail = ({
   consecutiveFailures,
   failureStartedAt,
   latestStatusCode,
-  latestError,
   disableGraceDays,
 }: WebhookFailureEmailProps) => {
   const disabled = stage === "disabled";
   const heading = disabled
-    ? "Your webhook has been disabled"
-    : "Your webhook deliveries are failing";
+    ? "We've disabled a webhook endpoint"
+    : "A webhook endpoint is failing";
   const previewText = disabled
     ? `Delivery to ${endpointName} is paused. Fix and re-enable it in your webhook settings.`
     : `Check ${endpointName}: repeated webhook delivery failures in ${workspaceName}.`;
-  const error = latestError?.trim();
-  const errorText = error
-    ? `${error.slice(0, MAX_ERROR_LENGTH)}${error.length > MAX_ERROR_LENGTH ? "…" : ""}`
-    : null;
-  const failureCount = consecutiveFailures.toLocaleString("en-US");
-  const failureSince = failureStartedAt.toUTCString();
-  const gracePeriod = `${disableGraceDays} ${disableGraceDays === 1 ? "day" : "days"}`;
+  const details = [
+    ["Endpoint", displayEndpointUrl(endpointUrl)],
+    [
+      "Last response",
+      latestStatusCode === null ? "No response" : `HTTP ${latestStatusCode}`,
+    ],
+    [
+      "Failing since",
+      `${formatDate(failureStartedAt)} (${plural(consecutiveFailures, "failed attempt")})`,
+    ],
+  ] as const;
 
   return (
     <Html lang="en">
@@ -78,117 +93,82 @@ export const WebhookFailureEmail = ({
         <Head />
         <Body className="mx-auto my-auto bg-white px-2 font-sans">
           <Preview>{previewText}</Preview>
-          <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-[#eaeaea] border-solid p-[20px]">
-            <Section className="mt-[32px]">
+          <Container className="mx-auto my-[40px] max-w-[480px] p-[20px]">
+            <Section className="mt-[16px] mb-[24px]">
               <Img
                 alt="Marble Logo"
-                className="mx-auto"
-                height="40"
+                height="36"
                 src={`${EMAIL_CONFIG.getAppUrl()}/logo.png`}
-                width="40"
+                width="36"
               />
             </Section>
 
-            <Heading className="my-6 text-center font-medium text-2xl text-black">
+            <Heading className="m-0 mb-4 font-semibold text-black text-xl">
               {heading}
             </Heading>
 
-            <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
+            <Text className="m-0 mb-4 text-[#404040] text-[15px] leading-relaxed">
               {disabled ? (
                 <>
-                  We've automatically disabled <strong>{endpointName}</strong>{" "}
-                  in <strong>{workspaceName}</strong> because delivery failures
-                  continued after our warning. Delivery to this endpoint is now
-                  paused.
+                  <strong>{endpointName}</strong> kept failing after our
+                  warning, so we've paused delivery to it.
                 </>
               ) : (
                 <>
-                  Deliveries to <strong>{endpointName}</strong> in{" "}
-                  <strong>{workspaceName}</strong> have repeatedly failed to
-                  receive a successful response.
+                  Deliveries to <strong>{endpointName}</strong> have repeatedly
+                  failed. If this continues for{" "}
+                  {plural(disableGraceDays, "day")}, we'll disable the endpoint
+                  automatically.
                 </>
               )}
             </Text>
 
-            <Section className="my-6 rounded border border-[#eaeaea] border-solid bg-[#f9fafb] p-4">
-              <Text className="m-0 mb-2 font-semibold text-black text-sm">
-                {disabled ? "Disabled endpoint" : "Affected endpoint"}
-              </Text>
-              <Text
-                className="m-0 mb-4 text-[#737373] text-sm leading-relaxed"
-                style={{ overflowWrap: "anywhere", wordBreak: "break-all" }}
-              >
-                {displayEndpointUrl(endpointUrl)}
-              </Text>
-              <Text className="m-0 mb-4 text-[#737373] text-sm leading-relaxed">
-                {failureCount} consecutive failed{" "}
-                {consecutiveFailures === 1 ? "attempt" : "attempts"} since{" "}
-                {failureSince}.
-              </Text>
-              <Text className="m-0 mb-2 font-semibold text-black text-sm">
-                {latestStatusCode === null
-                  ? "Latest delivery error"
-                  : `Latest response: HTTP ${latestStatusCode}`}
-              </Text>
-              <Text
-                className="m-0 text-[#737373] text-sm leading-relaxed"
-                style={{
-                  overflowWrap: "anywhere",
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                }}
-              >
-                {errorText ??
-                  (latestStatusCode === null
-                    ? "No response or error details were recorded. Inspect the delivery in your webhook settings."
-                    : "No response body was recorded. Inspect the delivery in your webhook settings.")}
-              </Text>
+            <Section className="my-6 rounded border border-[#eaeaea] border-solid px-4 py-2">
+              {details.map(([label, value], index) => (
+                <Row
+                  key={label}
+                  style={
+                    index > 0 ? { borderTop: "1px solid #eaeaea" } : undefined
+                  }
+                >
+                  <Column
+                    className="py-3 align-top text-[#737373] text-sm"
+                    style={{ width: 110 }}
+                  >
+                    {label}
+                  </Column>
+                  <Column
+                    className="py-3 align-top text-black text-sm"
+                    style={{ overflowWrap: "anywhere", wordBreak: "break-all" }}
+                  >
+                    {value}
+                  </Column>
+                </Row>
+              ))}
             </Section>
 
-            {disabled ? (
-              <>
-                <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                  Review the delivery details and your service logs. Verify that
-                  the endpoint is reachable and accepts webhook requests with a
-                  2xx response, then test and re-enable it in your webhook
-                  settings.
-                </Text>
-                <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                  Re-enabling this endpoint does not automatically replay failed
-                  events.
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                  This endpoint is still enabled. New events and retries that
-                  remain scheduled can continue to be delivered. If failures
-                  continue for {gracePeriod} after this warning, we'll
-                  automatically disable the endpoint and notify you again.
-                </Text>
-                <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                  Review the delivery details and your service logs. Check that
-                  the endpoint is reachable and returns a 2xx response when it
-                  accepts a webhook.
-                </Text>
-              </>
-            )}
+            <Text className="m-0 mb-2 font-semibold text-base text-black">
+              What to do next
+            </Text>
+            <Text className="m-0 text-[#404040] text-sm leading-relaxed">
+              • Check that the URL is reachable
+              <br />• Return a 2xx status when you accept a webhook
+              <br />• Review your server logs for errors
+              {disabled && (
+                <>
+                  <br />• Re-enable the endpoint from your dashboard
+                </>
+              )}
+            </Text>
 
-            <Section className="my-8 text-center">
-              <EmailButton className="box-border" href={dashboardUrl}>
+            <Section className="my-8">
+              <EmailButton
+                className="box-border w-full text-center"
+                href={dashboardUrl}
+              >
                 Manage webhook
               </EmailButton>
             </Section>
-            <Text className="mb-6 text-[#666666] text-xs leading-relaxed">
-              Need help understanding a delivery failure?{" "}
-              <Link
-                className="text-[#766df8] no-underline"
-                href={`mailto:${EMAIL_CONFIG.replyTo}`}
-              >
-                Contact support
-              </Link>
-              .
-            </Text>
             <EmailFooter />
           </Container>
         </Body>

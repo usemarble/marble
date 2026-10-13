@@ -20,7 +20,7 @@ export const EmailFooter = () => {
         </Text>
       )}
       <Text className="mt-4 text-center text-xs" style={{ color: "#717175" }}>
-        © {currentYear} Marble. All rights reserved.
+        © {currentYear} Marble
       </Text>
       <Text className="mt-4 text-center text-xs" style={{ color: "#717175" }}>
         <Link
