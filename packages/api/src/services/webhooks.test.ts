@@ -1,4 +1,8 @@
-import { webhookEndpoint, workspaceEvent } from "@marble/db/schema";
+import {
+  webhookEndpoint,
+  webhookNotification,
+  workspaceEvent,
+} from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import type { EventMessage } from "@marble/events";
 import { createRouterClient } from "@orpc/server";
@@ -46,6 +50,253 @@ const rows = (workspaceId: string) =>
   });
 
 describe("dashboard webhooks", () => {
+  it("exposes endpoint failures and preserves the incident when editing its name", async () => {
+    const f = await fixture();
+    const hook = await f.client.create(f.input);
+    const startedAt = new Date("2026-10-01T12:00:00.000Z");
+    const notifiedAt = new Date("2026-10-01T12:10:00.000Z");
+    await testDb.db
+      .update(webhookEndpoint)
+      .set({
+        consecutiveFailures: 10,
+        failureStartedAt: startedAt,
+        lastFailureAt: notifiedAt,
+        lastDeliveryOutcomeAt: notifiedAt,
+        failureIncidentId: "incident-1",
+        lastFailureEmailAt: notifiedAt,
+      })
+      .where(eq(webhookEndpoint.id, hook.id));
+
+    const health = {
+      consecutiveFailures: 10,
+      failureStartedAt: startedAt.toISOString(),
+      lastFailureEmailAt: notifiedAt.toISOString(),
+      disabledAt: null,
+      disabledReason: null,
+    };
+    expect(
+      (await f.client.list({ workspaceId: f.input.workspaceId }))[0]
+    ).toMatchObject(health);
+    expect(
+      (await f.client.get({ workspaceId: f.input.workspaceId, id: hook.id }))
+        .webhook
+    ).toMatchObject(health);
+    expect(
+      await f.client.update({
+        workspaceId: f.input.workspaceId,
+        id: hook.id,
+        name: "Edited",
+        endpoint: f.input.endpoint,
+      })
+    ).toMatchObject({ ...health, name: "Edited" });
+    expect(
+      await testDb.db.query.webhookEndpoint.findFirst({
+        where: eq(webhookEndpoint.id, hook.id),
+      })
+    ).toMatchObject({ failureIncidentId: "incident-1" });
+  });
+
+  it.each([
+    { enabled: true, status: "pending" },
+    { enabled: true, status: "sending" },
+    { enabled: false, status: "pending" },
+    { enabled: false, status: "sending" },
+  ] as const)(
+    "preserves incidents and $status emails when a full update keeps enabled=$enabled",
+    async ({ enabled, status }) => {
+      const f = await fixture();
+      const hook = await f.client.create(f.input);
+      const startedAt = new Date("2026-10-01T12:00:00.000Z");
+      const incident = {
+        enabled,
+        consecutiveFailures: 20,
+        failureStartedAt: startedAt,
+        lastFailureAt: startedAt,
+        lastDeliveryOutcomeAt: startedAt,
+        failureIncidentId: "incident-1",
+        lastFailureEmailAt: startedAt,
+        disabledAt: enabled ? null : startedAt,
+        disabledReason: enabled ? null : "HTTP 503",
+      };
+      await testDb.db
+        .update(webhookEndpoint)
+        .set(incident)
+        .where(eq(webhookEndpoint.id, hook.id));
+      await testDb.db.insert(webhookNotification).values({
+        id: `${hook.id}-${status}`,
+        webhookEndpointId: hook.id,
+        workspaceId: f.input.workspaceId,
+        incidentId: incident.failureIncidentId,
+        kind: enabled ? "warning" : "disabled",
+        status,
+        claimedAt: status === "sending" ? startedAt : null,
+        payload: {
+          endpointName: hook.name,
+          endpointUrl: hook.url,
+          workspaceName: "Test workspace",
+          dashboardUrl: `https://app.marblecms.com/workspace/settings/webhooks/${hook.id}`,
+          consecutiveFailures: incident.consecutiveFailures,
+          failureStartedAt: startedAt.toISOString(),
+          latestStatusCode: 503,
+          latestError: "Service unavailable",
+          disableGraceDays: 3,
+        },
+        recipientEmails: [f.user.email],
+      });
+      const notificationsBefore =
+        await testDb.db.query.webhookNotification.findMany({
+          where: eq(webhookNotification.webhookEndpointId, hook.id),
+        });
+
+      expect(
+        await f.client.update({
+          ...f.input,
+          id: hook.id,
+          name: "Edited",
+          enabled,
+        })
+      ).toMatchObject({
+        name: "Edited",
+        enabled,
+        consecutiveFailures: incident.consecutiveFailures,
+        failureStartedAt: startedAt.toISOString(),
+        lastFailureEmailAt: startedAt.toISOString(),
+        disabledAt: incident.disabledAt?.toISOString() ?? null,
+        disabledReason: incident.disabledReason,
+      });
+      expect(
+        await testDb.db.query.webhookEndpoint.findFirst({
+          where: eq(webhookEndpoint.id, hook.id),
+        })
+      ).toMatchObject(incident);
+      expect(
+        await testDb.db.query.webhookNotification.findMany({
+          where: eq(webhookNotification.webhookEndpointId, hook.id),
+        })
+      ).toEqual(notificationsBefore);
+    }
+  );
+
+  it("re-enabling clears an incident and cancels its unsent emails", async () => {
+    const f = await fixture();
+    const hook = await f.client.create(f.input);
+    const startedAt = new Date("2026-10-01T12:00:00.000Z");
+    await testDb.db
+      .update(webhookEndpoint)
+      .set({
+        enabled: false,
+        consecutiveFailures: 20,
+        failureStartedAt: startedAt,
+        lastFailureAt: startedAt,
+        lastDeliveryOutcomeAt: startedAt,
+        failureIncidentId: "incident-1",
+        lastFailureEmailAt: startedAt,
+        disabledAt: startedAt,
+        disabledReason: "HTTP 503",
+      })
+      .where(eq(webhookEndpoint.id, hook.id));
+    const payload = {
+      endpointName: hook.name,
+      endpointUrl: hook.url,
+      workspaceName: "Test workspace",
+      dashboardUrl: `https://app.marblecms.com/workspace/settings/webhooks/${hook.id}`,
+      consecutiveFailures: 20,
+      failureStartedAt: startedAt.toISOString(),
+      latestStatusCode: 503,
+      latestError: "Service unavailable",
+      disableGraceDays: 3,
+    };
+    await testDb.db.insert(webhookNotification).values([
+      {
+        id: `${hook.id}-pending`,
+        webhookEndpointId: hook.id,
+        workspaceId: f.input.workspaceId,
+        incidentId: "incident-1",
+        kind: "disabled",
+        status: "pending",
+        payload,
+        recipientEmails: [f.user.email],
+      },
+      {
+        id: `${hook.id}-sent`,
+        webhookEndpointId: hook.id,
+        workspaceId: f.input.workspaceId,
+        incidentId: "incident-1",
+        kind: "warning",
+        status: "sent",
+        sentAt: startedAt,
+        payload,
+        recipientEmails: [f.user.email],
+      },
+    ]);
+
+    const before = Date.now();
+    expect(
+      await f.client.update({
+        workspaceId: f.input.workspaceId,
+        id: hook.id,
+        enabled: true,
+      })
+    ).toMatchObject({
+      enabled: true,
+      consecutiveFailures: 0,
+      failureStartedAt: null,
+      lastFailureEmailAt: null,
+      disabledAt: null,
+      disabledReason: null,
+    });
+    const endpoint = await testDb.db.query.webhookEndpoint.findFirst({
+      where: eq(webhookEndpoint.id, hook.id),
+    });
+    expect(endpoint).toMatchObject({
+      failureIncidentId: null,
+      lastFailureAt: null,
+    });
+    expect(endpoint?.lastDeliveryOutcomeAt?.getTime()).toBeGreaterThanOrEqual(
+      before
+    );
+    expect(
+      await testDb.db.query.webhookNotification.findFirst({
+        where: eq(webhookNotification.id, `${hook.id}-pending`),
+      })
+    ).toMatchObject({ status: "cancelled", claimedAt: null });
+    expect(
+      await testDb.db.query.webhookNotification.findFirst({
+        where: eq(webhookNotification.id, `${hook.id}-sent`),
+      })
+    ).toMatchObject({ status: "sent", sentAt: startedAt });
+  });
+
+  it("changing a disabled endpoint's URL resets health without enabling it", async () => {
+    const f = await fixture();
+    const hook = await f.client.create(f.input);
+    await testDb.db
+      .update(webhookEndpoint)
+      .set({
+        enabled: false,
+        consecutiveFailures: 20,
+        failureIncidentId: "incident-1",
+        failureStartedAt: new Date(),
+        disabledAt: new Date(),
+        disabledReason: "HTTP 503",
+      })
+      .where(eq(webhookEndpoint.id, hook.id));
+    expect(
+      await f.client.update({
+        workspaceId: f.input.workspaceId,
+        id: hook.id,
+        endpoint: "https://example.com/repaired",
+      })
+    ).toMatchObject({
+      url: "https://example.com/repaired",
+      enabled: false,
+      consecutiveFailures: 0,
+      failureStartedAt: null,
+      disabledAt: null,
+      disabledReason: null,
+    });
+  });
+
   it("malformed URLs return validation errors without creating or changing an endpoint", async () => {
     const f = await fixture();
     const error = { code: "BAD_REQUEST", message: "Invalid request body" };

@@ -86,6 +86,7 @@ import {
   webhookDeliveryAttemptRelations,
   webhookDeliveryRelations,
   webhookEndpointRelations,
+  webhookNotificationRelations,
   workspaceEventRelations,
   workspaceNotificationPreferencesRelations,
   workspaceRelations,
@@ -96,6 +97,7 @@ import {
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
+  webhookNotification,
   workspaceEvent,
 } from "./webhooks";
 import {
@@ -161,6 +163,7 @@ export const schema = {
   oauthConsent,
   oauthClientAssertion,
   webhookEndpoint,
+  webhookNotification,
   workspaceEvent,
   webhookDelivery,
   webhookDeliveryAttempt,
@@ -188,6 +191,7 @@ export const schema = {
   workspaceEventRelations,
   webhookDeliveryRelations,
   webhookEndpointRelations,
+  webhookNotificationRelations,
   webhookDeliveryAttemptRelations,
   usageAlertRelations,
   importItemRelations,

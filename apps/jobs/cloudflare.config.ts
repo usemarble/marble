@@ -9,7 +9,11 @@ import {
 } from "@marble/cf-config";
 import type { EventMessage, TaskMessage, WebhookMessage } from "@marble/events";
 import { bindings, defineConfig, triggers } from "cf/config";
-import { CLEANUP_CRON, OUTBOX_SWEEP_CRON } from "./src/crons.ts";
+import {
+  CLEANUP_CRON,
+  OUTBOX_SWEEP_CRON,
+  WEBHOOK_NOTIFICATIONS_CRON,
+} from "./src/crons.ts";
 
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode);
@@ -29,6 +33,7 @@ export default defineConfig((ctx) => {
       triggers: [
         triggers.scheduled({ schedule: CLEANUP_CRON }),
         triggers.scheduled({ schedule: OUTBOX_SWEEP_CRON }),
+        triggers.scheduled({ schedule: WEBHOOK_NOTIFICATIONS_CRON }),
         triggers.queue({ ...consumer, name: queue.events }),
         triggers.queue({ ...consumer, name: queue.webhookDeliveries }),
         triggers.queue({ ...consumer, name: queue.tasks, maxBatchSize: 1 }),

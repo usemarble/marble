@@ -1,0 +1,1 @@
+ALTER TABLE "webhook_notification" ADD COLUMN "firstAttemptAt" timestamp (3);

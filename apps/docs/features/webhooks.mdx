@@ -49,13 +49,13 @@ Create a serverless function that listens for a `post.published` event from a Ma
 
 ## Inspecting webhook deliveries
 
-Every time an event matches a webhook's subscription, Marble queues a delivery and stores the result. You can inspect this history from the webhook details page in the dashboard.
+Every time an event matches a webhook's subscription, Marble queues a delivery and stores the result. Each event has one delivery row per webhook endpoint. Retries update that row with the latest result and attempt count; they do not create additional rows in the table.
 
 To open it, go to **Settings → Webhooks**, click the 3 dots on the webhook's row, and choose **Details**.
 
 The details page is split into two parts:
 
-- **Webhook settings** (side panel): edit the webhook's name, URL, payload format, enabled state, and subscribed events. Changes apply to future deliveries only.
+- **Webhook settings** (side panel): edit the webhook's name, URL, payload format, enabled state, and subscribed events.
 - **Deliveries**: a paginated table of every delivery attempted for this webhook, with filters and expandable rows.
 
 ### Filtering deliveries
@@ -63,7 +63,7 @@ The details page is split into two parts:
 Above the deliveries table you can filter by:
 
 - **Status**: `pending`, `sending`, `success`, `retrying`, or `failed`.
-- **HTTP response**: `2xx`, `3xx`, `4xx`, `5xx`, or `No response` (the endpoint never responded, for example on a network error or timeout).
+- **HTTP response**: `2xx`, `3xx`, `4xx`, `5xx`, or `No response` (no HTTP status was recorded, including deliveries still waiting to be sent).
 - **Event type**: any of the events the webhook is subscribed to, such as `post.published` or `tag.created`.
 
 Filters can be combined and the results are paginated.
@@ -74,13 +74,35 @@ Click a row to expand it and see the full delivery record:
 
 - **Event ID** and **event timestamp**: identify the workspace event that triggered the delivery.
 - **Delivery ID**: matches the `x-marble-delivery-id` header your endpoint received.
-- **Sent at**: when the most recent attempt was sent.
+- **Last attempt**: when the most recent attempt started.
+- **Attempts**: the number of attempts used and the maximum allowed.
 - **HTTP response**: the status code returned by your endpoint, or `No response` if the request never completed.
 - **Duration**: how long the latest attempt took, in milliseconds.
-- **Error message**: shown when the latest attempt failed, for example with a connection error or non-2xx response body.
-- **Payload**: the exact JSON body that was sent. Use **Copy payload** to copy it for replay or debugging.
+- **Response**: the response body returned by the endpoint, including rejection messages such as `{"error":"Malformed body"}`. If the request failed without an HTTP response, the recorded network, DNS, or timeout error appears here instead. Use **Copy response** to copy the stored body or error. Response bodies are limited to 5,000 characters.
+- **Next retry**: the scheduled retry time when the endpoint has requested a cooldown or Marble is backing off from rate limiting.
+- **Payload**: the event payload rendered in the webhook's current format. Use **Copy payload** to copy it for debugging; changing the format can change this preview for older deliveries.
 
-Use this view to confirm whether your endpoint received an event, what it returned, and what payload it was given.
+The expanded row shows the latest attempt's result. Marble retains earlier attempt records for diagnostics, but they are not separate delivery rows or displayed in the expanded view.
+
+A failed delivery without a recorded attempt does not establish that the endpoint rejected it. The dashboard explicitly identifies missing attempt results rather than attributing the failure to your service.
+
+### Rate limits and retries
+
+If your endpoint returns `429 Too Many Requests`, Marble respects the `Retry-After` header before retrying that delivery. The header can contain a number of seconds, such as `Retry-After: 120`, or an HTTP date. Marble also respects this header on `503 Service Unavailable` responses.
+
+Marble accepts `Retry-After` deadlines up to seven days ahead. Longer waits are treated as invalid to prevent deliveries from remaining queued indefinitely. Without a valid header, `429` retries use increasing delays starting at 60 seconds, with a small random delay to spread retry traffic. Other failures use the usual 60-second retry delay. Deliveries currently have a maximum of three attempts, including the initial request.
+
+### Failure alerts and automatic disabling
+
+The webhook list shows **Failing** after **10 consecutive failed outbound requests**, and the details page explains what to check. Once the failure incident has also lasted at least **10 minutes**, Marble emails the workspace's owners and admins. There is one warning email per incident. Failure details remain visible even if the email is delayed.
+
+This threshold counts requests across all deliveries to the endpoint, including retries. Each delivery still has a maximum of three attempts; Marble does not retry a single delivery 10 times to trigger an alert. Internal processing errors and usage limits do not count toward the endpoint's failure threshold.
+
+If failures continue, Marble automatically disables the endpoint and sends a second email. Disabling requires another failed request at least **three days after the warning email**, with no successful request in between. The details page shows the disable reason and the latest recorded result. An endpoint with no new requests is not disabled just because three days have passed.
+
+A successful `2xx` response clears the failure incident. Failed test webhooks do not count toward disabling; a successful test can clear the incident, but it does not automatically re-enable a disabled endpoint.
+
+To restore a disabled webhook, fix the endpoint and send a test webhook. Once the test succeeds, turn **Enabled** on in the settings panel and save. Re-enabling resumes future deliveries; it does not automatically replay deliveries that already failed.
 
 ### Sending a test webhook
 
@@ -221,7 +243,7 @@ Webhook requests include these headers:
 
 - `x-marble-event`: The event type, such as `post.updated`.
 - `x-marble-event-id`: The ID of the workspace event.
-- `x-marble-delivery-id`: The ID of the delivery attempt.
+- `x-marble-delivery-id`: The ID of the delivery, shared by all retries of the same event to this endpoint.
 - `x-marble-timestamp`: The Unix timestamp for the request.
 - `x-marble-signature`: The HMAC SHA-256 signature for the request body.
 

@@ -5,6 +5,10 @@ import { InviteUserEmail } from "../emails/invite";
 import { ResetPasswordEmail } from "../emails/reset";
 import { UsageLimitEmail } from "../emails/usage-limit";
 import { VerifyUserEmail } from "../emails/verify";
+import {
+  WebhookFailureEmail,
+  type WebhookFailureEmailProps,
+} from "../emails/webhook-failure";
 import { WelcomeEmail } from "../emails/welcome";
 import { EMAIL_CONFIG } from "./config";
 
@@ -207,4 +211,27 @@ export async function sendExportReadyEmail(
       expiresAt: expiresAt.toUTCString(),
     }),
   });
+}
+
+export async function sendWebhookFailureEmail(
+  resend: Resend,
+  {
+    userEmail,
+    ...props
+  }: WebhookFailureEmailProps & { userEmail: string | string[] },
+  idempotencyKey: string
+) {
+  return await resend.emails.send(
+    {
+      from: EMAIL_CONFIG.from,
+      replyTo: EMAIL_CONFIG.replyTo,
+      to: userEmail,
+      subject:
+        props.stage === "disabled"
+          ? `Webhook endpoint disabled for ${props.workspaceName}`
+          : `Webhook delivery failures in ${props.workspaceName}`,
+      react: WebhookFailureEmail(props),
+    },
+    { idempotencyKey }
+  );
 }

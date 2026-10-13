@@ -73,14 +73,29 @@ export function getWebhookColumns({
     {
       accessorKey: "enabled",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge
-          className="rounded-[6px] text-xs"
-          variant={row.original.enabled ? "positive" : "neutral"}
-        >
-          {row.original.enabled ? "Enabled" : "Disabled"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const webhook = row.original;
+        const automaticallyDisabled =
+          !webhook.enabled && Boolean(webhook.disabledAt);
+        const failing = webhook.enabled && webhook.consecutiveFailures >= 10;
+
+        return (
+          <Badge
+            className="rounded-[6px] text-xs"
+            variant={
+              automaticallyDisabled
+                ? "destructive"
+                : failing
+                  ? "pending"
+                  : webhook.enabled
+                    ? "positive"
+                    : "neutral"
+            }
+          >
+            {webhook.enabled ? (failing ? "Failing" : "Enabled") : "Disabled"}
+          </Badge>
+        );
+      },
       enableSorting: false,
     },
     {

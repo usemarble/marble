@@ -2,7 +2,8 @@
 
 Cloudflare Worker for background jobs that should not run in the API or CMS
 request path. It currently owns webhook event fan-out, webhook delivery
-attempts, dead-letter queue handling, and scheduled cleanup.
+attempts, customer webhook failure notifications, dead-letter queue handling,
+and scheduled cleanup.
 
 ## Queues
 
@@ -40,7 +41,8 @@ The `*/5 * * * *` cron calls `sweepEvents` from `@marble/api`: it re-sends
 workspace events that were committed but never reached the queue (the send
 failed, or the Worker was recycled before it ran) and have not been processed.
 Delivery is therefore at-least-once; the fan-out is idempotent. The hourly cron
-keeps running cleanup. Both expressions live in `src/crons.ts`.
+keeps running cleanup. A separate minute cron processes customer webhook
+failure notifications. All expressions live in `src/crons.ts`.
 
 Queue batches are dispatched on the per-mode queue names, which
 `cloudflare.config.ts` provides as `QUEUE_EVENTS`, `QUEUE_WEBHOOK_DELIVERIES`,
@@ -64,6 +66,66 @@ protection, and debugging.
 Deliveries use a 15 second fetch timeout. Network errors, timeouts, and non-2xx
 responses are recorded as attempts. Failed deliveries are retried by the queue
 until the delivery reaches `maxAttempts`.
+
+Rate-limited deliveries (`429`) honor `Retry-After` delay seconds or HTTP dates
+up to seven days ahead. Longer waits are treated as invalid so a receiver
+cannot keep deliveries queued indefinitely. Without a valid header, retries
+use exponential backoff starting at 60 seconds, with positive jitter and a
+one-hour cap. `503` responses also honor a valid `Retry-After`; other failures
+keep the queue's 60-second delay. The existing three-attempt delivery limit is
+unchanged.
+
+Receiver cooldowns are stored per delivery in `nextRetryAt`, so duplicate queue
+messages cannot send early. Deadlines longer than the queue's 24-hour delay
+limit are processed in delayed chunks, preserving the accepted deadline.
+Waiting messages are re-enqueued before acknowledgment and do not consume HTTP
+attempts or the queue retry budget. A receiver's cooldown can therefore extend
+past the normal retry window; an absolute delivery expiry is a separate policy.
+
+Each event/endpoint pair has one `webhookDelivery` row. Retries update its
+status, attempt count, and latest outcome. Individual HTTP results remain in
+`webhookDeliveryAttempt` for diagnostics; the dashboard lists deliveries and
+shows only the latest attempt's response or error when a row is expanded.
+
+## Webhook Failure Notifications
+
+`recordWebhookEndpointOutcome` updates an endpoint's failure incident in the
+same transaction as its completed delivery outcome. Only owned outbound
+requests count: internal queue/database errors and quota blocks do not count
+against the customer endpoint. Network failures, timeouts, and non-2xx
+responses do count. Failed manual tests are excluded; successful tests can
+clear an incident without automatically re-enabling a disabled endpoint.
+
+The policy in `src/lib/webhook-health.ts` is:
+
+- Warn after at least 10 consecutive failed outbound requests and at least
+  10 minutes since the incident's first failure. Counts are shared across
+  deliveries, including retries; this is not a promise of 10 retries per
+  delivery. The three-attempt limit and normal 60-second delay remain in place.
+- Disable only after a failed outbound request at least three days after the
+  warning email was accepted by the email provider, with no intervening
+  success. Quiet endpoints are not disabled solely because time has passed.
+- A completed `2xx` response resets the incident and cancels pending warning
+  notifications. Manual changes to the URL or enabled state also reset it.
+  Re-enabling does not replay exhausted deliveries.
+
+The `* * * * *` cron evaluates incidents and sends notifications to workspace
+owners and admins. Each stage (`warning` or `disabled`) has one durable
+`webhookNotification` outbox record per endpoint/incident, enforced by a unique
+constraint. It snapshots the recipients, endpoint, latest failed HTTP result,
+and dashboard link. Automatic disablement and its notification are recorded
+in the same transaction.
+
+The sender claims each outbox record, rechecks that the incident is current,
+and uses a stable Resend idempotency key for retries. Email API errors keep
+the record pending, with exponential backoff starting at 60 seconds, positive
+jitter, and a one-hour cap. Automatic retries stop 23 hours after the first
+send attempt, before Resend's 24-hour idempotency-key retention expires.
+Unconfirmed notifications remain stored with `status: failed` and a
+`lastError` explaining why retries stopped, for operator review. Abandoned
+sending leases can be reclaimed after five minutes. Missing `RESEND_API_KEY`
+leaves records pending; the disablement grace period begins only after the
+warning has been accepted by the provider.
 
 ## Usage Alerts
 
@@ -120,4 +182,5 @@ Required bindings and secrets:
 - `HYPERDRIVE`: database connection through Cloudflare Hyperdrive.
 - `EVENT_QUEUE`: producer binding for `marble-events`.
 - `WEBHOOK_DELIVERY_QUEUE`: producer binding for `marble-webhook-deliveries`.
-- `RESEND_API_KEY`: used for usage alert emails.
+- `APP_URL`: CMS origin for links in webhook failure emails.
+- `RESEND_API_KEY`: used for usage alerts and webhook failure emails.

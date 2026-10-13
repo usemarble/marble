@@ -29,6 +29,14 @@ export const webhookEndpoint = pgTable(
     url: text("url").notNull(),
     secret: text("secret").notNull(),
     enabled: boolean("enabled").default(true).notNull(),
+    consecutiveFailures: integer("consecutiveFailures").default(0).notNull(),
+    failureStartedAt: timestamp({ precision: 3, mode: "date" }),
+    lastFailureAt: timestamp({ precision: 3, mode: "date" }),
+    lastDeliveryOutcomeAt: timestamp({ precision: 3, mode: "date" }),
+    failureIncidentId: text("failureIncidentId"),
+    lastFailureEmailAt: timestamp({ precision: 3, mode: "date" }),
+    disabledAt: timestamp({ precision: 3, mode: "date" }),
+    disabledReason: text("disabledReason"),
     workspaceId: text("workspaceId").notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
       .$defaultFn(() => new Date())
@@ -54,6 +62,75 @@ export const webhookEndpoint = pgTable(
       columns: [table.workspaceId],
       foreignColumns: [workspace.id],
       name: "webhook_endpoint_workspaceId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+  ]
+);
+
+export interface WebhookNotificationPayload {
+  endpointName: string;
+  endpointUrl: string;
+  workspaceName: string;
+  dashboardUrl: string;
+  consecutiveFailures: number;
+  failureStartedAt: string;
+  latestStatusCode: number | null;
+  latestError: string | null;
+  disableGraceDays: number;
+}
+
+export const webhookNotification = pgTable(
+  "webhook_notification",
+  {
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
+    webhookEndpointId: text("webhookEndpointId").notNull(),
+    workspaceId: text("workspaceId").notNull(),
+    incidentId: text("incidentId").notNull(),
+    kind: text("kind").$type<"warning" | "disabled">().notNull(),
+    status: text("status")
+      .$type<"pending" | "sending" | "sent" | "cancelled" | "failed">()
+      .default("pending")
+      .notNull(),
+    payload: jsonb("payload").$type<WebhookNotificationPayload>().notNull(),
+    recipientEmails: text("recipientEmails").array().notNull(),
+    attemptCount: integer("attemptCount").default(0).notNull(),
+    firstAttemptAt: timestamp({ precision: 3, mode: "date" }),
+    nextAttemptAt: timestamp({ precision: 3, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    claimedAt: timestamp({ precision: 3, mode: "date" }),
+    sentAt: timestamp({ precision: 3, mode: "date" }),
+    lastError: text("lastError"),
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("webhook_notification_endpoint_incident_kind_key").on(
+      table.webhookEndpointId,
+      table.incidentId,
+      table.kind
+    ),
+    index("webhook_notification_status_nextAttemptAt_idx").on(
+      table.status,
+      table.nextAttemptAt
+    ),
+    foreignKey({
+      columns: [table.webhookEndpointId],
+      foreignColumns: [webhookEndpoint.id],
+      name: "webhook_notification_webhookEndpointId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+    foreignKey({
+      columns: [table.workspaceId],
+      foreignColumns: [workspace.id],
+      name: "webhook_notification_workspaceId_fkey",
     })
       .onUpdate("cascade")
       .onDelete("cascade"),

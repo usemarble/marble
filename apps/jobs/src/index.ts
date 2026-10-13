@@ -10,9 +10,14 @@ import { handleWebhookDeliveryQueue } from "@/consumers/deliveries";
 import { handleDeadLetterQueue } from "@/consumers/dlq";
 import { handleEventQueue } from "@/consumers/events";
 import { handleTaskQueue } from "@/consumers/tasks";
-import { CLEANUP_CRON, OUTBOX_SWEEP_CRON } from "@/crons";
+import {
+  CLEANUP_CRON,
+  OUTBOX_SWEEP_CRON,
+  WEBHOOK_NOTIFICATIONS_CRON,
+} from "@/crons";
 import { handleCleanup } from "@/scheduled/cleanup";
 import { handleOutboxSweep } from "@/scheduled/outbox";
+import { handleWebhookNotifications } from "@/scheduled/webhook-notifications";
 import type { Env } from "@/types/env";
 
 // Services shared with the API log through evlog.
@@ -54,6 +59,9 @@ export default {
         break;
       case OUTBOX_SWEEP_CRON:
         ctx.waitUntil(handleOutboxSweep());
+        break;
+      case WEBHOOK_NOTIFICATIONS_CRON:
+        ctx.waitUntil(handleWebhookNotifications());
         break;
       default:
         console.error(`[Jobs] Unknown cron: ${event.cron}`);

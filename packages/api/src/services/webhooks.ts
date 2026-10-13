@@ -4,6 +4,7 @@ import {
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
+  webhookNotification,
   workspaceEvent,
 } from "@marble/db/schema";
 import {
@@ -52,6 +53,11 @@ function webhookDto(row: typeof webhookEndpoint.$inferSelect) {
     url: row.url,
     events: row.events,
     enabled: row.enabled,
+    consecutiveFailures: row.consecutiveFailures,
+    failureStartedAt: row.failureStartedAt?.toISOString() ?? null,
+    lastFailureEmailAt: row.lastFailureEmailAt?.toISOString() ?? null,
+    disabledAt: row.disabledAt?.toISOString() ?? null,
+    disabledReason: row.disabledReason,
     format: row.format,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
@@ -67,6 +73,11 @@ export async function listWebhooks(ctx: ServiceContext, workspaceId: string) {
       url: webhookEndpoint.url,
       events: webhookEndpoint.events,
       enabled: webhookEndpoint.enabled,
+      consecutiveFailures: webhookEndpoint.consecutiveFailures,
+      failureStartedAt: webhookEndpoint.failureStartedAt,
+      lastFailureEmailAt: webhookEndpoint.lastFailureEmailAt,
+      disabledAt: webhookEndpoint.disabledAt,
+      disabledReason: webhookEndpoint.disabledReason,
       format: webhookEndpoint.format,
       createdAt: webhookEndpoint.createdAt,
       updatedAt: webhookEndpoint.updatedAt,
@@ -78,6 +89,9 @@ export async function listWebhooks(ctx: ServiceContext, workspaceId: string) {
     ...row,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+    failureStartedAt: row.failureStartedAt?.toISOString() ?? null,
+    lastFailureEmailAt: row.lastFailureEmailAt?.toISOString() ?? null,
+    disabledAt: row.disabledAt?.toISOString() ?? null,
   }));
 }
 
@@ -143,26 +157,55 @@ export async function updateWebhook(
       details: body.error.issues,
     });
   }
-  const foundWebhook = await requireWebhook(ctx, workspaceId, id);
-  const effectiveWebhook = webhookSchema.safeParse({
-    name: body.data.name ?? foundWebhook.name,
-    endpoint: body.data.endpoint ?? foundWebhook.url,
-    events: body.data.events ?? foundWebhook.events,
-    format: body.data.format ?? foundWebhook.format,
-  });
-  if (!effectiveWebhook.success) {
-    throw new WebhookError(400, "Invalid request body", {
-      details: effectiveWebhook.error.issues,
-    });
-  }
   const { endpoint, ...values } = body.data;
   return transact(ctx, async ({ tx }) => {
+    // Serialize manual changes with delivery outcomes so an older failure
+    // cannot immediately reopen the incident after an endpoint is repaired.
+    const [foundWebhook] = await tx
+      .select()
+      .from(webhookEndpoint)
+      .where(
+        and(
+          eq(webhookEndpoint.id, id),
+          eq(webhookEndpoint.workspaceId, workspaceId)
+        )
+      )
+      .for("update");
+    if (!foundWebhook) {
+      throw new WebhookError(404, "Webhook not found");
+    }
+    const effectiveWebhook = webhookSchema.safeParse({
+      name: values.name ?? foundWebhook.name,
+      endpoint: endpoint ?? foundWebhook.url,
+      events: values.events ?? foundWebhook.events,
+      format: values.format ?? foundWebhook.format,
+    });
+    if (!effectiveWebhook.success) {
+      throw new WebhookError(400, "Invalid request body", {
+        details: effectiveWebhook.error.issues,
+      });
+    }
+    const now = new Date();
+    const resetIncident =
+      (values.enabled !== undefined &&
+        values.enabled !== foundWebhook.enabled) ||
+      (endpoint !== undefined && endpoint !== foundWebhook.url);
     const [row] = await tx
       .update(webhookEndpoint)
       .set({
         ...values,
         ...(endpoint !== undefined && { url: endpoint }),
-        updatedAt: new Date(),
+        ...(resetIncident && {
+          consecutiveFailures: 0,
+          failureStartedAt: null,
+          lastFailureAt: null,
+          lastDeliveryOutcomeAt: now,
+          failureIncidentId: null,
+          lastFailureEmailAt: null,
+          disabledAt: null,
+          disabledReason: null,
+        }),
+        updatedAt: now,
       })
       .where(
         and(
@@ -173,6 +216,17 @@ export async function updateWebhook(
       .returning();
     if (!row) {
       throw new WebhookError(404, "Webhook not found");
+    }
+    if (resetIncident) {
+      await tx
+        .update(webhookNotification)
+        .set({ status: "cancelled", claimedAt: null, updatedAt: now })
+        .where(
+          and(
+            eq(webhookNotification.webhookEndpointId, id),
+            inArray(webhookNotification.status, ["pending", "sending"])
+          )
+        );
     }
     return webhookDto(row);
   });
@@ -521,6 +575,7 @@ export async function getWebhook(
         createdAt: delivery.createdAt.toISOString(),
         updatedAt: delivery.updatedAt.toISOString(),
         lastAttemptAt: delivery.lastAttemptAt?.toISOString() ?? null,
+        nextRetryAt: delivery.nextRetryAt?.toISOString() ?? null,
         deliveredAt: delivery.deliveredAt?.toISOString() ?? null,
         failedAt: delivery.failedAt?.toISOString() ?? null,
         payload: requestBody,
