@@ -5,6 +5,10 @@ import {
 } from "@marble/db/hyperdrive";
 
 export type DbClient = HyperdriveDb;
+export type DbTransaction = Parameters<
+  Parameters<DbClient["transaction"]>[0]
+>[0];
+export type DbSession = DbClient | DbTransaction;
 
 /**
  * Create a Drizzle client for Cloudflare Workers via Hyperdrive.

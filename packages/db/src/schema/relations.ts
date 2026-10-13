@@ -12,6 +12,7 @@ import {
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
+  webhookNotification,
   workspaceEvent,
 } from "./webhooks";
 import {
@@ -69,6 +70,7 @@ export const workspaceRelations = relations(workspace, ({ many }) => ({
   exportJobs: many(exportJob),
   importJobs: many(importJob),
   webhookEndpoints: many(webhookEndpoint),
+  webhookNotifications: many(webhookNotification),
   categories: many(category),
   tags: many(tag),
   posts: many(post),
@@ -254,8 +256,23 @@ export const webhookEndpointRelations = relations(
   webhookEndpoint,
   ({ one, many }) => ({
     deliveries: many(webhookDelivery),
+    notifications: many(webhookNotification),
     workspace: one(workspace, {
       fields: [webhookEndpoint.workspaceId],
+      references: [workspace.id],
+    }),
+  })
+);
+
+export const webhookNotificationRelations = relations(
+  webhookNotification,
+  ({ one }) => ({
+    webhookEndpoint: one(webhookEndpoint, {
+      fields: [webhookNotification.webhookEndpointId],
+      references: [webhookEndpoint.id],
+    }),
+    workspace: one(workspace, {
+      fields: [webhookNotification.workspaceId],
       references: [workspace.id],
     }),
   })

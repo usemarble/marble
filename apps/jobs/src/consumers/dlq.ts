@@ -22,7 +22,7 @@ export async function handleDeadLetterQueue(batch: MessageBatch<QueueMessage>) {
         case "webhook.delivery":
           await db
             .update(webhookDelivery)
-            .set({ status: "failed", failedAt: new Date() })
+            .set({ status: "failed", failedAt: new Date(), nextRetryAt: null })
             .where(eq(webhookDelivery.id, body.deliveryId));
           console.error(
             `[DLQ] [${body.type}] marked delivery as permanently failed: ${body.deliveryId}`

@@ -36,6 +36,20 @@
       "when": 1791079787042,
       "tag": "0004_media_storage_key_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791921801745,
+      "tag": "0005_webhook_failure_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791922848515,
+      "tag": "0006_webhook_notification_retry_window",
+      "breakpoints": true
     }
   ]
 }

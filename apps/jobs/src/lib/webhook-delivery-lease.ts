@@ -1,12 +1,13 @@
 import { webhookDelivery } from "@marble/db/schema";
 import { and, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { WEBHOOK_DELIVERY_LEASE_MS } from "./constants";
-import type { DbClient } from "./db";
+import type { DbClient, DbSession } from "./db";
+import { WebhookDeliveryDeferredError } from "./webhook-retry";
 
 type WebhookDeliveryUpdateData = Partial<
   Pick<
     typeof webhookDelivery.$inferInsert,
-    "status" | "failedAt" | "deliveredAt" | "lastAttemptAt"
+    "status" | "failedAt" | "deliveredAt" | "lastAttemptAt" | "nextRetryAt"
   >
 >;
 
@@ -36,6 +37,10 @@ export async function claimWebhookDeliveryAttempt(
     eq(webhookDelivery.id, deliveryId),
     sql`${webhookDelivery.attemptCount} < ${webhookDelivery.maxAttempts}`,
     or(
+      isNull(webhookDelivery.nextRetryAt),
+      lte(webhookDelivery.nextRetryAt, now)
+    ),
+    or(
       inArray(webhookDelivery.status, ["pending", "retrying"]),
       and(
         eq(webhookDelivery.status, "sending"),
@@ -53,6 +58,7 @@ export async function claimWebhookDeliveryAttempt(
       status: "sending",
       attemptCount: sql`${webhookDelivery.attemptCount} + 1`,
       lastAttemptAt: now,
+      nextRetryAt: null,
     })
     .where(claimableWhere)
     .returning({
@@ -94,6 +100,7 @@ export async function claimWebhookDeliveryAttempt(
     .set({
       status: "failed",
       failedAt: now,
+      nextRetryAt: null,
     })
     .where(exhaustedWhere)
     .returning({ id: webhookDelivery.id });
@@ -104,8 +111,17 @@ export async function claimWebhookDeliveryAttempt(
 
   const existing = await db.query.webhookDelivery.findFirst({
     where: eq(webhookDelivery.id, deliveryId),
-    columns: { status: true },
+    columns: { status: true, nextRetryAt: true },
   });
+
+  if (
+    existing &&
+    (existing.status === "pending" || existing.status === "retrying") &&
+    existing.nextRetryAt &&
+    existing.nextRetryAt.getTime() > now.getTime()
+  ) {
+    throw new WebhookDeliveryDeferredError(deliveryId, existing.nextRetryAt);
+  }
 
   if (existing?.status === "sending") {
     throw new Error(
@@ -136,7 +152,7 @@ export async function renewWebhookDeliveryLease(
 }
 
 export async function updateWebhookDeliveryForLease(
-  db: DbClient,
+  db: DbSession,
   lease: WebhookDeliveryLease,
   data: WebhookDeliveryUpdateData
 ) {

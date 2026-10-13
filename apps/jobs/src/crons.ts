@@ -10,3 +10,6 @@ export const CLEANUP_CRON = "0 * * * *";
  * this interval plus the sweep's grace period.
  */
 export const OUTBOX_SWEEP_CRON = "*/5 * * * *";
+
+/** Customer endpoint health and durable failure-email delivery. */
+export const WEBHOOK_NOTIFICATIONS_CRON = "* * * * *";

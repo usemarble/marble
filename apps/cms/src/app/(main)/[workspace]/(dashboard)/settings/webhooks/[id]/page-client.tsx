@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft02Icon, Copy01Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   type WebhookEvent,
@@ -52,6 +52,8 @@ import { WebhookDetailSettingsSkeleton } from "@/components/settings/loading-ske
 import { PageError } from "@/components/shared/page-error";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
+import { DeliveryDetails } from "@/components/webhooks/delivery-details";
+import { WebhookFailureNotice } from "@/components/webhooks/webhook-failure-notice";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import {
@@ -235,6 +237,8 @@ export default function WebhookDetailPage() {
                 </div>
               </section>
 
+              <WebhookFailureNotice webhook={webhook} />
+
               <section className="flex flex-col gap-4">
                 <h2 className="font-medium text-xl">Deliveries</h2>
 
@@ -411,7 +415,12 @@ function DeliveryTable({ deliveries }: { deliveries: WebhookDelivery[] }) {
                     </TableCell>
                     <TableCell className="rounded-r-[14px] px-3 py-4">
                       <p className="text-sm">
-                        {format(new Date(delivery.createdAt), "MMM d, h:mm a")}
+                        {delivery.latestAttempt
+                          ? format(
+                              new Date(delivery.latestAttempt.createdAt),
+                              "MMM d, h:mm a"
+                            )
+                          : "—"}
                       </p>
                     </TableCell>
                   </TableRow>
@@ -440,74 +449,6 @@ function DeliveryTable({ deliveries }: { deliveries: WebhookDelivery[] }) {
           )}
         </TableBody>
       </Table>
-    </div>
-  );
-}
-
-function DeliveryDetails({ delivery }: { delivery: WebhookDelivery }) {
-  const payload = JSON.stringify(delivery.payload, null, 2);
-  const latestAttempt = delivery.latestAttempt;
-  const copyPayload = async () => {
-    try {
-      await navigator.clipboard.writeText(payload);
-      toast.success("Copied payload");
-    } catch {
-      toast.error("Could not copy payload");
-    }
-  };
-
-  return (
-    <div className="grid gap-5">
-      <dl className="grid gap-3 text-sm md:grid-cols-[180px_minmax(0,1fr)]">
-        <DetailItem label="Event ID" value={delivery.eventId} />
-        <DetailItem label="Event timestamp" value={delivery.eventCreatedAt} />
-        <DetailItem label="Delivery ID" value={delivery.id} />
-        <DetailItem
-          label="Sent at"
-          value={delivery.lastAttemptAt ?? delivery.createdAt}
-        />
-        <DetailItem
-          label="HTTP response"
-          value={
-            latestAttempt?.statusCode
-              ? String(latestAttempt.statusCode)
-              : "No response"
-          }
-        />
-        <DetailItem
-          label="Duration"
-          value={
-            latestAttempt?.durationMs !== null &&
-            latestAttempt?.durationMs !== undefined
-              ? `${latestAttempt.durationMs}ms`
-              : "-"
-          }
-        />
-      </dl>
-
-      {latestAttempt?.errorMessage ? (
-        <div className="rounded-[14px] border border-destructive/20 bg-destructive/5 p-3 text-destructive text-sm">
-          {latestAttempt.errorMessage}
-        </div>
-      ) : null}
-
-      <div className="grid gap-3 border-t border-dashed pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="font-medium text-sm">Payload</h3>
-          <Button
-            className="h-8 px-3 text-xs"
-            onClick={copyPayload}
-            type="button"
-            variant="outline"
-          >
-            <HugeiconsIcon className="size-3.5" icon={Copy01Icon} />
-            Copy payload
-          </Button>
-        </div>
-        <pre className="max-h-[520px] overflow-auto rounded-[14px] border border-dashed bg-background p-4 font-mono text-xs leading-relaxed">
-          {payload}
-        </pre>
-      </div>
     </div>
   );
 }
@@ -675,7 +616,15 @@ function WebhookSettingsPanel({
               return;
             }
             if (workspaceId) {
-              updateWebhook({ workspaceId, id: webhook.id, ...parsed.data });
+              const { enabled: nextEnabled, ...updates } = parsed.data;
+              updateWebhook({
+                workspaceId,
+                id: webhook.id,
+                ...updates,
+                ...(nextEnabled !== webhook.enabled && {
+                  enabled: nextEnabled,
+                }),
+              });
             }
           }}
         >
@@ -734,14 +683,5 @@ function DeliveryStatus({ status }: { status: string }) {
     >
       {status}
     </Badge>
-  );
-}
-
-function DetailItem({ label, value }: { label: string; value: string }) {
-  return (
-    <>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="break-all font-mono text-xs">{value}</dd>
-    </>
   );
 }
