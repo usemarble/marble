@@ -74,9 +74,9 @@ throwaway databases only; never a shared environment.
    table constraint (see the baseline note below).
 4. Commit the schema change, the `.sql`, and the `meta/` updates together.
 
-Migrations are applied at deploy time — the Vercel build runs `pnpm db:migrate`
-before building the CMS — so a merged migration reaches production on the next
-deploy.
+Migrations are applied at deploy time — the `marble-api` Workers Build runs
+`pnpm --filter @marble/db db:migrate && npx cf deploy` — so a merged migration
+reaches production when that build runs.
 
 ### Do not edit an applied migration
 
