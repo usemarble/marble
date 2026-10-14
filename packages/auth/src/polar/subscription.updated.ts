@@ -4,6 +4,7 @@ import type { webhooks } from "@polar-sh/sdk/2026-10";
 import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { clearWorkspacePlan } from "../access";
+import { reportDuplicateWorkspaceSubscriptions } from "../subscription";
 import {
   getPlanType,
   getRecurringInterval,
@@ -116,6 +117,10 @@ export async function handleSubscriptionUpdated(
       );
       return;
     }
+    await reportDuplicateWorkspaceSubscriptions(
+      db,
+      existingSubscription.workspaceId
+    );
     await clearWorkspacePlan(redis, existingSubscription.workspaceId);
 
     console.log(

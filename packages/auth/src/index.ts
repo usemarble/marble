@@ -33,7 +33,7 @@ import {
 } from "better-auth/api";
 import { betterAuth } from "better-auth/minimal";
 import { emailOTP, organization } from "better-auth/plugins";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import { clearMembership, clearWorkspacePlan } from "./access";
 import { trackRegistrationCompleted } from "./analytics";
@@ -46,6 +46,7 @@ import {
   validateWorkspaceSlug,
   validateWorkspaceTimezone,
 } from "./hooks";
+import { startWorkspaceCheckout } from "./polar/checkout";
 import { createPolarAuthClient } from "./polar/client";
 import { handleCustomerCreated } from "./polar/customer.created";
 import { handleSubscriptionCanceled } from "./polar/subscription.canceled";
@@ -66,7 +67,6 @@ function getBodyString(body: unknown, key: string) {
   if (!(body && typeof body === "object" && key in body)) {
     return;
   }
-
   const value = (body as Record<string, unknown>)[key];
   return typeof value === "string" ? value : undefined;
 }
@@ -146,12 +146,6 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           return;
         }
 
-        const referenceId = getBodyString(ctx.body, "reference_id");
-
-        if (!referenceId) {
-          return;
-        }
-
         const session = await getSessionFromCtx(ctx);
 
         if (!session) {
@@ -160,22 +154,18 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           });
         }
 
-        // Polar stores referenceId as checkout metadata, so verify the client-supplied workspace before it can attach a subscription there.
-        const memberRecord = await db.query.member.findFirst({
-          where: and(
-            eq(member.organizationId, referenceId),
-            eq(member.userId, session.user.id)
-          ),
-          columns: {
-            role: true,
-          },
-        });
-
-        if (memberRecord?.role !== "owner") {
-          throw new APIError("FORBIDDEN", {
-            message: "Only workspace owners can start checkout",
-          });
-        }
+        // Complete checkout here so the adapter cannot create it outside the
+        // workspace lock and subscription checks.
+        return ctx.json(
+          await startWorkspaceCheckout({
+            db,
+            redis,
+            polar: polarClient,
+            env,
+            userId: session.user.id,
+            body: ctx.body ?? {},
+          })
+        );
       }),
       after: createAuthMiddleware(async (ctx) => {
         // leaveOrganization deletes the member without running the

@@ -2,7 +2,48 @@ import type { DbClient } from "@marble/db";
 import { invitation, member, subscription } from "@marble/db/schema";
 import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
 import { APIError } from "better-auth/api";
-import { and, count, desc, eq, gt, inArray } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
+
+/** Billing can still be live even when payment problems remove paid access. */
+export function ongoingSubscriptionFilter() {
+  return and(
+    isNull(subscription.endedAt),
+    or(
+      inArray(subscription.status, [
+        "active",
+        "trialing",
+        "past_due",
+        "incomplete",
+        "unpaid",
+        "paused",
+      ]),
+      and(
+        eq(subscription.status, "canceled"),
+        gt(subscription.currentPeriodEnd, new Date())
+      )
+    )
+  );
+}
+
+/** Preserve Polar's records and surface duplicates instead of hiding a charge. */
+export async function reportDuplicateWorkspaceSubscriptions(
+  db: DbClient,
+  workspaceId: string
+) {
+  const found = await db.query.subscription.findMany({
+    where: and(
+      eq(subscription.workspaceId, workspaceId),
+      ongoingSubscriptionFilter()
+    ),
+    columns: { polarId: true },
+  });
+  if (found.length > 1) {
+    console.error("[Billing] Workspace has multiple ongoing subscriptions", {
+      workspaceId,
+      polarIds: found.map((row) => row.polarId),
+    });
+  }
+}
 
 /**
  * Newest subscription that could still be granting a paid plan.

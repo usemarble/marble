@@ -1,9 +1,10 @@
+import { ongoingSubscriptionFilter } from "@marble/auth/subscription";
 import type { DbClient } from "@marble/db";
 import { invitation, member, subscription, workspace } from "@marble/db/schema";
 import { getWorkspacePlan } from "@marble/utils";
 import { and, asc, count, desc, eq, gt, inArray, or } from "drizzle-orm";
 
-/** Subscriptions that still entitle a workspace to a paid plan. */
+/** Candidates for paid access; billing existence is checked separately below. */
 function activeSubscriptionFilter() {
   return or(
     eq(subscription.status, "active"),
@@ -33,7 +34,7 @@ export async function listWorkspaces(ctx: { db: DbClient }, userId: string) {
     return [];
   }
 
-  const [rows, memberCounts] = await Promise.all([
+  const [rows, memberCounts, billingWorkspaces] = await Promise.all([
     ctx.db.query.workspace.findMany({
       where: inArray(workspace.id, workspaceIds),
       columns: {
@@ -66,6 +67,15 @@ export async function listWorkspaces(ctx: { db: DbClient }, userId: string) {
       .from(member)
       .where(inArray(member.organizationId, workspaceIds))
       .groupBy(member.organizationId),
+    ctx.db
+      .selectDistinct({ workspaceId: subscription.workspaceId })
+      .from(subscription)
+      .where(
+        and(
+          inArray(subscription.workspaceId, workspaceIds),
+          ongoingSubscriptionFilter()
+        )
+      ),
   ]);
 
   const roles = new Map(
@@ -74,6 +84,9 @@ export async function listWorkspaces(ctx: { db: DbClient }, userId: string) {
   const totals = new Map(
     memberCounts.map((row) => [row.workspaceId, row.total])
   );
+  const subscribedWorkspaceIds = new Set(
+    billingWorkspaces.map((row) => row.workspaceId)
+  );
 
   return rows.map(({ subscriptions, ...found }) => {
     const activeSubscription = subscriptions.at(0) ?? null;
@@ -81,6 +94,7 @@ export async function listWorkspaces(ctx: { db: DbClient }, userId: string) {
       ...found,
       currentUserRole: roles.get(found.id) ?? null,
       memberCount: totals.get(found.id) ?? 0,
+      hasSubscription: subscribedWorkspaceIds.has(found.id),
       subscription: activeSubscription
         ? {
             ...activeSubscription,

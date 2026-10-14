@@ -64,7 +64,10 @@ function setup() {
       workspace: {
         findFirst: vi.fn().mockResolvedValue({ id: "workspace-test" }),
       },
-      subscription: { findFirst: vi.fn().mockResolvedValue(undefined) },
+      subscription: {
+        findFirst: vi.fn().mockResolvedValue(undefined),
+        findMany: vi.fn().mockResolvedValue([{ polarId: "subscription-test" }]),
+      },
     },
     insert: vi.fn().mockReturnValue({ values }),
   };
@@ -116,5 +119,26 @@ describe("Polar webhook signatures", () => {
     expect(response.status).toBe(403);
     expect(db.query.user.findFirst).not.toHaveBeenCalled();
     expect(values).not.toHaveBeenCalled();
+  });
+
+  it("records a second real subscription and reports the duplicate", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const report = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    const { auth, db, values } = setup();
+    db.query.subscription.findMany.mockResolvedValue([
+      { polarId: "subscription-test" },
+      { polarId: "older-subscription" },
+    ]);
+    expect((await auth.handler(signedRequest("standard"))).status).toBe(200);
+    expect(values).toHaveBeenCalledOnce();
+    expect(report).toHaveBeenCalledWith(
+      "[Billing] Workspace has multiple ongoing subscriptions",
+      {
+        workspaceId: "workspace-test",
+        polarIds: ["subscription-test", "older-subscription"],
+      }
+    );
   });
 });
