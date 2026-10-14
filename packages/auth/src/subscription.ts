@@ -2,7 +2,58 @@ import type { DbClient } from "@marble/db";
 import { invitation, member, subscription } from "@marble/db/schema";
 import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
 import { APIError } from "better-auth/api";
-import { and, count, desc, eq, gt, inArray } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
+
+/** Billing can still be live even when payment problems remove paid access. */
+export function ongoingSubscriptionFilter() {
+  return and(
+    isNull(subscription.endedAt),
+    or(
+      inArray(subscription.status, [
+        "active",
+        "trialing",
+        "past_due",
+        "incomplete",
+        "unpaid",
+        "paused",
+      ]),
+      and(
+        eq(subscription.status, "canceled"),
+        gt(subscription.currentPeriodEnd, new Date())
+      )
+    )
+  );
+}
+
+/** Surface duplicate charges without letting diagnostic failures block webhooks. */
+export async function reportDuplicateWorkspaceSubscriptions(
+  db: DbClient,
+  workspaceId: string
+) {
+  try {
+    const found = await db.query.subscription.findMany({
+      where: and(
+        eq(subscription.workspaceId, workspaceId),
+        ongoingSubscriptionFilter()
+      ),
+      columns: { polarId: true },
+    });
+    if (found.length > 1) {
+      console.error("[Billing] Workspace has multiple ongoing subscriptions", {
+        workspaceId,
+        polarIds: found.map((row) => row.polarId),
+      });
+    }
+  } catch (error) {
+    console.error(
+      "[Billing] Failed to report duplicate workspace subscriptions",
+      {
+        workspaceId,
+        error,
+      }
+    );
+  }
+}
 
 /**
  * Newest subscription that could still be granting a paid plan.

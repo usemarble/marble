@@ -12,8 +12,7 @@ vi.mock("../access", async (importOriginal) => ({
 
 const secret = `whsec_${Buffer.from("test-signing-key-for-polar-webhooks").toString("base64")}`;
 const eventTimestamp = "2026-10-04T13:16:51.000Z";
-const body = JSON.stringify({
-  type: "subscription.created",
+const event = {
   timestamp: eventTimestamp,
   api_version: "2026-10",
   data: {
@@ -32,9 +31,19 @@ const body = JSON.stringify({
     currency: "usd",
     discount_id: null,
   },
-});
+};
 
-function signedRequest(scheme: "standard" | "legacy", tamper = false) {
+function signedRequest(
+  scheme: "standard" | "legacy",
+  {
+    tamper = false,
+    type = "subscription.created",
+  }: {
+    tamper?: boolean;
+    type?: "subscription.created" | "subscription.updated";
+  } = {}
+) {
+  const body = JSON.stringify({ ...event, type });
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const id = "webhook-test";
   const key =
@@ -58,21 +67,29 @@ function signedRequest(scheme: "standard" | "legacy", tamper = false) {
 
 function setup() {
   const values = vi.fn().mockResolvedValue(undefined);
+  const returning = vi.fn().mockResolvedValue([{ id: "subscription-record" }]);
+  const set = vi.fn().mockReturnValue({
+    where: vi.fn().mockReturnValue({ returning }),
+  });
   const db = {
     query: {
       user: { findFirst: vi.fn().mockResolvedValue({ id: "user-test" }) },
       workspace: {
         findFirst: vi.fn().mockResolvedValue({ id: "workspace-test" }),
       },
-      subscription: { findFirst: vi.fn().mockResolvedValue(undefined) },
+      subscription: {
+        findFirst: vi.fn().mockResolvedValue(undefined),
+        findMany: vi.fn().mockResolvedValue([{ polarId: "subscription-test" }]),
+      },
     },
     insert: vi.fn().mockReturnValue({ values }),
+    update: vi.fn().mockReturnValue({ set }),
   };
   const auth = createAuth({
     db: db as unknown as DbClient,
     env: testEnv({ POLAR_WEBHOOK_SECRET: secret }),
   });
-  return { auth, db, values };
+  return { auth, db, values, returning };
 }
 
 afterEach(() => {
@@ -112,9 +129,67 @@ describe("Polar webhook signatures", () => {
 
   it("rejects a modified body before invoking the subscription handler", async () => {
     const { auth, db, values } = setup();
-    const response = await auth.handler(signedRequest("standard", true));
+    const response = await auth.handler(
+      signedRequest("standard", { tamper: true })
+    );
     expect(response.status).toBe(403);
     expect(db.query.user.findFirst).not.toHaveBeenCalled();
     expect(values).not.toHaveBeenCalled();
   });
+
+  it("records a second real subscription and reports the duplicate", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const report = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    const { auth, db, values } = setup();
+    db.query.subscription.findMany.mockResolvedValue([
+      { polarId: "subscription-test" },
+      { polarId: "older-subscription" },
+    ]);
+    expect((await auth.handler(signedRequest("standard"))).status).toBe(200);
+    expect(values).toHaveBeenCalledOnce();
+    expect(report).toHaveBeenCalledWith(
+      "[Billing] Workspace has multiple ongoing subscriptions",
+      {
+        workspaceId: "workspace-test",
+        polarIds: ["subscription-test", "older-subscription"],
+      }
+    );
+  });
+
+  it.each(["subscription.created", "subscription.updated"] as const)(
+    "clears the cached plan when duplicate reporting fails for %s",
+    async (type) => {
+      vi.spyOn(console, "log").mockImplementation(() => undefined);
+      const report = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+      const { auth, db, values, returning } = setup();
+      const error = new Error("Diagnostic query failed");
+      db.query.subscription.findMany.mockRejectedValue(error);
+      if (type === "subscription.updated") {
+        db.query.subscription.findFirst.mockResolvedValue({
+          id: "subscription-record",
+          workspaceId: "workspace-test",
+          lastPolarEventAt: null,
+        });
+      }
+
+      const response = await auth.handler(signedRequest("standard", { type }));
+
+      expect(response.status).toBe(200);
+      expect(
+        type === "subscription.created" ? values : returning
+      ).toHaveBeenCalledOnce();
+      expect(report).toHaveBeenCalledWith(
+        "[Billing] Failed to report duplicate workspace subscriptions",
+        { workspaceId: "workspace-test", error }
+      );
+      expect(clearWorkspacePlan).toHaveBeenCalledWith(
+        expect.anything(),
+        "workspace-test"
+      );
+    }
+  );
 });

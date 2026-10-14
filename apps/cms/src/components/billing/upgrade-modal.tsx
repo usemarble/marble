@@ -15,9 +15,8 @@ import {
 } from "@marble/ui/components/dialog";
 import { PRICING_PLANS } from "@marble/utils";
 import Link from "next/link";
-import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
-import { checkout } from "@/lib/auth/client";
+import { useBilling } from "@/hooks/use-billing";
 import { useWorkspace } from "@/providers/workspace";
 
 type FeatureType =
@@ -86,31 +85,25 @@ export function UpgradeModal({
   onClose,
   openPricingInNewTab = false,
 }: UpgradeModalProps) {
-  const [loadingPlan, setLoadingPlan] = useState<"monthly" | "yearly" | null>(
-    null
-  );
+  const {
+    openBilling,
+    loadingPlan,
+    isLoading,
+    hasSubscription,
+    canManageBilling,
+  } = useBilling();
   const { activeWorkspace } = useWorkspace();
 
   const content = FEATURE_CONTENT[feature];
   const pricing = PRICING_PLANS.find((plan) => plan.id === content.plan);
 
   const handleUpgrade = async (interval: "monthly" | "yearly") => {
-    if (!activeWorkspace?.id) {
-      return;
+    const opened = await openBilling(
+      interval === "monthly" ? content.plan : `${content.plan}-yearly`
+    );
+    if (opened) {
+      onClose();
     }
-
-    setLoadingPlan(interval);
-
-    try {
-      await checkout({
-        slug: interval === "monthly" ? content.plan : `${content.plan}-yearly`,
-        reference_id: activeWorkspace.id,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-    setLoadingPlan(null);
-    onClose();
   };
 
   return (
@@ -142,28 +135,42 @@ export function UpgradeModal({
             {content.description}
           </DialogDescription>
           <DialogFooter className="flex-col gap-2 sm:flex-col">
-            <Button
-              className="w-full"
-              disabled={loadingPlan !== null}
-              onClick={() => handleUpgrade("monthly")}
-              size="sm"
-              variant="outline"
-            >
-              {loadingPlan === "monthly"
-                ? "Loading..."
-                : pricing
-                  ? `${pricing.price.monthly}/month`
-                  : "Monthly"}
-            </Button>
-            <AsyncButton
-              className="w-full"
-              disabled={loadingPlan !== null}
-              isLoading={loadingPlan === "yearly"}
-              onClick={() => handleUpgrade("yearly")}
-              size="sm"
-            >
-              {pricing ? `${pricing.price.yearly}/year` : "Yearly"}
-            </AsyncButton>
+            {hasSubscription ? (
+              <AsyncButton
+                className="w-full"
+                disabled={!canManageBilling}
+                isLoading={isLoading}
+                onClick={() => openBilling()}
+                size="sm"
+              >
+                Manage Billing
+              </AsyncButton>
+            ) : (
+              <>
+                <Button
+                  className="w-full"
+                  disabled={isLoading || !canManageBilling}
+                  onClick={() => handleUpgrade("monthly")}
+                  size="sm"
+                  variant="outline"
+                >
+                  {loadingPlan === content.plan
+                    ? "Loading..."
+                    : pricing
+                      ? `${pricing.price.monthly}/month`
+                      : "Monthly"}
+                </Button>
+                <AsyncButton
+                  className="w-full"
+                  disabled={isLoading || !canManageBilling}
+                  isLoading={loadingPlan === `${content.plan}-yearly`}
+                  onClick={() => handleUpgrade("yearly")}
+                  size="sm"
+                >
+                  {pricing ? `${pricing.price.yearly}/year` : "Yearly"}
+                </AsyncButton>
+              </>
+            )}
           </DialogFooter>
           <Link
             className="text-center text-muted-foreground text-xs underline hover:text-foreground"
