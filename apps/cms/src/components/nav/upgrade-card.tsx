@@ -4,17 +4,17 @@ import { Button } from "@marble/ui/components/button";
 import { useSidebar } from "@marble/ui/components/sidebar";
 import { getPlanTrialCopy, PRICING_PLANS } from "@marble/utils";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
+import { useBilling } from "@/hooks/use-billing";
 import { usePlan } from "@/hooks/use-plan";
-import { checkout } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 
 export function UpgradeCard() {
   const { state } = useSidebar();
   const { isFreePlan, isHobbyPlan } = usePlan();
   const { isOwner, activeWorkspace } = useWorkspace();
-  const [isLoading, setIsLoading] = useState(false);
+  const { openBilling, isLoading, hasSubscription } = useBilling();
   const isCollapsed = state === "collapsed";
   const shouldReduceMotion = useReducedMotion();
   const hobbyPlan = PRICING_PLANS.find((plan) => plan.id === "hobby");
@@ -34,26 +34,17 @@ export function UpgradeCard() {
     wasCollapsed.current = isCollapsed;
   }, [isCollapsed]);
 
-  if ((!isFreePlan && !isHobbyPlan) || !isOwner || isCollapsed) {
+  if (
+    !activeWorkspace ||
+    (!isFreePlan && !isHobbyPlan) ||
+    !isOwner ||
+    isCollapsed
+  ) {
     return null;
   }
 
   const handleUpgrade = async () => {
-    if (!activeWorkspace?.id) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await checkout({
-        slug: isFreePlan ? "hobby" : "pro",
-        reference_id: activeWorkspace.id,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-    setIsLoading(false);
+    await openBilling(isFreePlan ? "hobby" : "pro");
   };
 
   return (
@@ -79,7 +70,11 @@ export function UpgradeCard() {
             onClick={handleUpgrade}
             size="xs"
           >
-            {isFreePlan ? freeUpgradeLabel : proUpgradeLabel}
+            {hasSubscription
+              ? "Manage Billing"
+              : isFreePlan
+                ? freeUpgradeLabel
+                : proUpgradeLabel}
           </AsyncButton>
         </div>
       </div>

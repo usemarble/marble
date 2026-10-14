@@ -19,6 +19,7 @@ const workspaceSchema = z.object({
   timezone: z.string(),
   currentUserRole: z.string().nullable(),
   memberCount: z.number(),
+  hasSubscription: z.boolean(),
   subscription: z
     .object({
       id: z.string(),

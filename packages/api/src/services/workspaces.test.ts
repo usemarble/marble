@@ -2,6 +2,7 @@ import { createRecordId } from "@marble/db/id";
 import { invitation, subscription } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { workspacesRouter } from "../routers/workspaces";
 import {
@@ -86,6 +87,92 @@ describe("workspaces.list", () => {
 
   it("is empty for a user with no workspace", async () => {
     expect(await clientFor(await seedUser(testDb.db)).list()).toEqual([]);
+  });
+
+  it.each(["past_due", "incomplete", "unpaid", "paused"] as const)(
+    "keeps billing management available for a %s subscription without paid access",
+    async (status) => {
+      const owner = await seedUser(testDb.db);
+      const home = await seedWorkspace(testDb.db, owner.id);
+      await testDb.db.insert(subscription).values({
+        id: createRecordId(),
+        userId: owner.id,
+        workspaceId: home.id,
+        polarId: createRecordId(),
+        plan: "hobby",
+        status,
+        cancelAtPeriodEnd: false,
+        currentPeriodStart: new Date(Date.now() - 86_400_000),
+        currentPeriodEnd: new Date(Date.now() + 86_400_000),
+      });
+      expect(await clientFor(owner).list()).toMatchObject([
+        {
+          id: home.id,
+          hasSubscription: true,
+          subscription: null,
+        },
+      ]);
+    }
+  );
+
+  it("keeps a scheduled cancellation in billing until the subscription ends", async () => {
+    const owner = await seedUser(testDb.db);
+    const home = await seedWorkspace(testDb.db, owner.id);
+    const id = createRecordId();
+    await testDb.db.insert(subscription).values({
+      id,
+      userId: owner.id,
+      workspaceId: home.id,
+      polarId: createRecordId(),
+      plan: "hobby",
+      status: "canceled",
+      cancelAtPeriodEnd: true,
+      currentPeriodStart: new Date(Date.now() - 86_400_000),
+      currentPeriodEnd: new Date(Date.now() + 86_400_000),
+    });
+    expect(await clientFor(owner).list()).toMatchObject([
+      {
+        id: home.id,
+        hasSubscription: true,
+        subscription: { activePlan: "hobby" },
+      },
+    ]);
+    await testDb.db
+      .update(subscription)
+      .set({ endedAt: new Date(), status: "expired" })
+      .where(eq(subscription.id, id));
+    expect(await clientFor(owner).list()).toMatchObject([
+      { id: home.id, hasSubscription: false, subscription: null },
+    ]);
+  });
+
+  it("does not replace paid access with a duplicate subscription's payment failure", async () => {
+    const owner = await seedUser(testDb.db);
+    const home = await seedWorkspace(testDb.db, owner.id);
+    for (const [status, plan, createdAt] of [
+      ["active", "hobby", new Date(Date.now() - 60_000)],
+      ["past_due", "pro", new Date()],
+    ] as const) {
+      await testDb.db.insert(subscription).values({
+        id: createRecordId(),
+        userId: owner.id,
+        workspaceId: home.id,
+        polarId: createRecordId(),
+        plan,
+        status,
+        createdAt,
+        cancelAtPeriodEnd: false,
+        currentPeriodStart: new Date(Date.now() - 86_400_000),
+        currentPeriodEnd: new Date(Date.now() + 86_400_000),
+      });
+    }
+    expect(await clientFor(owner).list()).toMatchObject([
+      {
+        id: home.id,
+        hasSubscription: true,
+        subscription: { activePlan: "hobby" },
+      },
+    ]);
   });
 });
 

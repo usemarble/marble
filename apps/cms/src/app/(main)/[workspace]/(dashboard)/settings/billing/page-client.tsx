@@ -4,7 +4,6 @@ import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import { getPlanTrialCopy, PRICING_PLANS } from "@marble/utils";
 import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
@@ -13,18 +12,16 @@ import { invoiceTableColumns } from "@/components/invoice/columns";
 import { InvoiceDataTable } from "@/components/invoice/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { AsyncButton } from "@/components/ui/async-button";
+import { useBilling } from "@/hooks/use-billing";
 import { usePlan } from "@/hooks/use-plan";
-import { authClient, checkout } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 import Loading from "./loading";
 
 function PageClient() {
-  const [checkoutLoading, setCheckoutLoading] = useState<
-    "hobby" | "hobby-yearly" | "pro" | "pro-yearly" | null
-  >(null);
+  const { openBilling, loadingPlan, isLoading, hasSubscription } = useBilling();
   const [isYearly, setIsYearly] = useState(true);
   const { activeWorkspace, isOwner } = useWorkspace();
-  const { currentPlan, isFreePlan, isProPlan } = usePlan();
+  const { currentPlan, isProPlan } = usePlan();
 
   const proTrialCopy = getPlanTrialCopy("pro");
   const freePlan = PRICING_PLANS.find((p) => p.id === "free");
@@ -59,35 +56,6 @@ function PageClient() {
     return <Loading />;
   }
 
-  const handleCheckout = async (
-    plan: "hobby" | "hobby-yearly" | "pro" | "pro-yearly"
-  ) => {
-    if (!activeWorkspace?.id) {
-      return;
-    }
-
-    setCheckoutLoading(plan);
-
-    try {
-      await checkout({
-        slug: plan,
-        reference_id: activeWorkspace.id,
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to start checkout");
-    }
-    setCheckoutLoading(null);
-  };
-
-  const redirectCustomerPortal = async () => {
-    try {
-      await authClient.customer.portal();
-    } catch (_e) {
-      toast.error("Failed to redirect to customer portal");
-    }
-  };
-
   const renderPlanButton = (planId: "free" | "hobby" | "pro") => {
     const isCurrentPlan = currentPlan === planId;
 
@@ -99,11 +67,12 @@ function PageClient() {
       );
     }
 
-    if (planId === "free" || (planId === "hobby" && isProPlan)) {
+    if (hasSubscription) {
       return (
         <Button
           className="w-full"
-          onClick={() => redirectCustomerPortal()}
+          disabled={isLoading}
+          onClick={() => openBilling()}
           variant="outline"
         >
           Manage Billing
@@ -112,13 +81,18 @@ function PageClient() {
       );
     }
 
+    if (planId === "free") {
+      return null;
+    }
+
     const checkoutSlug = getCheckoutSlug(planId);
 
     return (
       <AsyncButton
         className="w-full"
-        isLoading={checkoutLoading === checkoutSlug}
-        onClick={() => handleCheckout(checkoutSlug)}
+        disabled={isLoading}
+        isLoading={loadingPlan === checkoutSlug}
+        onClick={() => openBilling(checkoutSlug)}
         variant="default"
       >
         Upgrade to {planId === "hobby" ? "Hobby" : "Pro"}
@@ -144,9 +118,10 @@ function PageClient() {
                 <span className="font-medium">{getPlanDisplayName()}</span>
               </div>
             )}
-            {isOwner && !isFreePlan && (
+            {isOwner && hasSubscription && (
               <Button
-                onClick={() => redirectCustomerPortal()}
+                disabled={isLoading}
+                onClick={() => openBilling()}
                 variant="outline"
               >
                 Manage Billing
