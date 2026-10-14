@@ -25,23 +25,33 @@ export function ongoingSubscriptionFilter() {
   );
 }
 
-/** Preserve Polar's records and surface duplicates instead of hiding a charge. */
+/** Surface duplicate charges without letting diagnostic failures block webhooks. */
 export async function reportDuplicateWorkspaceSubscriptions(
   db: DbClient,
   workspaceId: string
 ) {
-  const found = await db.query.subscription.findMany({
-    where: and(
-      eq(subscription.workspaceId, workspaceId),
-      ongoingSubscriptionFilter()
-    ),
-    columns: { polarId: true },
-  });
-  if (found.length > 1) {
-    console.error("[Billing] Workspace has multiple ongoing subscriptions", {
-      workspaceId,
-      polarIds: found.map((row) => row.polarId),
+  try {
+    const found = await db.query.subscription.findMany({
+      where: and(
+        eq(subscription.workspaceId, workspaceId),
+        ongoingSubscriptionFilter()
+      ),
+      columns: { polarId: true },
     });
+    if (found.length > 1) {
+      console.error("[Billing] Workspace has multiple ongoing subscriptions", {
+        workspaceId,
+        polarIds: found.map((row) => row.polarId),
+      });
+    }
+  } catch (error) {
+    console.error(
+      "[Billing] Failed to report duplicate workspace subscriptions",
+      {
+        workspaceId,
+        error,
+      }
+    );
   }
 }
 
