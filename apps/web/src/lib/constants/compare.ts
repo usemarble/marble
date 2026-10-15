@@ -168,6 +168,77 @@ const PAYLOAD = {
   },
 };
 
+const STRAPI = {
+  cmsPricing: {
+    label: "Strapi: CMS pricing",
+    href: "https://strapi.io/pricing-cms",
+  },
+  cloudPricing: {
+    label: "Strapi: Cloud hosting pricing",
+    href: "https://strapi.io/pricing-cloud",
+  },
+  plans: {
+    label: "Strapi docs: Features and plans",
+    href: "https://docs.strapi.io/cms/features",
+  },
+  contentTypes: {
+    label: "Strapi docs: Content-type Builder",
+    href: "https://docs.strapi.io/cms/features/content-type-builder",
+  },
+  contentManager: {
+    label: "Strapi docs: Content Manager and rich text fields",
+    href: "https://docs.strapi.io/cms/features/content-manager",
+  },
+  blocksRenderer: {
+    label: "Strapi: Blocks React renderer",
+    href: "https://github.com/strapi/blocks-react-renderer",
+  },
+  quickStart: {
+    label: "Strapi docs: Quick start",
+    href: "https://docs.strapi.io/cms/quick-start",
+  },
+  rest: {
+    label: "Strapi docs: REST API",
+    href: "https://docs.strapi.io/cms/api/rest",
+  },
+  populate: {
+    label: "Strapi docs: Populate and select",
+    href: "https://docs.strapi.io/cms/api/rest/populate-select",
+  },
+  graphql: {
+    label: "Strapi docs: GraphQL API",
+    href: "https://docs.strapi.io/cms/api/graphql",
+  },
+  deployment: {
+    label: "Strapi docs: Deployment",
+    href: "https://docs.strapi.io/cms/deployment",
+  },
+  drafts: {
+    label: "Strapi docs: Draft & Publish",
+    href: "https://docs.strapi.io/cms/features/draft-and-publish",
+  },
+  history: {
+    label: "Strapi docs: Content History",
+    href: "https://docs.strapi.io/cms/features/content-history",
+  },
+  releases: {
+    label: "Strapi docs: Releases and scheduled publishing",
+    href: "https://docs.strapi.io/cms/features/releases",
+  },
+  localization: {
+    label: "Strapi docs: Internationalization",
+    href: "https://docs.strapi.io/cms/features/internationalization",
+  },
+  rbac: {
+    label: "Strapi docs: Admin roles and permissions",
+    href: "https://docs.strapi.io/cms/features/rbac",
+  },
+  webhooks: {
+    label: "Strapi docs: Webhooks",
+    href: "https://docs.strapi.io/cms/backend-customization/webhooks",
+  },
+};
+
 export const COMPARISONS: Comparison[] = [
   {
     slug: "ghost",
@@ -698,6 +769,197 @@ export const COMPARISONS: Comparison[] = [
         question: "Can I migrate an entire Payload application to Marble?",
         answer:
           "No. You can move blog posts that fit Marble's model after converting their content and mapping metadata. Application users, custom collections, access rules, and backend logic need to stay in Payload or move to another backend. Marble has no direct Payload importer.",
+      },
+    ],
+  },
+  {
+    slug: "strapi",
+    name: "Strapi",
+    checked: "October 2026",
+    summary:
+      "Strapi lets you define content types and customize a Node.js backend. Marble hosts an editor and API built around posts.",
+    meta: {
+      title: "Marble vs Strapi: A Simpler CMS for Your Blog",
+      description:
+        "Looking for a Strapi alternative for your blog? Compare Marble and Strapi on editing, content models, hosting, pricing, and when each CMS fits.",
+    },
+    intro:
+      "Strapi is an open-source headless CMS with a visual content model builder and a backend you can customize. You can self-host it or use Strapi Cloud. Marble is a hosted headless CMS for blog posts, articles, and changelogs, with authors and taxonomy already set up. Both work with a frontend you build. The choice depends on whether your content fits a post model or needs a CMS you can extend.",
+    chooseMarble: [
+      "You want to add a blog to an existing site, with posts, authors, categories, and tags already set up.",
+      "You want a hosted editor and media library without deploying a CMS application or managing its database.",
+      "Your frontend needs post bodies as HTML or Markdown, with no Blocks renderer to configure.",
+      "Your content fits posts with typed custom fields, and the hosted $0, $5, or $20 workspace plans fit your usage.",
+    ],
+    chooseCompetitor: [
+      "You need your own collection types, reusable components, dynamic zones, or relations between different kinds of content.",
+      "Your team needs localized fields or detailed admin permissions. Both are available in the free Community plan.",
+      "You want to self-host the CMS or extend its Node.js backend with custom application logic.",
+      "You need content history or scheduled releases and are prepared to use the Growth or Enterprise CMS plan.",
+    ],
+    rows: [
+      {
+        topic: "Built for",
+        marble: "Blog posts, articles, and changelogs on a site you build.",
+        competitor:
+          "Websites and applications with content types you define, such as articles, landing pages, and products.",
+        sources: [STRAPI.contentTypes],
+      },
+      {
+        topic: "Content model",
+        marble:
+          "Posts with authors, one category, tags, and typed custom fields you add in the dashboard.",
+        competitor:
+          "Collection types, single types, reusable components, dynamic zones, and relations. Change the model in development, then deploy it.",
+        sources: [STRAPI.contentTypes],
+      },
+      {
+        topic: "Getting started",
+        marble:
+          "Create a workspace and connect your frontend with an API key. Existing posts can be imported as Markdown files.",
+        competitor:
+          "Create a project or use a template, configure an article type and API permissions, then deploy. Writers use the Content Manager for routine posts.",
+        sources: [
+          STRAPI.quickStart,
+          STRAPI.contentManager,
+          { label: "Marble docs: Markdown import", href: MARBLE_DOCS.import },
+        ],
+      },
+      {
+        topic: "Editing and rich text",
+        marble:
+          "A rich text editor with post bodies delivered as sanitized HTML by default, or Markdown.",
+        competitor:
+          "Choose Rich Text Blocks or a Markdown field. Blocks need a frontend renderer; Strapi provides an official React renderer. Markdown fields deliver Markdown text.",
+        sources: [STRAPI.contentManager, STRAPI.blocksRenderer],
+      },
+      {
+        topic: "Content delivery",
+        marble:
+          "REST API and TypeScript SDK for Next.js, Astro, or any frontend that can make HTTP requests.",
+        competitor:
+          "REST endpoints for your content types, with GraphQL through an optional plugin. Configure API access and request related media and entries with populate.",
+        sources: [STRAPI.rest, STRAPI.graphql, STRAPI.populate],
+      },
+      {
+        topic: "Hosting and maintenance",
+        marble:
+          "Marble hosts the CMS and media library. You host and maintain your own frontend.",
+        competitor:
+          "Strapi Cloud hosts the CMS infrastructure, or you manage the app, database, and media storage yourself. Your team still maintains its content model and custom code.",
+        sources: [STRAPI.deployment],
+      },
+      {
+        topic: "API usage",
+        marble:
+          "5,000 requests a month on Free, 25,000 on Hobby, 50,000 on Pro.",
+        competitor:
+          "Community has no CMS software quota on API calls. Self-hosted capacity depends on your infrastructure. Strapi Cloud Starter includes 100,000 requests a month.",
+        sources: [STRAPI.cmsPricing, STRAPI.cloudPricing, STRAPI.deployment],
+      },
+      {
+        topic: "Drafts and history",
+        marble:
+          "Draft and published posts. Read drafts with a scoped private API key; share draft links on Hobby and Pro.",
+        competitor:
+          "Draft & Publish is free and enabled per content type. Content History, with earlier versions you can restore, needs Growth or Enterprise.",
+        sources: [STRAPI.drafts, STRAPI.history, STRAPI.plans],
+      },
+      {
+        topic: "Scheduled publishing",
+        marble: "Not available yet.",
+        competitor:
+          "Releases can group and schedule publish or unpublish actions on Growth and Enterprise. Draft & Publish must be enabled on the content type.",
+        sources: [STRAPI.releases],
+      },
+      {
+        topic: "Localization",
+        marble:
+          "No built-in locale workflow. You can organize translated posts and metadata yourself.",
+        competitor:
+          "Free internationalization with locales and localized content types and fields.",
+        sources: [STRAPI.localization, STRAPI.plans],
+      },
+      {
+        topic: "Team permissions",
+        marble:
+          "Owner, Admin, and Member roles. 1 team member on Free, 5 on Hobby, 10 on Pro.",
+        competitor:
+          "Free admin role-based access control, with default and custom roles. Configure what each role can read, edit, or publish in the admin panel.",
+        sources: [STRAPI.rbac, STRAPI.plans],
+      },
+      {
+        topic: "Publishing integrations",
+        marble:
+          "Configure webhooks in the dashboard, with signed payloads, retries, and delivery logs.",
+        competitor:
+          "Configure webhooks for content and media events, including publish and unpublish, to call your services or update your frontend.",
+        sources: [STRAPI.webhooks],
+      },
+      {
+        topic: "CMS license and pricing",
+        marble:
+          "AGPL-3.0 source code. Hosted Free plan; Hobby is $5/month and Pro is $20/month per workspace.",
+        competitor:
+          "Community is free, with an MIT-licensed core. Growth is $45/month for 3 admin users and adds paid CMS features. Hosting is separate.",
+        sources: [STRAPI.cmsPricing, STRAPI.plans],
+      },
+      {
+        topic: "Hosting costs",
+        marble:
+          "CMS hosting and media storage are included within your plan's limits. Frontend hosting is separate.",
+        competitor:
+          "Strapi Cloud Starter is $35/project/month on monthly billing. You can instead self-host and pay your infrastructure provider. Frontend hosting is separate.",
+        sources: [STRAPI.cloudPricing, STRAPI.deployment],
+      },
+    ],
+    workflow: {
+      competitor: [
+        "Create a Strapi project and define your article fields, author and category relations, and rich text format in development.",
+        "Configure API access and deploy to Strapi Cloud or your own infrastructure. Deploy later changes to the content model too.",
+        "Writers create and publish entries in the Content Manager. Enable Draft & Publish if they need drafts alongside live posts.",
+        "Fetch posts from your frontend, request related media and entries, render Blocks or Markdown, and configure webhooks for updates.",
+      ],
+      marble: [
+        "Create a workspace. The editor, media library, and post model are ready.",
+        "Write a post and set its authors, category, tags, and metadata.",
+        "Publish, then fetch the post through the SDK or REST API and render its HTML or Markdown.",
+        "Configure a webhook to revalidate or rebuild your frontend when posts change.",
+      ],
+    },
+    migration: {
+      title: "Moving blog posts from Strapi to Marble",
+      steps: [
+        `Fetch your articles through Strapi's <a href="${STRAPI.rest.href}" target="_blank" rel="noopener">REST API</a> with authorized access and pagination. Use <a href="${STRAPI.populate.href}" target="_blank" rel="noopener">populate</a> to include the authors, taxonomy, media, and components you need.`,
+        `Reuse a Markdown body, or convert <a href="${STRAPI.contentManager.href}" target="_blank" rel="noopener">Blocks and custom components</a> to Markdown. Check code samples, embeds, links, and image captions after conversion.`,
+        `Set title, slug, description, date, category, and tags in each file's frontmatter. Import the .md files individually or as a ZIP of up to 100 files. Marble creates drafts for review (<a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">import docs</a>).`,
+        "Review the imported dates, category, tags, and slugs. The importer assigns an author for the import, so set the correct authors and any custom fields before publishing.",
+        "Upload media to Marble and replace URLs that depend on your Strapi deployment. Keep your public post URLs or add redirects in your frontend before retiring the old CMS.",
+        "Move only content that fits Marble's post model. Custom content types, application users, backend logic, and permission rules need to stay in Strapi or move to another backend.",
+      ],
+    },
+    faqs: [
+      {
+        question: "Is Marble a good Strapi alternative for a blog?",
+        answer:
+          "Yes, if your site needs posts with authors, categories, tags, and custom fields, and you want a hosted editor and API. Strapi is a better fit when your blog shares a CMS with custom content types, localized content, or application logic you need to control.",
+      },
+      {
+        question: "Is Strapi free, and how does its pricing compare?",
+        answer: `Strapi Community is free software. You pay for your own infrastructure or a separate Cloud hosting plan. Growth adds paid CMS features and does not include hosting (<a href="${STRAPI.cmsPricing.href}" target="_blank" rel="noopener">CMS pricing</a>, <a href="${STRAPI.cloudPricing.href}" target="_blank" rel="noopener">Cloud pricing</a>). Marble includes CMS hosting on Free, Hobby at $5/month, and Pro at $20/month per workspace. Compare the features, traffic, storage, and maintenance your project needs.`,
+      },
+      {
+        question: "Can I use Strapi with Next.js or Astro?",
+        answer: `Yes. Both can fetch Strapi's REST API, or its <a href="${STRAPI.graphql.href}" target="_blank" rel="noopener">GraphQL API</a> after you install the plugin. Your frontend renders the fields you configured. Strapi supports both Blocks and Markdown bodies; Marble delivers post bodies as HTML or Markdown.`,
+      },
+      {
+        question:
+          "Does Strapi charge for drafts, localization, or admin roles?",
+        answer: `No. Draft & Publish, internationalization, and admin role-based access control are in the free Community plan. Content History and scheduled Releases need Growth or Enterprise. Strapi's <a href="${STRAPI.plans.href}" target="_blank" rel="noopener">feature and plan table</a> separates these capabilities.`,
+      },
+      {
+        question: "Can I import my existing Strapi blog into Marble?",
+        answer: `Yes, after you convert the articles to Markdown files and map their metadata to Marble's post model. There is no direct Strapi importer. Marble's <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> creates drafts, reads supported frontmatter, and assigns a default author. Review the content, authors, media, and public URLs before switching your frontend. Custom backend code and content types do not transfer.`,
       },
     ],
   },
