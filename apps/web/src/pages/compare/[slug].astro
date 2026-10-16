@@ -6,7 +6,7 @@
   import ResourceList from "@/components/sections/ResourceList.astro";
   import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
-  import { COMPARISONS, type ComparisonSource } from "@/lib/constants/compare";
+  import { COMPARISONS } from "@/lib/constants/compare";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
@@ -23,14 +23,6 @@
   const { name, slug } = comparison;
   const heading = `Marble vs ${name}`;
   const pageUrl = new URL(`/compare/${slug}`, SITE.URL).toString();
-
-  const sources = [
-    ...new Map(
-      comparison.rows
-        .flatMap((row) => row.sources ?? [])
-        .map((source): [string, ComparisonSource] => [source.href, source])
-    ).values(),
-  ];
 
   const resources = [
     ...COMPARISONS.filter((other) => other.slug !== slug).map((other) => ({
@@ -268,30 +260,6 @@
       name={`compare-${slug}-faq`}
       description={`Common questions about choosing between Marble and ${name}.`}
     />
-
-    <section aria-labelledby="sources-heading">
-      <Container class="py-12 md:py-16">
-        <div class="grid gap-6 md:grid-cols-12">
-          <h2 id="sources-heading" class="md:col-span-4 lg:col-span-3">
-            Sources
-          </h2>
-          <ul class="space-y-2 md:col-span-8 lg:col-span-9">
-            {sources.map((source) => (
-              <li>
-                <a
-                  href={source.href}
-                  target="_blank"
-                  rel="noopener"
-                  class="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-                >
-                  {source.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Container>
-    </section>
 
     <ResourceList heading="More resources" items={resources}/>
 

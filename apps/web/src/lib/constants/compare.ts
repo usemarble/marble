@@ -239,6 +239,65 @@ const STRAPI = {
   },
 };
 
+const WORDPRESS = {
+  overview: {
+    label: "WordPress: Features",
+    href: "https://wordpress.org/about/features/",
+  },
+  hosting: {
+    label: "WordPress.com: WordPress.com vs WordPress.org",
+    href: "https://wordpress.com/support/com-vs-org/",
+  },
+  posts: {
+    label: "WordPress docs: Posts REST API",
+    href: "https://developer.wordpress.org/rest-api/reference/posts/",
+  },
+  blocks: {
+    label: "WordPress docs: Block markup",
+    href: "https://developer.wordpress.org/block-editor/getting-started/fundamentals/markup-representation-block/",
+  },
+  contentTypes: {
+    label: "WordPress docs: Custom content types and the REST API",
+    href: "https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-rest-api-support-for-custom-content-types/",
+  },
+  customFields: {
+    label: "Learn WordPress: Custom fields and the REST API",
+    href: "https://learn.wordpress.org/tutorial/wp-rest-api-custom-fields-authentication-and-testing/",
+  },
+  roles: {
+    label: "WordPress docs: Roles and capabilities",
+    href: "https://wordpress.org/documentation/article/roles-and-capabilities/",
+  },
+  revisions: {
+    label: "WordPress docs: Revisions",
+    href: "https://wordpress.org/documentation/article/revisions/",
+  },
+  postSettings: {
+    label: "WordPress docs: Post settings",
+    href: "https://wordpress.org/documentation/article/page-post-settings-sidebar/",
+  },
+  cron: {
+    label: "WordPress docs: WP-Cron",
+    href: "https://developer.wordpress.org/plugins/cron/",
+  },
+  updates: {
+    label: "WordPress docs: Updating WordPress",
+    href: "https://wordpress.org/documentation/article/updating-wordpress/",
+  },
+  exports: {
+    label: "WordPress docs: Tools Export screen",
+    href: "https://wordpress.org/documentation/article/tools-export-screen/",
+  },
+  pagination: {
+    label: "WordPress docs: REST API pagination",
+    href: "https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/",
+  },
+  embedding: {
+    label: "WordPress docs: Linking and embedding",
+    href: "https://developer.wordpress.org/rest-api/using-the-rest-api/linking-and-embedding/",
+  },
+};
+
 export const COMPARISONS: Comparison[] = [
   {
     slug: "ghost",
@@ -960,6 +1019,192 @@ export const COMPARISONS: Comparison[] = [
       {
         question: "Can I import my existing Strapi blog into Marble?",
         answer: `Yes, after you convert the articles to Markdown files and map their metadata to Marble's post model. There is no direct Strapi importer. Marble's <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> creates drafts, reads supported frontmatter, and assigns a default author. Review the content, authors, media, and public URLs before switching your frontend. Custom backend code and content types do not transfer.`,
+      },
+    ],
+  },
+  {
+    slug: "wordpress",
+    name: "WordPress",
+    checked: "October 2026",
+    summary:
+      "WordPress combines blogging with themes, plugins, and a website you can extend. Marble hosts a post editor and API for your own frontend.",
+    meta: {
+      title: "Marble vs WordPress: A Hosted CMS for Your Custom Blog",
+      description:
+        "Compare Marble and WordPress for your blog. See how editing, headless delivery, hosting, pricing, and migration work, and when WordPress fits better.",
+    },
+    intro:
+      "WordPress is open-source website software with blogging built in. You choose a host, which can include managed services. WordPress.com is a separate managed hosting service with its own plans. This comparison covers the open-source software. Marble hosts an editor and API for posts on a frontend you build. WordPress can serve a themed website or a custom frontend through its REST API. Choose based on whether you need a post service or a broader website system.",
+    chooseMarble: [
+      "You already have a site in Next.js, Astro, or another framework and want a hosted editor and post API.",
+      "Your content fits posts with authors, one category, tags, and typed custom fields.",
+      "You want HTML or Markdown for your frontend without maintaining a WordPress installation or choosing a WordPress host.",
+      "The hosted Free, $5/month Hobby, or $20/month Pro workspace plan fits your usage, and you host your frontend separately.",
+    ],
+    chooseCompetitor: [
+      "You want a website built with themes, or you depend on WordPress plugins and built-in comments.",
+      "Your writers need scheduled publishing, revision restore, or the core Editor, Author, and Contributor permissions.",
+      "You need custom post types and taxonomies beyond a blog's post model.",
+      "You want control of your WordPress installation, or a managed WordPress host that handles operations for you.",
+    ],
+    rows: [
+      {
+        topic: "Built for",
+        marble: "Blog posts, articles, and changelogs on a site you build.",
+        competitor:
+          "Blogs and broader websites, with posts, pages, themes, and plugins. An ordinary blog does not need plugins.",
+        sources: [WORDPRESS.overview],
+      },
+      {
+        topic: "Website and frontend",
+        marble:
+          "You build and host the frontend. Marble is not a theme or site builder.",
+        competitor:
+          "Use a WordPress theme for the public site, or build a separate frontend that reads the built-in REST API.",
+        sources: [WORDPRESS.overview, WORDPRESS.posts],
+      },
+      {
+        topic: "Editor and content output",
+        marble:
+          "A rich text editor with post bodies delivered as HTML or Markdown.",
+        competitor:
+          "The block editor stores HTML with block delimiter comments. Dynamic blocks render on the server. REST responses can include rendered HTML.",
+        sources: [WORDPRESS.blocks, WORDPRESS.posts],
+      },
+      {
+        topic: "Blog post fields",
+        marble:
+          "Posts already have authors, one category, tags, a cover image, a slug, and a description.",
+        competitor:
+          "Posts already have an author, categories, tags, a featured image, a slug, and an excerpt. No custom post type is needed for a blog.",
+        sources: [WORDPRESS.postSettings, WORDPRESS.posts],
+      },
+      {
+        topic: "Custom content types",
+        marble:
+          "A fixed post model with typed custom fields. No arbitrary content types or custom taxonomies.",
+        competitor:
+          "Register custom post types and taxonomies in code or through plugins. Set show_in_rest to expose them through the REST API.",
+        sources: [WORDPRESS.contentTypes],
+      },
+      {
+        topic: "Custom fields",
+        marble: "Add typed custom post fields in the dashboard.",
+        competitor:
+          "Register post meta and expose it through the REST API with show_in_rest. Custom fields do not inherently require a paid plugin.",
+        sources: [WORDPRESS.customFields],
+      },
+      {
+        topic: "Headless delivery",
+        marble:
+          "A hosted REST API and TypeScript SDK. Your frontend renders the returned HTML or Markdown.",
+        competitor:
+          "Fetch posts at /wp-json/wp/v2/posts and render the returned HTML. Theme styling and plugin behavior may need separate frontend work.",
+        sources: [WORDPRESS.posts, WORDPRESS.blocks],
+      },
+      {
+        topic: "CMS hosting",
+        marble:
+          "CMS hosting and the media library are included within your plan's limits. Frontend hosting is separate.",
+        competitor:
+          "Choose hosting for the open-source software. Managed WordPress hosts can handle operations. WordPress.com packages hosting in its own service plans.",
+        sources: [WORDPRESS.hosting],
+      },
+      {
+        topic: "Maintenance",
+        marble:
+          "Marble operates the hosted CMS. You maintain your frontend and its integrations.",
+        competitor:
+          "Plan for updates and backups. WordPress supports background updates, and managed hosts can handle maintenance. Responsibilities depend on your host and installed plugins.",
+        sources: [WORDPRESS.updates, WORDPRESS.hosting],
+      },
+      {
+        topic: "Drafts and revisions",
+        marble:
+          "Draft and published posts, with draft sharing on Hobby and Pro. No built-in revision restore UI.",
+        competitor:
+          "Core drafts, pending review, and autosaves. Compare revisions and restore earlier content without a paid add-on.",
+        sources: [WORDPRESS.postSettings, WORDPRESS.revisions],
+      },
+      {
+        topic: "Scheduled publishing",
+        marble: "No built-in scheduled publishing.",
+        competitor:
+          "Schedule posts in core with a future publication date. Default WP-Cron runs on page loads, so low traffic can delay tasks. A host or system scheduler can address this.",
+        sources: [WORDPRESS.postSettings, WORDPRESS.cron],
+      },
+      {
+        topic: "Team permissions",
+        marble:
+          "Owner, Admin, and Member roles. Plans allow 1 team member on Free, 5 on Hobby, and 10 on Pro.",
+        competitor:
+          "Core Administrator, Editor, Author, Contributor, and Subscriber roles, with capabilities you can customize through code or plugins.",
+        sources: [WORDPRESS.roles],
+      },
+      {
+        topic: "Themes, plugins, and comments",
+        marble:
+          "No WordPress-style theme or plugin system, built-in comments, or commerce backend. Add those services to your frontend separately.",
+        competitor:
+          "Themes control the website's presentation, plugins extend its behavior, and comments are built in. Check how any plugin works with a headless frontend.",
+        sources: [WORDPRESS.overview, WORDPRESS.posts],
+      },
+      {
+        topic: "Software and pricing",
+        marble:
+          "Hosted Free plan at $0, Hobby at $5/month, and Pro at $20/month per workspace on monthly billing. Frontend hosting is separate.",
+        competitor:
+          "Free GPL software. Budget for hosting and any paid themes, plugins, or services you choose. WordPress.com has separate hosting plans.",
+        sources: [WORDPRESS.overview, WORDPRESS.hosting],
+      },
+    ],
+    workflow: {
+      competitor: [
+        "Choose a WordPress host or install WordPress on your infrastructure. Agree who handles updates and backups.",
+        "Use a theme for your site, or connect your custom frontend to the built-in REST API. Basic blogging does not require plugins.",
+        "Write in the block editor, set the post's author and taxonomy, and publish or schedule it. Use revisions when you need to restore earlier content.",
+        "For a themed site, WordPress renders the post. For a custom frontend, fetch the rendered HTML and account for any theme styles or plugin behavior your content needs.",
+      ],
+      marble: [
+        "Create a workspace. The editor, media library, and post model are ready.",
+        "Write a post and set its authors, category, tags, and metadata.",
+        "Publish, then fetch the post through the SDK or REST API and render its HTML or Markdown.",
+        "Configure a webhook to revalidate or rebuild your frontend when posts change.",
+      ],
+    },
+    migration: {
+      title: "Moving blog posts from WordPress to Marble",
+      steps: [
+        `Export your posts with <a href="${WORDPRESS.exports.href}" target="_blank" rel="noopener">Tools > Export</a> as WordPress XML, also called WXR, or fetch them through the REST API. Follow <a href="${WORDPRESS.pagination.href}" target="_blank" rel="noopener">every page of REST results</a>, not just the first response. Marble cannot directly import WXR or raw REST JSON.`,
+        `Resolve author, featured media, category, and tag IDs into the values you need. The REST API supports <a href="${WORDPRESS.embedding.href}" target="_blank" rel="noopener">embedded or linked resources</a>. Choose one category per post for Marble, and keep a record of each post's old public URL.`,
+        `Convert each post body into a Markdown file. Review <a href="${WORDPRESS.blocks.href}" target="_blank" rel="noopener">block content</a>, shortcodes, and interactive embeds. Replace anything that depends on WordPress or plugin code with content your new frontend can display. Move images or verify their URLs before removing the old media host.`,
+        `Add title, slug, description, date, category, and tags as supported frontmatter. In Settings > Data, upload the .md files individually or in ZIP batches. The <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">import limits</a> are 4 MB per upload, 100 Markdown files per ZIP, and 20 MB of extracted content.`,
+        "Review the imported drafts before publishing. Posts initially use the importing user's author profile, so reassign authors where needed. Set cover images and custom fields manually, and check dates, taxonomy, links, and converted content. The importer does not rehost images automatically.",
+        "Keep the old public URLs or add redirects in your frontend. Audit titles, descriptions, canonical URLs, and publication dates after publishing. Matching a slug alone does not preserve a dated or category-based WordPress URL.",
+        "Move only posts that fit Marble's model. Themes, plugins, comments, forms, users, roles, and custom content types do not transfer. Keep any needed website or application functionality running elsewhere before retiring WordPress.",
+      ],
+    },
+    faqs: [
+      {
+        question: "Is Marble a good WordPress alternative for a blog?",
+        answer:
+          "Yes, if you build your own frontend and want a hosted editor and API for posts. Choose WordPress when you want a themed website, depend on its plugins, or need built-in comments, scheduling, and revision restore. Both already have a blog post model, so neither requires you to design one from scratch.",
+      },
+      {
+        question: "Is WordPress free, and how does its pricing compare?",
+        answer: `The open-source WordPress software is free. You pay for hosting and any optional paid plugins, themes, or services. <a href="${WORDPRESS.hosting.href}" target="_blank" rel="noopener">WordPress.com is a separate managed hosting service</a> with its own plans. Marble includes CMS hosting on Free at $0, Hobby at $5/month, and Pro at $20/month per workspace on monthly billing. You still host your frontend. Compare the services and maintenance your project needs, rather than treating a WordPress.com starting price as the cost of every WordPress setup.`,
+      },
+      {
+        question: "Can I use WordPress headlessly with Next.js or Astro?",
+        answer: `Yes. WordPress has a <a href="${WORDPRESS.posts.href}" target="_blank" rel="noopener">built-in REST API for posts</a> that custom frontends can fetch. Ordinary post content can arrive as rendered HTML, so a custom block renderer is not required for that HTML. You still need to reproduce any theme styles or plugin behavior your frontend depends on. Marble also supports custom frontends, with HTML or Markdown post bodies.`,
+      },
+      {
+        question: "Do WordPress custom fields require a paid plugin?",
+        answer: `No. You can register post meta in code and expose it through the REST API with show_in_rest. The official <a href="${WORDPRESS.customFields.href}" target="_blank" rel="noopener">custom fields tutorial</a> explains this setup. Plugins can provide other field interfaces and workflows. Marble lets you add typed fields to posts in its dashboard, while WordPress also supports custom post types and taxonomies.`,
+      },
+      {
+        question: "Can I import my entire WordPress site into Marble?",
+        answer: `No. Marble has no direct WordPress WXR or REST JSON importer. Convert blog posts into Markdown files with supported frontmatter, then use the <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> to create drafts. Review authors, covers, custom fields, image URLs, and redirects. Themes, plugins, comments, users, and custom content types need a separate plan.`,
       },
     ],
   },
