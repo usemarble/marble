@@ -1,0 +1,133 @@
+---
+title: "Migrate to API keys"
+description: "Replace legacy workspace-ID URLs with scoped public API keys before January 31, 2027."
+---
+
+Move integrations that use `/v1/<workspace-id>/...` or `/<workspace-id>/...` to API key authentication.
+These legacy URLs were deprecated on **October 18, 2026**.
+Their sunset is **January 31, 2027 at 00:00 UTC**. Migrate before this date to keep your integration working.
+
+## Create a public read key
+
+Open **Settings > API Keys** in your workspace and create a public key with the `mpk_` prefix.
+Grant the read scope for each resource your integration uses:
+
+- `posts_read` for posts.
+- `authors_read` for authors.
+- `categories_read` for categories.
+- `tags_read` for tags.
+- `fields_read` for custom fields.
+
+A public read key matches the published-only behavior of legacy workspace-ID requests.
+
+## Update your environment
+
+If your integration uses `MARBLE_WORKSPACE_KEY`, rename it to `MARBLE_API_KEY` and replace its workspace ID value with the public key.
+Update every reference to that environment variable in your code and hosting configuration.
+
+## Replace legacy requests
+
+Replace requests that use a workspace ID:
+
+```javascript
+const response = await fetch(
+	`https://api.marblecms.com/v1/${process.env.MARBLE_WORKSPACE_KEY}/posts?limit=10&page=2`
+);
+const data = await response.json();
+```
+
+### Use the TypeScript SDK (recommended)
+
+For JavaScript and TypeScript integrations, use the official [Marble TypeScript SDK](/tools/sdk).
+It provides typed request options and responses, and handles API key authentication and resource URLs for you.
+
+Install the SDK:
+
+```bash
+npm install @usemarble/sdk
+```
+
+Replace the fetch call with a typed SDK method:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+	apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const { result: data } = await marble.posts.list({
+	limit: 10,
+	page: 2,
+});
+```
+
+The `result` property contains the requested page's data.
+Pass pagination and filters as SDK method options.
+See the [SDK guide](/tools/sdk) for other resources, pagination helpers, and error handling.
+
+### Call the API directly (optional)
+
+If you prefer to avoid an added dependency, keep using `fetch`.
+Remove the workspace ID from each URL, keep the `/v1` prefix, and send the raw API key in the `Authorization` header:
+
+```javascript
+const response = await fetch(
+	"https://api.marblecms.com/v1/posts?limit=10&page=2",
+	{
+		headers: { Authorization: process.env.MARBLE_API_KEY },
+	}
+);
+const data = await response.json();
+```
+
+Apply the same change to all five legacy resources:
+
+- `/v1/<workspace-id>/posts` becomes `/v1/posts`.
+- `/v1/<workspace-id>/authors` becomes `/v1/authors`.
+- `/v1/<workspace-id>/categories` becomes `/v1/categories`.
+- `/v1/<workspace-id>/tags` becomes `/v1/tags`.
+- `/v1/<workspace-id>/fields` becomes `/v1/fields`.
+
+For unversioned URLs such as `/<workspace-id>/posts`, use `/v1/posts` directly.
+Keep existing identifiers, slugs, and query parameters, including pagination and filters.
+For example, `/v1/<workspace-id>/posts/hello-world?format=html` becomes `/v1/posts/hello-world?format=html`.
+
+<Warning>
+  Remove `status=draft` and `status=all` from legacy post requests to preserve
+  published-only results. Legacy requests coerce these values to `published`,
+  but public API keys return `403 Forbidden` for either value. Omit `status`
+  or use `status=published`.
+</Warning>
+
+JSON response shapes otherwise stay the same.
+
+Rebuild and redeploy your integration so the updated code and environment variable take effect.
+
+## Verify the migration
+
+With `MARBLE_API_KEY` set in your environment, check a migrated request:
+
+```bash
+curl -i \
+	-H "Authorization: $MARBLE_API_KEY" \
+	"https://api.marblecms.com/v1/posts?limit=1"
+```
+
+Expect `200 OK`, your existing JSON response shape, and no `Deprecation` or `Sunset` header.
+If the response is `401`, check the key value and that the key is enabled and unexpired.
+If it is `403`, check the resource's read scope and remove draft status parameters.
+
+To identify requests that still use a workspace ID, inspect the legacy response headers:
+
+```bash
+curl -i "https://api.marblecms.com/v1/<workspace-id>/posts?limit=1"
+```
+
+Legacy responses include these headers, which cross-origin browser fetches can also read:
+
+```http
+Deprecation: @1792281600
+Sunset: Sun, 31 Jan 2027 00:00:00 GMT
+Link: <https://docs.marblecms.com/api/migrate-to-api-keys>; rel="deprecation"
+```

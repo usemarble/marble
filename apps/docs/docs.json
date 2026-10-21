@@ -112,6 +112,7 @@
             "pages": [
               "api/introduction",
               "api/quickstart",
+              "api/migrate-to-api-keys",
               "api/pagination",
               "api/filtering",
               "api/rate-limits",

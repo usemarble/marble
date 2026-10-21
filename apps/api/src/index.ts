@@ -96,6 +96,42 @@ app.post("/ai/chat", aiChat);
 // outside /rpc and ahead of the public API's cache.
 app.get("/exports/:id/download", dbMiddleware, exportDownload);
 
+const LEGACY_DEPRECATION_HEADERS = {
+  Deprecation: "@1792281600",
+  Sunset: "Sun, 31 Jan 2027 00:00:00 GMT",
+  Link: '<https://docs.marblecms.com/api/migrate-to-api-keys>; rel="deprecation"',
+};
+
+function isUnversionedWorkspaceRoute(path: string, workspaceId: string) {
+  return ROUTES.some(
+    (route) =>
+      path === `/${workspaceId}/${route}` ||
+      path.startsWith(`/${workspaceId}/${route}/`)
+  );
+}
+
+app.use("/:first/:second/*", async (c, next) => {
+  const path = c.req.path;
+  const first = c.req.param("first");
+  const second = c.req.param("second");
+  const isLegacyRoute = path.startsWith("/v1/")
+    ? !ROUTES.includes(second)
+    : !ROUTES.includes(first) && isUnversionedWorkspaceRoute(path, first);
+
+  await next();
+
+  if (isLegacyRoute) {
+    for (const [name, value] of Object.entries(LEGACY_DEPRECATION_HEADERS)) {
+      c.header(name, value);
+    }
+    c.header(
+      "Access-Control-Expose-Headers",
+      Object.keys(LEGACY_DEPRECATION_HEADERS).join(", "),
+      { append: true }
+    );
+  }
+});
+
 // Public API CORS remains permissive for content consumers.
 app.use(
   "*",
@@ -200,13 +236,7 @@ app.use("/:workspaceId/*", async (c, next) => {
     return next();
   }
 
-  const isWorkspaceRoute = ROUTES.some(
-    (route) =>
-      path === `/${workspaceId}/${route}` ||
-      path.startsWith(`/${workspaceId}/${route}/`)
-  );
-
-  if (isWorkspaceRoute) {
+  if (isUnversionedWorkspaceRoute(path, workspaceId)) {
     const url = new URL(c.req.url);
     url.pathname = `/v1${path}`;
     return Response.redirect(url.toString(), 308);
