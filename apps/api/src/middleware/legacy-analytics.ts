@@ -50,7 +50,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
     const path = c.req.path;
     const pathParts = path.split("/").filter(Boolean);
     const endpoint =
-      pathParts.length >= 3 ? `/${pathParts.slice(2).join("/")}` : null;
+      pathParts.length >= 2 ? `/legacy/${pathParts.slice(1).join("/")}` : null;
 
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, POLAR_SERVER } = c.env;
 

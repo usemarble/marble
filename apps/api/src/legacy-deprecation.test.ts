@@ -124,6 +124,38 @@ beforeEach(() => {
 });
 
 describe("legacy workspace-ID deprecation", () => {
+  it.each([
+    ["/v1/workspace_123/fields", "/legacy/fields"],
+    [
+      "/v1/workspace_123/fields/audience?format=html",
+      "/legacy/fields/audience",
+    ],
+  ])("records the resource path for %s", async (path, endpoint) => {
+    mocks.field.mockResolvedValue({
+      id: "field_123",
+      key: "audience",
+      name: "Audience",
+      description: null,
+      type: "text",
+      required: false,
+      position: 0,
+      options: [],
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+      updatedAt: new Date("2026-01-01T00:00:00Z"),
+    });
+
+    const response = await request(path);
+    expect(response.status).toBe(200);
+    await Promise.all(executionCtx.waitUntil.mock.calls.map(([task]) => task));
+    expect(mocks.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "api_request",
+        workspaceId: "workspace_123",
+        endpoint,
+      })
+    );
+  });
+
   it("preserves the successful legacy response and rate-limit headers", async () => {
     const response = await request("/v1/workspace_123/fields");
     expect(response.status).toBe(200);
