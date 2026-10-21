@@ -11,11 +11,12 @@ export interface RateLimit {
 
 const cache = new Map();
 
-type RateLimitMode = "workspace" | "apiKey";
+type RateLimitMode = "workspace" | "apiKey" | "health";
 
 /**
  * Rate limiting middleware using Upstash Redis
- * @param mode - "workspace" for legacy routes (IP + workspaceId), "apiKey" for API key routes
+ * @param mode - "workspace" for legacy routes (IP + workspaceId), "apiKey" for
+ * API key routes, "health" for the public /health check (10 per minute per IP)
  */
 export const ratelimit =
   (mode: RateLimitMode = "workspace"): MiddlewareHandler =>
@@ -37,6 +38,9 @@ export const ratelimit =
         // For now: IP-based with higher limits since API keys are trusted
         identifier = `apikey:${clientIp}`;
         limitConfig = Ratelimit.slidingWindow(200, "10 s");
+      } else if (mode === "health") {
+        identifier = `health:${clientIp}`;
+        limitConfig = Ratelimit.slidingWindow(10, "60 s");
       } else {
         // Legacy workspace mode: IP + workspaceId
         const workspaceId: string | null = c.req.param("workspaceId") ?? null;

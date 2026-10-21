@@ -7,6 +7,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import "./lib/logger";
 import { aiChat } from "./handlers/ai-chat";
 import { exportDownload } from "./handlers/export-download";
+import { health } from "./handlers/health";
 import { registrationAnalytics } from "./handlers/registration-analytics";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
 import { createRequestContext } from "./lib/context";
@@ -231,6 +232,7 @@ app.use("/:workspaceId/*", async (c, next) => {
     path.startsWith("/v1/") ||
     path === "/" ||
     path === "/status" ||
+    path === "/health" ||
     path === "/openapi.json"
   ) {
     return next();
@@ -259,6 +261,7 @@ app.use("/*", async (c, next) => {
 
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
+app.get("/health", ratelimit("health"), health);
 
 app.use("/openapi.json", async (c, next) => {
   await next();
