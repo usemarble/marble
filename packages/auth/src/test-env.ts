@@ -16,7 +16,7 @@ export function testEnv(overrides: Partial<AuthEnv> = {}): AuthEnv {
     POLAR_ACCESS_TOKEN: "polar-test-token",
     POLAR_SERVER: "sandbox",
     POLAR_WEBHOOK_SECRET: "polar-test-webhook-secret",
-    POLAR_SUCCESS_URL: "http://localhost:3000/?checkout_id={CHECKOUT_ID}",
+    POLAR_SUCCESS_URL: "http://localhost:3000/billing/success",
     POLAR_HOBBY_MONTHLY_PRODUCT_ID: "hobby-monthly",
     POLAR_HOBBY_YEARLY_PRODUCT_ID: "hobby-yearly",
     POLAR_PRO_MONTHLY_PRODUCT_ID: "pro-monthly",
