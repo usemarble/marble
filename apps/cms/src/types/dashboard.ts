@@ -16,24 +16,7 @@ export interface Tag {
   postsCount: number;
 }
 
-export interface Post {
-  id: string;
-  title: string;
-  coverImage: string | null;
-  status: "published" | "draft";
-  featured: boolean;
-  publishedAt: Date;
-  updatedAt: Date;
-  category: {
-    id: string;
-    name: string;
-  };
-  authors: Array<{
-    id: string;
-    name: string;
-    image: string | null;
-  }>;
-}
+export type Post = RouterOutputs["posts"]["list"]["posts"][number];
 
 export type APIKey = RouterOutputs["keys"]["list"][number];
 

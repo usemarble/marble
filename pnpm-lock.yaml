@@ -734,6 +734,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@marble/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.1.0

@@ -2,6 +2,7 @@ import { createRecordId } from "@marble/db/id";
 import { author, category, media, post, tag } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { asSchema } from "ai";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createTestContext, seedUser, seedWorkspace } from "../testing";
 import { createAssistantTools } from "./tools";
@@ -89,6 +90,40 @@ async function twoWorkspaces() {
 }
 
 describe("assistant tools", () => {
+  it("counts and filters scheduled posts in the bound workspace", async () => {
+    const { tools, ours } = await twoWorkspaces();
+    const [categoryRow] = await testDb.db
+      .select()
+      .from(category)
+      .where(eq(category.workspaceId, ours.id));
+    if (!categoryRow) {
+      throw new Error("Missing category");
+    }
+    await testDb.db.insert(post).values({
+      id: createRecordId(),
+      workspaceId: ours.id,
+      categoryId: categoryRow.id,
+      title: "Scheduled launch",
+      slug: "scheduled",
+      status: "scheduled",
+      content: "<p>Launch</p>",
+      contentJson: { type: "doc" },
+      description: "Launch",
+      publishedAt: new Date(),
+    });
+    expect(
+      await tools.getWorkspaceSummary.execute?.({}, callOptions)
+    ).toMatchObject({
+      posts: { total: 4, published: 2, draft: 1, scheduled: 1 },
+    });
+    expect(
+      await tools.listRecentPosts.execute?.(
+        { status: "scheduled" },
+        callOptions
+      )
+    ).toMatchObject({ total: 1, posts: [{ status: "scheduled" }] });
+  });
+
   it("are read-only: there is no write tool and none takes a workspace", async () => {
     const { tools } = await twoWorkspaces();
 
@@ -110,7 +145,7 @@ describe("assistant tools", () => {
     const summary = await tools.getWorkspaceSummary.execute?.({}, callOptions);
 
     expect(summary).toEqual({
-      posts: { total: 3, published: 2, draft: 1 },
+      posts: { total: 3, published: 2, draft: 1, scheduled: 0 },
       authors: 1,
       tags: 1,
       categories: 1,

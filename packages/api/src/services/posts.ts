@@ -12,6 +12,7 @@ import {
 } from "@marble/db/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import { generateSlug } from "@marble/utils";
+import type { PostStatus } from "@marble/utils/post-status";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import {
   and,
@@ -44,7 +45,7 @@ export interface PostListFilters {
   perPage: number;
   search: string;
   sort: string;
-  status: "all" | "published" | "draft";
+  status: "all" | PostStatus;
 }
 
 const POST_SORT_FIELDS = new Set([

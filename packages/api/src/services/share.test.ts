@@ -88,6 +88,21 @@ async function fixture(paid = true) {
 }
 
 describe("dashboard share links", () => {
+  it("preserves scheduled status and go-live time in token previews", async () => {
+    const f = await fixture();
+    const publishedAt = new Date("2030-05-01T15:30:00Z");
+    await testDb.db
+      .update(post)
+      .set({ status: "scheduled", publishedAt })
+      .where(eq(post.id, f.post.id));
+    const created = await f.client.create(f.input);
+    const anonymous = createRouterClient(shareRouter, {
+      context: createTestContext(testDb.db).context,
+    });
+    expect(
+      await anonymous.get({ token: created.shareLink.split("/").at(-1) ?? "" })
+    ).toMatchObject({ post: { status: "scheduled", publishedAt } });
+  });
   it("creates a 32-character link for 24 hours, reuses it and replaces expired or inactive links", async () => {
     const f = await fixture();
     const before = Date.now();

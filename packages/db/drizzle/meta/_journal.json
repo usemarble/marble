@@ -50,6 +50,13 @@
       "when": 1791922848515,
       "tag": "0006_webhook_notification_retry_window",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792701027893,
+      "tag": "0007_scheduled_post_readiness",
+      "breakpoints": true
     }
   ]
 }

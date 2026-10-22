@@ -4,7 +4,7 @@ import { restrictLegacyPostStatus } from "./legacy-posts";
 const WORKSPACE_ID = "workspace_123";
 
 describe("restrictLegacyPostStatus", () => {
-  it.each(["draft", "all"] as const)(
+  it.each(["draft", "all", "scheduled", "unknown", ""] as const)(
     "coerces legacy list requests for %s posts to published",
     (status) => {
       const url = new URL(
@@ -17,14 +17,17 @@ describe("restrictLegacyPostStatus", () => {
     }
   );
 
-  it("coerces legacy single-post requests to published", () => {
-    const url = new URL(
-      `https://api.marblecms.com/v1/${WORKSPACE_ID}/posts/my-draft?status=draft`
-    );
+  it.each(["draft", "all", "scheduled", "unknown", ""])(
+    "coerces legacy single-post requests for %s to published",
+    (status) => {
+      const url = new URL(
+        `https://api.marblecms.com/v1/${WORKSPACE_ID}/posts/my-draft?status=${status}`
+      );
 
-    expect(restrictLegacyPostStatus(url, WORKSPACE_ID)).toBe("draft");
-    expect(url.searchParams.get("status")).toBe("published");
-  });
+      expect(restrictLegacyPostStatus(url, WORKSPACE_ID)).toBe(status);
+      expect(url.searchParams.get("status")).toBe("published");
+    }
+  );
 
   it.each([
     `/v1/${WORKSPACE_ID}/posts`,

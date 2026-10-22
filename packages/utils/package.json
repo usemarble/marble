@@ -4,6 +4,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./api-key-scopes": "./src/constants/api-key.ts",
+    "./post-status": "./src/constants/post-status.ts",
     "./sanitize": "./src/functions/sanitize.ts",
     "./workspace": "./src/validations/workspace.ts"
   },

@@ -1,5 +1,3 @@
-export type RestrictedLegacyPostStatus = "draft" | "all";
-
 /**
  * Preserve legacy workspace-ID post routes while preventing anonymous draft
  * access. Mutating the forwarded URL ensures validation, filtering, and cache
@@ -8,7 +6,7 @@ export type RestrictedLegacyPostStatus = "draft" | "all";
 export function restrictLegacyPostStatus(
   url: URL,
   workspaceId: string
-): RestrictedLegacyPostStatus | null {
+): string | null {
   const postsPath = `/v1/${workspaceId}/posts`;
   const isPostsRoute =
     url.pathname === postsPath || url.pathname.startsWith(`${postsPath}/`);
@@ -18,7 +16,7 @@ export function restrictLegacyPostStatus(
   }
 
   const requestedStatus = url.searchParams.get("status");
-  if (requestedStatus !== "draft" && requestedStatus !== "all") {
+  if (requestedStatus === null || requestedStatus === "published") {
     return null;
   }
 

@@ -1,8 +1,9 @@
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { ORPCError, ValidationError } from "@orpc/server";
 import { z } from "zod";
 import { workspaceProcedure } from "../index";
 import { customFieldsPayloadSchema } from "../lib/custom-fields";
-import { postUpsertSchema } from "../lib/post-validation";
+import { postSchema, postUpsertSchema } from "../lib/post-validation";
 import {
   createPost,
   deletePost,
@@ -18,7 +19,6 @@ import {
 const workspaceInput = z.object({ workspaceId: z.string().min(1) });
 const postInput = workspaceInput.extend({ id: z.string() });
 const idOutput = z.object({ id: z.string() });
-const postStatus = z.enum(["published", "draft"]);
 const fieldSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -101,7 +101,7 @@ export const postsRouter = {
         perPage: z.number().default(20),
         search: z.string().default(""),
         sort: z.string().default("createdAt_desc"),
-        status: z.enum(["all", "published", "draft"]).default("all"),
+        status: z.enum(["all", ...POST_STATUSES]).default("all"),
       })
     )
     .output(
@@ -114,7 +114,7 @@ export const postsRouter = {
             id: z.string(),
             title: z.string(),
             coverImage: z.string().nullable(),
-            status: postStatus,
+            status: z.enum(POST_STATUSES),
             featured: z.boolean(),
             publishedAt: z.date(),
             updatedAt: z.date(),
@@ -145,7 +145,7 @@ export const postsRouter = {
       z.object({
         slug: z.string(),
         title: z.string(),
-        status: postStatus,
+        status: postSchema.shape.status,
         featured: z.boolean(),
         content: z.string(),
         coverImage: z.string().nullable(),
@@ -157,9 +157,10 @@ export const postsRouter = {
         authors: z.array(z.string()),
       })
     )
-    .handler(({ context, input }) =>
-      getPost(context, context.workspaceId, input.id)
-    ),
+    .handler(async ({ context, input }) => {
+      const post = await getPost(context, context.workspaceId, input.id);
+      return { ...post, status: postSchema.shape.status.parse(post.status) };
+    }),
   create: postsProcedure
     .route({
       method: "POST",

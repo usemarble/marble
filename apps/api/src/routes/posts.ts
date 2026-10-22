@@ -25,6 +25,7 @@ import {
   htmlToTiptap,
   normalizePostContent,
 } from "@marble/parser";
+import { PUBLIC_POST_STATUSES } from "@marble/utils/post-status";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, asc, count, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
 import { serviceContext } from "@/lib/context";
@@ -56,6 +57,9 @@ import {
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
 import type { ApiKeyApp } from "@/types/env";
+
+class PostNoLongerWritable extends Error {}
+const publicPostStatus = z.enum(PUBLIC_POST_STATUSES);
 
 const posts = new OpenAPIHono<ApiKeyApp>();
 
@@ -132,6 +136,7 @@ const postListWith = {
 
 function flattenPostRelations<
   T extends {
+    status: string;
     tags: Array<{
       tag: {
         id: string;
@@ -155,6 +160,7 @@ function flattenPostRelations<
 >(postRow: T) {
   return {
     ...postRow,
+    status: publicPostStatus.parse(postRow.status),
     tags: postRow.tags.map((row) => row.tag),
     authors: postRow.authors.map((row) => row.author),
   };
@@ -424,9 +430,12 @@ posts.openapi(listPostsRoute, async (c) => {
         }
 
         return db.query.post.findMany({
-          where: inArray(
-            postTable.id,
-            postIds.map(({ id }) => id)
+          where: and(
+            inArray(
+              postTable.id,
+              postIds.map(({ id }) => id)
+            ),
+            buildStatusFilter(status)
           ),
           orderBy: postOrderBy,
           limit,
@@ -836,7 +845,15 @@ posts.openapi(createPostRoute, async (c) => {
       }
     );
 
-    return c.json({ post: postCreated }, 201 as const);
+    return c.json(
+      {
+        post: {
+          ...postCreated,
+          status: publicPostStatus.parse(postCreated.status),
+        },
+      },
+      201 as const
+    );
   } catch (error) {
     console.error("Error creating post:", error);
     return c.json(
@@ -931,6 +948,7 @@ posts.openapi(updatePostRoute, async (c) => {
     const existingPost = await db.query.post.findFirst({
       where: and(
         eq(postTable.workspaceId, workspaceId),
+        inArray(postTable.status, PUBLIC_POST_STATUSES),
         or(eq(postTable.slug, identifier), eq(postTable.id, identifier))
       ),
     });
@@ -1162,7 +1180,7 @@ posts.openapi(updatePostRoute, async (c) => {
             id: existingPost.id,
             slug: existingPost.slug,
             title: existingPost.title,
-            status: existingPost.status,
+            status: publicPostStatus.parse(existingPost.status),
             featured: existingPost.featured,
             publishedAt: existingPost.publishedAt,
             updatedAt: existingPost.updatedAt,
@@ -1183,7 +1201,12 @@ posts.openapi(updatePostRoute, async (c) => {
             ...updateData,
             updatedAt: now,
           })
-          .where(eq(postTable.id, existingPost.id))
+          .where(
+            and(
+              eq(postTable.id, existingPost.id),
+              inArray(postTable.status, PUBLIC_POST_STATUSES)
+            )
+          )
           .returning({
             id: postTable.id,
             slug: postTable.slug,
@@ -1195,7 +1218,7 @@ posts.openapi(updatePostRoute, async (c) => {
           });
 
         if (!updatedPost) {
-          throw new Error("Failed to update post");
+          throw new PostNoLongerWritable();
         }
 
         if (validTagIds !== undefined) {
@@ -1269,8 +1292,25 @@ posts.openapi(updatePostRoute, async (c) => {
       }
     );
 
-    return c.json({ post: postUpdated }, 200 as const);
+    return c.json(
+      {
+        post: {
+          ...postUpdated,
+          status: publicPostStatus.parse(postUpdated.status),
+        },
+      },
+      200 as const
+    );
   } catch (error) {
+    if (error instanceof PostNoLongerWritable) {
+      return c.json(
+        {
+          error: "Post not found",
+          message: "The requested post does not exist",
+        },
+        404 as const
+      );
+    }
     console.error("Error updating post:", error);
     return c.json(
       {

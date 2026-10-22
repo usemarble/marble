@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import type { HyperdriveDb } from "@marble/db/hyperdrive";
 import { category, post, postToTag, tag } from "@marble/db/schema";
+import { PUBLIC_POST_STATUSES } from "@marble/utils/post-status";
 import {
   and,
   eq,
@@ -17,7 +18,7 @@ export function buildStatusFilter(
   status: "published" | "draft" | "all"
 ): SQL | undefined {
   if (status === "all") {
-    return inArray(post.status, ["published", "draft"]);
+    return inArray(post.status, PUBLIC_POST_STATUSES);
   }
 
   return eq(post.status, status);

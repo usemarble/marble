@@ -5,7 +5,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import { Badge } from "@marble/ui/components/badge";
 import {
   Card,
   CardContent,
@@ -21,10 +20,15 @@ import {
 import { CalendarIcon, ClockClockwiseIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import Link from "next/link";
+import {
+  formatScheduledDate,
+  POST_STATUS_PRESENTATION,
+} from "@/lib/post-status";
 import { useWorkspace } from "@/providers/workspace";
 import { formatCalendarDate } from "@/utils/string";
 import type { Post } from "./columns";
 import PostActions from "./post-actions";
+import { PostStatusBadge } from "./status-badge";
 
 interface DataGridProps {
   data: Post[];
@@ -66,13 +70,10 @@ export function DataGrid({ data }: DataGridProps) {
               </CardHeader>
               <CardContent className="mt-auto flex items-center justify-between px-0 pt-0">
                 <div className="space-y-3">
-                  <Badge
-                    variant={
-                      post.status === "published" ? "positive" : "pending"
-                    }
-                  >
-                    {post.status === "published" ? "Published" : "Draft"}
-                  </Badge>
+                  <PostStatusBadge
+                    publishedAt={post.publishedAt}
+                    status={post.status}
+                  />
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Tooltip>
@@ -82,11 +83,13 @@ export function DataGrid({ data }: DataGridProps) {
                       }
                     />
                     <TooltipContent>
-                      Published:{" "}
-                      {formatCalendarDate(
-                        new Date(post.publishedAt),
-                        "MMM dd, yyyy"
-                      )}
+                      {POST_STATUS_PRESENTATION[post.status].dateLabel}:{" "}
+                      {post.status === "scheduled"
+                        ? formatScheduledDate(new Date(post.publishedAt))
+                        : formatCalendarDate(
+                            new Date(post.publishedAt),
+                            "MMM dd, yyyy"
+                          )}
                     </TooltipContent>
                   </Tooltip>
 
