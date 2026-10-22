@@ -4,10 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { emptyPost } from "@marble/api/lib/post-defaults";
 import {
   type PostEditorValues,
-  type PostValues,
+  type PostReadValues,
   postEditorSchema,
+  postUpsertSchema,
 } from "@marble/api/lib/post-validation";
 import { toast } from "@marble/ui/components/sonner";
+import { POST_STATUS_POLICY } from "@marble/utils/post-status";
 import {
   skipToken,
   useMutation,
@@ -45,6 +47,7 @@ interface EditorDataContextValue {
   form: ReturnType<typeof useForm<PostEditorInput, unknown, PostEditorValues>>;
   hasUnsavedChanges: boolean;
   isReady: boolean;
+  isReadOnly: boolean;
   isSubmitting: boolean;
   mode: EditorMode;
   postId?: string;
@@ -74,10 +77,10 @@ const CORE_FIELD_LABELS: Record<string, string> = {
 
 function buildEditorValues(
   fields: CustomField[],
-  post?: PostValues,
+  post?: PostReadValues,
   customFieldValues?: Record<string, string>
 ): PostEditorValues {
-  const values: PostValues = post
+  const values: PostReadValues = post
     ? {
         ...post,
         publishedAt: new Date(post.publishedAt),
@@ -129,12 +132,17 @@ export function EditorDataProvider({
     defaultValues: buildEditorValues([]),
   });
 
-  const postQuery = useQuery(
-    orpc.posts.get.queryOptions({
-      input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
-      staleTime: 1000 * 60 * 5,
-    })
-  );
+  const postQueryOptions = orpc.posts.get.queryOptions({
+    input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
+    staleTime: 1000 * 60 * 5,
+  });
+  const postQuery = useQuery(postQueryOptions);
+  const isStoredPostReadOnly = useCallback(() => {
+    const loadedPost = queryClient.getQueryData(postQueryOptions.queryKey);
+    return Boolean(
+      postId && loadedPost && !POST_STATUS_POLICY[loadedPost.status].editable
+    );
+  }, [postId, postQueryOptions.queryKey, queryClient]);
   const postFieldsQuery = useQuery(
     orpc.posts.fields.get.queryOptions({
       input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
@@ -171,19 +179,22 @@ export function EditorDataProvider({
   const bootstrapError = postId
     ? (postQuery.error ?? postFieldsQuery.error)
     : newFieldsQuery.error;
+  const isReadOnly = Boolean(
+    postQuery.data && !POST_STATUS_POLICY[postQuery.data.status].editable
+  );
 
   useEffect(() => {
     if (bootstrap === undefined) {
       return;
     }
 
-    if (!didInitialize.current) {
+    if (!didInitialize.current || isReadOnly) {
       form.reset(bootstrap.values);
       didInitialize.current = true;
     }
 
     setHasHydrated(true);
-  }, [bootstrap, form]);
+  }, [bootstrap, form, isReadOnly]);
 
   useEffect(() => {
     if (!form.formState.isDirty) {
@@ -256,20 +267,27 @@ export function EditorDataProvider({
 
   const handleValidSubmit = useCallback(
     async (values: PostEditorValues) => {
+      if (isReadOnly || isStoredPostReadOnly()) {
+        return;
+      }
       if (!workspaceId) {
         throw new Error("Missing workspace ID");
       }
       const input = {
-        ...values,
+        ...postUpsertSchema.parse({
+          ...values,
+          customFields: buildCustomFieldPayload(
+            bootstrap?.fields ?? [],
+            values.customFields
+          ),
+        }),
         workspaceId,
-        customFields: buildCustomFieldPayload(
-          bootstrap?.fields ?? [],
-          values.customFields
-        ),
       };
       if (postId) {
         await updateMutation.mutateAsync({ ...input, id: postId });
-        form.reset(values);
+        if (!isStoredPostReadOnly()) {
+          form.reset(values);
+        }
         return;
       }
       await createMutation.mutateAsync(input);
@@ -278,6 +296,8 @@ export function EditorDataProvider({
       bootstrap?.fields,
       createMutation,
       form,
+      isReadOnly,
+      isStoredPostReadOnly,
       postId,
       updateMutation,
       workspaceId,
@@ -292,12 +312,21 @@ export function EditorDataProvider({
   }, []);
 
   const submit = useCallback(() => {
+    if (isReadOnly || isStoredPostReadOnly()) {
+      return;
+    }
     for (const callback of beforeSubmitCallbacks.current) {
       callback();
     }
 
     form.handleSubmit(handleValidSubmit, handleInvalidSubmit)();
-  }, [form, handleInvalidSubmit, handleValidSubmit]);
+  }, [
+    form,
+    handleInvalidSubmit,
+    handleValidSubmit,
+    isReadOnly,
+    isStoredPostReadOnly,
+  ]);
 
   const contextValue = useMemo<EditorDataContextValue>(() => {
     const fieldDefinitions = bootstrap?.fields ?? [];
@@ -306,6 +335,7 @@ export function EditorDataProvider({
       form,
       hasUnsavedChanges: form.formState.isDirty,
       isReady: Boolean(bootstrap) && hasHydrated,
+      isReadOnly,
       isSubmitting: createMutation.isPending || updateMutation.isPending,
       mode,
       postId,
@@ -318,6 +348,7 @@ export function EditorDataProvider({
     form,
     form.formState.isDirty,
     hasHydrated,
+    isReadOnly,
     mode,
     postId,
     registerBeforeSubmit,

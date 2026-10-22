@@ -1,3 +1,4 @@
+import { POST_STATUSES, type PostStatus } from "@marble/utils/post-status";
 import { tool } from "ai";
 import { z } from "zod";
 import type { ServiceContext } from "../context";
@@ -22,7 +23,7 @@ export function createAssistantTools({
   ctx: ServiceContext;
   workspaceId: string;
 }) {
-  const countPosts = async (status: "all" | "draft" | "published") => {
+  const countPosts = async (status: "all" | PostStatus) => {
     const { totalCount } = await listPosts(ctx, workspaceId, {
       category: "all",
       page: 1,
@@ -37,25 +38,34 @@ export function createAssistantTools({
   return {
     getWorkspaceSummary: tool({
       description:
-        "Counts for the current workspace: posts overall and by status (published, draft), and how many authors, tags, categories and media files it has.",
+        "Counts for the current workspace: posts overall and by status (published, draft, scheduled), and how many authors, tags, categories and media files it has.",
       inputSchema: z.object({}),
       execute: async () => {
-        const [total, published, draft, authors, tags, categories, media] =
-          await Promise.all([
-            countPosts("all"),
-            countPosts("published"),
-            countPosts("draft"),
-            listAuthors(ctx, workspaceId),
-            listTags(ctx, workspaceId),
-            listCategories(ctx, workspaceId),
-            listMedia(ctx, workspaceId, {
-              page: 1,
-              perPage: 1,
-              sort: "createdAt_desc",
-            }),
-          ]);
+        const [
+          total,
+          published,
+          draft,
+          scheduled,
+          authors,
+          tags,
+          categories,
+          media,
+        ] = await Promise.all([
+          countPosts("all"),
+          countPosts("published"),
+          countPosts("draft"),
+          countPosts("scheduled"),
+          listAuthors(ctx, workspaceId),
+          listTags(ctx, workspaceId),
+          listCategories(ctx, workspaceId),
+          listMedia(ctx, workspaceId, {
+            page: 1,
+            perPage: 1,
+            sort: "createdAt_desc",
+          }),
+        ]);
         return {
-          posts: { total, published, draft },
+          posts: { total, published, draft, scheduled },
           authors: authors.length,
           tags: tags.length,
           categories: categories.length,
@@ -77,7 +87,7 @@ export function createAssistantTools({
             `How many posts to return (default 10, at most ${MAX_RECENT_POSTS})`
           ),
         status: z
-          .enum(["all", "published", "draft"])
+          .enum(["all", ...POST_STATUSES])
           .optional()
           .describe("Only posts with this status (default all)"),
       }),

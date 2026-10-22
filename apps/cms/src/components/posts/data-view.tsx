@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
+import { POST_STATUSES } from "@marble/utils/post-status";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -44,10 +45,12 @@ import {
   useMemo,
   useState,
 } from "react";
+import { z } from "zod";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { orpc } from "@/lib/orpc";
+import { POST_STATUS_PRESENTATION } from "@/lib/post-status";
 import { POST_SORTS, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
@@ -190,8 +193,10 @@ export function PostDataView<TData, TValue>({
   ];
   const statusOptions = [
     { label: "All Statuses", value: "all" },
-    { label: "Published", value: "published" },
-    { label: "Draft", value: "draft" },
+    ...POST_STATUSES.map((value) => ({
+      label: POST_STATUS_PRESENTATION[value].label,
+      value,
+    })),
   ];
   const hasActiveFilters =
     category !== "all" ||
@@ -267,9 +272,15 @@ export function PostDataView<TData, TValue>({
             <Select
               items={statusOptions}
               onValueChange={(value) => {
+                const parsedStatus = z
+                  .enum(["all", ...POST_STATUSES])
+                  .safeParse(value);
+                if (!parsedStatus.success) {
+                  return;
+                }
                 setSearchParams({
                   page: 1,
-                  status: value as "all" | "published" | "draft",
+                  status: parsedStatus.data,
                 });
               }}
               value={status}

@@ -1,11 +1,11 @@
-import type { PostValues } from "./post-validation";
+import type { PostWriteValues } from "./post-validation";
 
 function todayUTCMidnight() {
   const now = new Date();
   return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
 
-export const emptyPost: PostValues = {
+export const emptyPost: PostWriteValues = {
   title: "",
   slug: "",
   status: "draft" as const,

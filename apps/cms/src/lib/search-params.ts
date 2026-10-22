@@ -1,3 +1,4 @@
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { useQueryStates } from "nuqs";
 import {
   createLoader,
@@ -101,9 +102,7 @@ const postPageSearchParams = {
   perPage: parseAsInteger.withDefault(POST_LIMIT),
   search: parseAsString.withDefault(""),
   sort: postSortParser,
-  status: parseAsStringLiteral(["all", "published", "draft"]).withDefault(
-    "all"
-  ),
+  status: parseAsStringLiteral(["all", ...POST_STATUSES]).withDefault("all"),
 };
 
 export const usePostPageFilters = (options: Options = {}) =>

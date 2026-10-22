@@ -115,6 +115,7 @@ function FieldLabel({
 }
 
 function FieldInput({ field }: { field: CustomField }) {
+  const { isReadOnly } = useEditorData();
   const { control } = useFormContext<PostEditorValues>();
   const {
     field: formField,
@@ -248,6 +249,7 @@ function FieldInput({ field }: { field: CustomField }) {
         <div className="grid gap-2">
           <FieldLabel field={field} />
           <FieldRichTextEditor
+            disabled={isReadOnly}
             id={getCustomFieldControlId(field.id)}
             labelId={getCustomFieldLabelId(field.id)}
             onBlur={formField.onBlur}
@@ -303,6 +305,7 @@ function FieldInput({ field }: { field: CustomField }) {
     case "multiselect":
       return (
         <MultiselectField
+          disabled={isReadOnly}
           error={error?.message}
           field={field}
           onBlur={formField.onBlur}
@@ -317,12 +320,14 @@ function FieldInput({ field }: { field: CustomField }) {
 }
 
 function MultiselectField({
+  disabled,
   error,
   field,
   onBlur,
   onChange,
   value,
 }: {
+  disabled: boolean;
   error?: string;
   field: CustomField;
   onBlur: () => void;
@@ -364,6 +369,7 @@ function MultiselectField({
         open={open}
       >
         <PopoverTrigger
+          disabled={disabled}
           nativeButton={false}
           render={
             // biome-ignore lint/a11y/useAriaPropsSupportedByRole: <>

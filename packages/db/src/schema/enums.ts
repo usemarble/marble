@@ -1,3 +1,4 @@
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { pgEnum } from "drizzle-orm/pg-core";
 
 export const apiKeyTypeEnum = pgEnum("ApiKeyType", ["public", "private"]);
@@ -80,7 +81,7 @@ export const payloadFormatEnum = pgEnum("PayloadFormat", [
 
 export const planTypeEnum = pgEnum("PlanType", ["hobby", "pro"]);
 
-export const postStatusEnum = pgEnum("PostStatus", ["published", "draft"]);
+export const postStatusEnum = pgEnum("PostStatus", POST_STATUSES);
 
 export const subscriptionRecurringIntervalEnum = pgEnum(
   "SubscriptionRecurringInterval",

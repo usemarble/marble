@@ -1,3 +1,4 @@
+import { POST_STATUSES, POST_WRITE_STATUSES } from "@marble/utils/post-status";
 import { z } from "zod";
 
 const validJsonString = z
@@ -15,7 +16,7 @@ const validJsonString = z
     { message: "Content JSON must be valid JSON" }
   );
 
-export const postSchema = z.object({
+const postFields = {
   title: z.string().min(1, { message: "Title cannot be empty" }),
   coverImage: z.url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
@@ -25,20 +26,31 @@ export const postSchema = z.object({
   tags: z.array(z.string().min(1)).optional(),
   authors: z.array(z.string().min(1)).optional(),
   category: z.string().min(1, { message: "Category is required" }),
-  status: z.enum(["published", "draft"]),
   featured: z.boolean().default(false).optional(),
   publishedAt: z.coerce.date(),
+};
+
+export const postReadSchema = z.object({
+  ...postFields,
+  status: z.enum(POST_STATUSES),
 });
 
-export type PostValues = z.infer<typeof postSchema>;
+export type PostReadValues = z.infer<typeof postReadSchema>;
 
-export const postEditorSchema = postSchema.extend({
+export const postWriteSchema = z.object({
+  ...postFields,
+  status: z.enum(POST_WRITE_STATUSES),
+});
+
+export type PostWriteValues = z.infer<typeof postWriteSchema>;
+
+export const postEditorSchema = postReadSchema.extend({
   customFields: z.record(z.string(), z.string()).default({}),
 });
 
 export type PostEditorValues = z.infer<typeof postEditorSchema>;
 
-export const postUpsertSchema = postSchema.extend({
+export const postUpsertSchema = postWriteSchema.extend({
   customFields: z
     .record(z.string(), z.union([z.string(), z.null()]))
     .default({}),

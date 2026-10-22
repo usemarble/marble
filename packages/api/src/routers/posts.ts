@@ -1,3 +1,4 @@
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { ORPCError, ValidationError } from "@orpc/server";
 import { z } from "zod";
 import { workspaceProcedure } from "../index";
@@ -18,7 +19,7 @@ import {
 const workspaceInput = z.object({ workspaceId: z.string().min(1) });
 const postInput = workspaceInput.extend({ id: z.string() });
 const idOutput = z.object({ id: z.string() });
-const postStatus = z.enum(["published", "draft"]);
+const postStatus = z.enum(POST_STATUSES);
 const fieldSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -101,7 +102,7 @@ export const postsRouter = {
         perPage: z.number().default(20),
         search: z.string().default(""),
         sort: z.string().default("createdAt_desc"),
-        status: z.enum(["all", "published", "draft"]).default("all"),
+        status: z.enum(["all", ...POST_STATUSES]).default("all"),
       })
     )
     .output(

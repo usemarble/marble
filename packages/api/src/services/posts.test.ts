@@ -3,14 +3,16 @@ import {
   author,
   category,
   field,
+  fieldValue,
   post,
   workspaceEvent,
 } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
 import { Redis } from "@upstash/redis";
 import { asc, eq, sql } from "drizzle-orm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { postsRouter } from "../routers/posts";
 import {
   createTestContext,
@@ -19,6 +21,7 @@ import {
   sessionFor,
   testEnv,
 } from "../testing";
+import { createPost, updatePost } from "./posts";
 
 let testDb: TestDatabase;
 const redis = new Redis({ url: testEnv.REDIS_URL, token: testEnv.REDIS_TOKEN });
@@ -151,9 +154,9 @@ describe("dashboard post writes", () => {
           "tags",
           "authors",
           "category",
-          "status",
           "featured",
           "publishedAt",
+          "status",
           "customFields",
         ]);
       } else {
@@ -305,5 +308,202 @@ describe("post workspace scoping", () => {
       (await eventRows(other.input.workspaceId)).map((event) => event.type)
     ).toEqual(["post_created"]);
     expect(home.events.sent).toEqual([]);
+  });
+});
+
+describe("scheduled dashboard posts", () => {
+  async function scheduledFixture() {
+    const f = await fixture();
+    const { id } = await f.client.create(f.input);
+    await f.flush();
+    const publishedAt = new Date("2030-05-01T15:30:00Z");
+    await testDb.db
+      .update(post)
+      .set({ status: "scheduled", publishedAt })
+      .where(eq(post.id, id));
+    return { ...f, id, publishedAt };
+  }
+
+  it("reads scheduled posts through list, filter, counts, pagination and editor get", async () => {
+    const f = await scheduledFixture();
+    const foreign = await scheduledFixture();
+    await f.client.create({
+      ...f.input,
+      slug: createRecordId(),
+      status: "published",
+      publishedAt: new Date("2031-01-01T00:00:00Z"),
+    });
+    await f.client.create({ ...f.input, slug: createRecordId() });
+
+    const filtered = await f.client.list({
+      workspaceId: f.input.workspaceId,
+      status: "scheduled",
+      perPage: 1,
+    });
+    expect(filtered).toMatchObject({
+      totalCount: 1,
+      pageCount: 1,
+      hasAnyPosts: true,
+      posts: [{ id: f.id, status: "scheduled", publishedAt: f.publishedAt }],
+    });
+    const all = await f.client.list({
+      workspaceId: f.input.workspaceId,
+      perPage: 2,
+    });
+    expect(all).toMatchObject({ totalCount: 3, pageCount: 2 });
+    expect(all.posts.map((row) => row.id)).not.toContain(foreign.id);
+    expect(
+      await f.client.get({ workspaceId: f.input.workspaceId, id: f.id })
+    ).toMatchObject({ status: "scheduled", publishedAt: f.publishedAt });
+    expect(
+      (
+        await f.client.list({
+          workspaceId: f.input.workspaceId,
+          status: "published",
+        })
+      ).posts
+    ).toHaveLength(1);
+    expect(
+      (
+        await f.client.list({
+          workspaceId: f.input.workspaceId,
+          status: "draft",
+        })
+      ).posts
+    ).toHaveLength(1);
+    expect(
+      (
+        await f.client.list({
+          workspaceId: f.input.workspaceId,
+          status: "scheduled",
+          page: 2,
+          perPage: 1,
+        })
+      ).posts
+    ).toEqual([]);
+  });
+
+  it("rejects scheduled input at RPC and service write boundaries", async () => {
+    const f = await scheduledFixture();
+    const input = { ...f.input, status: "scheduled" as const };
+    const handler = new RPCHandler(postsRouter);
+    for (const [procedure, body] of [
+      ["create", input],
+      ["update", { ...input, id: f.id }],
+    ] as const) {
+      const result = await handler.handle(
+        new Request(`http://localhost/rpc/${procedure}`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ json: body }),
+        }),
+        { prefix: "/rpc", context: f.context }
+      );
+      if (!result.matched) {
+        throw new Error("Post procedure did not match");
+      }
+      expect(result.response.status).toBe(400);
+      expect(await result.response.json()).toMatchObject({
+        json: { code: "BAD_REQUEST" },
+      });
+    }
+    await expect(
+      createPost(f.context, f.input.workspaceId, f.user, input)
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      updatePost(f.context, f.input.workspaceId, f.id, f.user, input)
+    ).rejects.toMatchObject({ status: 400 });
+    expect(
+      (await f.client.list({ workspaceId: f.input.workspaceId })).totalCount
+    ).toBe(1);
+  });
+
+  it.each(["draft", "published"] as const)(
+    "a stale %s editor cannot change scheduled content, date, fields or events",
+    async (status) => {
+      const f = await scheduledFixture();
+      const fieldId = createRecordId();
+      await testDb.db.insert(field).values({
+        id: fieldId,
+        workspaceId: f.input.workspaceId,
+        key: "subtitle",
+        name: "Subtitle",
+        type: "text",
+      });
+      const original = await testDb.db.query.post.findFirst({
+        where: eq(post.id, f.id),
+      });
+      const events = await eventRows(f.input.workspaceId);
+      const key = `cache:${f.input.workspaceId}:posts:v1:${f.id}`;
+      await redis.set(key, "keep");
+      await expect(
+        f.client.update({
+          ...f.input,
+          id: f.id,
+          status,
+          title: "Overwrite",
+          publishedAt: new Date(),
+          customFields: { [fieldId]: "Overwrite" },
+        })
+      ).rejects.toMatchObject({ code: "CONFLICT" });
+      await expect(
+        f.client.fields.update({
+          workspaceId: f.input.workspaceId,
+          id: f.id,
+          values: { [fieldId]: "Overwrite" },
+        })
+      ).rejects.toMatchObject({ code: "CONFLICT" });
+      await f.flush();
+      expect(
+        await testDb.db.query.post.findFirst({ where: eq(post.id, f.id) })
+      ).toEqual(original);
+      expect(
+        await testDb.db.query.fieldValue.findMany({
+          where: eq(fieldValue.postId, f.id),
+        })
+      ).toEqual([]);
+      expect(await eventRows(f.input.workspaceId)).toEqual(events);
+      expect(f.events.sent).toHaveLength(1);
+      expect(await redis.get(key)).toBe("keep");
+      await redis.del(key);
+    }
+  );
+
+  it("protects a row scheduled between the read and transactional update", async () => {
+    const f = await fixture();
+    const { id } = await f.client.create(f.input);
+    await f.flush();
+    const original = await testDb.db.query.post.findFirst({
+      where: eq(post.id, id),
+    });
+    const transaction = testDb.db.transaction.bind(testDb.db);
+    const scheduledAt = new Date("2030-05-01T15:30:00Z");
+    const race = vi
+      .spyOn(testDb.db, "transaction")
+      .mockImplementationOnce(async (callback) => {
+        await testDb.db
+          .update(post)
+          .set({ status: "scheduled", publishedAt: scheduledAt })
+          .where(eq(post.id, id));
+        return transaction(callback);
+      });
+    try {
+      await expect(
+        f.client.update({ ...f.input, id, title: "Overwrite" })
+      ).rejects.toMatchObject({ code: "CONFLICT" });
+      await f.flush();
+      expect(
+        await testDb.db.query.post.findFirst({ where: eq(post.id, id) })
+      ).toMatchObject({
+        ...original,
+        status: "scheduled",
+        publishedAt: scheduledAt,
+        updatedAt: expect.any(Date),
+      });
+      expect(await eventRows(f.input.workspaceId)).toHaveLength(1);
+      expect(f.events.sent).toHaveLength(1);
+    } finally {
+      race.mockRestore();
+    }
   });
 });

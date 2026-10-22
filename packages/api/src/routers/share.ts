@@ -1,3 +1,4 @@
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { ORPCError, ValidationError } from "@orpc/server";
 import { z } from "zod";
 import { publicProcedure, workspaceProcedure } from "../index";
@@ -17,7 +18,7 @@ const previewDto = z.object({
     contentJson: z.unknown(),
     description: z.string(),
     coverImage: z.string().nullable(),
-    status: z.enum(["draft", "published"]),
+    status: z.enum(POST_STATUSES),
     createdAt: z.date(),
     updatedAt: z.date(),
     publishedAt: z.date(),

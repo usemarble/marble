@@ -2,6 +2,7 @@ import { createRecordId } from "@marble/db/id";
 import { exportJob } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { dataTransferRouter } from "../routers/data-transfer";
 import { uploadsRouter } from "../routers/uploads";
@@ -49,6 +50,13 @@ describe("dashboard data transfers", () => {
       context: request.context,
     });
     const createdExport = await data.exports.create({ workspaceId: ws.id });
+    expect(
+      await testDb.db.query.exportJob.findFirst({
+        where: eq(exportJob.id, createdExport.job.id),
+      })
+    ).toMatchObject({
+      scope: { postStatuses: ["published", "draft", "scheduled"] },
+    });
     expect(request.tasks.sent).toContainEqual({
       type: "export.process",
       jobId: createdExport.job.id,

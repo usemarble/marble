@@ -46,6 +46,7 @@ interface Option {
 
 interface MultiSelectPopoverProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
+  disabled?: boolean;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -56,6 +57,7 @@ const EMPTY_TAGS: string[] = [];
 
 export const TagSelector = <TFieldValues extends FieldValues>({
   control,
+  disabled = false,
   placeholder,
   isOpen,
   setIsOpen,
@@ -126,6 +128,7 @@ export const TagSelector = <TFieldValues extends FieldValues>({
       </div>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger
+          disabled={disabled}
           nativeButton={false}
           render={
             <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm">

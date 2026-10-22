@@ -1,5 +1,6 @@
 import { createRecordId } from "@marble/db/id";
 import { exportJob, importJob, workspace } from "@marble/db/schema";
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { AwsClient } from "aws4fetch";
 import { and, desc, eq, ne } from "drizzle-orm";
 import type { ServiceContext } from "../context";
@@ -18,7 +19,7 @@ const exportScope = {
   schemaVersion: 1,
   resources: ["posts", "categories", "tags", "authors", "media", "fields"],
   includeMediaFiles: false,
-  postStatuses: ["draft", "published"],
+  postStatuses: POST_STATUSES,
 };
 const exportColumns = {
   id: exportJob.id,

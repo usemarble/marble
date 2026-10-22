@@ -51,6 +51,7 @@ interface AuthorOptions {
 
 interface AuthorSelectorProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
+  disabled?: boolean;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -61,6 +62,7 @@ const EMPTY_AUTHORS: string[] = [];
 
 export function AuthorSelector<TFieldValues extends FieldValues>({
   control,
+  disabled = false,
   placeholder,
   isOpen,
   setIsOpen,
@@ -134,6 +136,7 @@ export function AuthorSelector<TFieldValues extends FieldValues>({
       </div>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger
+          disabled={disabled}
           nativeButton={false}
           render={
             <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">

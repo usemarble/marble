@@ -1,14 +1,23 @@
 "use client";
 
-import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { CaretUpDownIcon, ImageIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
+import {
+  formatScheduledDate,
+  POST_STATUS_PRESENTATION,
+} from "@/lib/post-status";
 import type { Post } from "@/types/dashboard";
 import { formatCalendarDate } from "@/utils/string";
 import PostActions from "./post-actions";
+import { PostStatusBadge } from "./status-badge";
 
 export type { Post } from "@/types/dashboard";
 
@@ -64,17 +73,13 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "status",
     enableSorting: false,
     header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge
-          className="rounded-[6px] text-xs"
-          variant={status === "published" ? "positive" : "pending"}
-        >
-          {status === "published" ? "Published" : "Draft"}
-        </Badge>
-      );
-    },
+    cell: ({ row }) => (
+      <PostStatusBadge
+        className="rounded-[6px] text-xs"
+        publishedAt={row.original.publishedAt}
+        status={row.original.status}
+      />
+    ),
   },
   {
     accessorKey: "publishedAt",
@@ -85,15 +90,33 @@ export const columns: ColumnDef<Post>[] = [
         size="sm"
         variant="ghost"
       >
-        Published On
+        Publish date
         <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <span className="text-muted-foreground text-xs">
-        {formatCalendarDate(new Date(row.original.publishedAt), "MMM d, yyyy")}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const { status, publishedAt } = row.original;
+      const date = new Date(publishedAt);
+      const presentation = POST_STATUS_PRESENTATION[status];
+      return (
+        <Tooltip>
+          <TooltipTrigger
+            render={<span className="text-muted-foreground text-xs" />}
+          >
+            {status === "scheduled" && `${presentation.dateLabel} `}
+            {status === "scheduled"
+              ? format(date, "MMM d, yyyy")
+              : formatCalendarDate(date, "MMM d, yyyy")}
+          </TooltipTrigger>
+          <TooltipContent>
+            {presentation.dateLabel}:{" "}
+            {status === "scheduled"
+              ? formatScheduledDate(date)
+              : formatCalendarDate(date, "MMM d, yyyy")}
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
   },
   {
     accessorKey: "updatedAt",

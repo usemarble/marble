@@ -1,9 +1,15 @@
 "use client";
 
 import type { PostEditorValues } from "@marble/api/lib/post-validation";
+import { Badge } from "@marble/ui/components/badge";
 import { Separator } from "@marble/ui/components/separator";
 import { useFormContext } from "react-hook-form";
+import {
+  formatScheduledDate,
+  POST_STATUS_PRESENTATION,
+} from "@/lib/post-status";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
+import { useEditorData } from "../editor-data-provider";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
 import { CoverImageSelector } from "../fields/cover-image-selector";
@@ -22,17 +28,28 @@ interface MetadataTabProps {
 
 export function MetadataTab({ initialAuthors, tags }: MetadataTabProps) {
   "use no memo";
-  const { control } = useFormContext<PostEditorValues>();
+  const { control, getValues } = useFormContext<PostEditorValues>();
+  const { isReadOnly } = useEditorData();
   return (
     <HiddenScrollbar className="h-full px-6">
-      <section className="grid gap-6 pt-4 pb-5">
-        <StatusField control={control} />
+      <fieldset
+        className="grid min-w-0 gap-6 pt-4 pb-5"
+        disabled={isReadOnly}
+        key={String(isReadOnly)}
+      >
+        {isReadOnly ? (
+          <Badge variant={POST_STATUS_PRESENTATION.scheduled.variant}>
+            {POST_STATUS_PRESENTATION.scheduled.label}
+          </Badge>
+        ) : (
+          <StatusField control={control} />
+        )}
 
         <FeaturedField control={control} />
 
         <Separator className="flex" orientation="horizontal" />
 
-        <CoverImageSelector control={control} />
+        <CoverImageSelector control={control} disabled={isReadOnly} />
 
         <DescriptionField control={control} />
 
@@ -41,16 +58,28 @@ export function MetadataTab({ initialAuthors, tags }: MetadataTabProps) {
         <AuthorSelector
           control={control}
           defaultAuthors={initialAuthors || []}
+          disabled={isReadOnly}
         />
 
-        <TagSelector control={control} defaultTags={tags || []} />
+        <TagSelector
+          control={control}
+          defaultTags={tags || []}
+          disabled={isReadOnly}
+        />
 
         <CategorySelector control={control} />
 
-        <PublishDateField control={control} />
+        {isReadOnly ? (
+          <div className="grid gap-2 text-sm">
+            <p>{POST_STATUS_PRESENTATION.scheduled.dateLabel}</p>
+            <p>{formatScheduledDate(getValues("publishedAt"))}</p>
+          </div>
+        ) : (
+          <PublishDateField control={control} />
+        )}
 
         <CustomFieldsSection />
-      </section>
+      </fieldset>
     </HiddenScrollbar>
   );
 }

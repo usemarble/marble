@@ -70,6 +70,7 @@ export const post = pgTable(
       table.status.asc().nullsLast().op("enum_ops"),
       table.publishedAt.asc().nullsLast().op("timestamp_ops")
     ),
+    index("post_status_publishedAt_idx").on(table.status, table.publishedAt),
     uniqueIndex("post_id_workspaceId_key").using(
       "btree",
       table.id.asc().nullsLast().op("text_ops"),
