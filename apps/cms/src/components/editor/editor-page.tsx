@@ -11,7 +11,6 @@ import { uploadFile } from "@/lib/media/upload";
 import "@/styles/editor.css";
 import {
   type Editor,
-  EditorContent,
   EditorContext,
   EditorOutline,
   EditorScrollArea,
@@ -27,7 +26,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { generateSlug } from "@marble/utils";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { client } from "@/lib/orpc";
 import { TextareaAutosize } from "./textarea-autosize";
@@ -75,21 +74,15 @@ function EditorPageContent() {
   const params = useParams<{ workspace: string }>();
   const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
-  const { isReadOnly, mode, postId, registerBeforeSubmit } = useEditorData();
+  const { mode, postId, registerBeforeSubmit } = useEditorData();
   const {
     clearErrors,
-    control,
     formState: { errors },
     getFieldState,
     getValues,
     register,
     setValue,
   } = useFormContext<PostEditorValues>();
-  const readOnlyContent = useWatch({
-    control,
-    name: "content",
-    disabled: !isReadOnly,
-  });
 
   // The editor owns the content once it exists; the form value is only its
   // starting point. Watching it would re-render this whole page (sidebar
@@ -208,9 +201,6 @@ function EditorPageContent() {
 
   const handleEditorUpdate = useCallback(
     ({ editor }: { editor: Editor }) => {
-      if (isReadOnly) {
-        return;
-      }
       pendingEditorRef.current = editor;
 
       if (syncTimerRef.current === null) {
@@ -218,7 +208,7 @@ function EditorPageContent() {
         scheduleContentSync();
       }
     },
-    [flushContent, scheduleContentSync, isReadOnly]
+    [flushContent, scheduleContentSync]
   );
 
   // Saving must see the latest content, not the last throttled write
@@ -258,24 +248,12 @@ function EditorPageContent() {
   );
 
   const editor = useMarbleEditor({
-    editable: !isReadOnly,
     content: initialContent,
     placeholder: "Start typing or press '/' for commands",
     editorProps: EDITOR_PROPS,
     extensions,
     onUpdate: handleEditorUpdate,
   });
-  useEffect(() => {
-    editor?.setEditable(!isReadOnly, false);
-    if (isReadOnly) {
-      if (syncTimerRef.current !== null) {
-        window.clearTimeout(syncTimerRef.current);
-        syncTimerRef.current = null;
-      }
-      pendingEditorRef.current = null;
-      editor?.commands.setContent(readOnlyContent, { emitUpdate: false });
-    }
-  }, [editor, isReadOnly, readOnlyContent]);
   const editorContextValue = useMemo(() => ({ editor }), [editor]);
 
   return (
@@ -296,11 +274,6 @@ function EditorPageContent() {
               event.preventDefault();
             }}
           >
-            {isReadOnly && (
-              <p className="text-muted-foreground text-sm">
-                Scheduled posts are read-only.
-              </p>
-            )}
             <div className="flex flex-col">
               <label className="sr-only" htmlFor="title">
                 Enter your post title
@@ -309,7 +282,6 @@ function EditorPageContent() {
               <TextareaAutosize
                 id="title"
                 placeholder="Title"
-                readOnly={isReadOnly}
                 {...register("title", {
                   onChange: (e) => {
                     if (mode === "create") {
@@ -322,9 +294,6 @@ function EditorPageContent() {
                 })}
                 className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                 onEnterPress={() => {
-                  if (isReadOnly) {
-                    return;
-                  }
                   editor
                     ?.chain()
                     .focus()
@@ -340,7 +309,7 @@ function EditorPageContent() {
               )}
             </div>
             <div className="flex flex-col">
-              {isReadOnly ? <EditorContent /> : <MarbleEditorMenus />}
+              <MarbleEditorMenus />
 
               {errors.content && (
                 <ErrorMessage className="text-sm">

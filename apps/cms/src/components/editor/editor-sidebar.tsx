@@ -54,7 +54,6 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const {
     form: { control },
     isSubmitting,
-    isReadOnly,
     mode,
     postId,
   } = useEditorData();
@@ -252,7 +251,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
         </SidebarContent>
 
         <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
-          {activeTab === "metadata" && !isReadOnly && (
+          {activeTab === "metadata" && (
             <MetadataFooter isSubmitting={isSubmitting} />
           )}
         </SidebarFooter>

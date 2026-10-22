@@ -12,11 +12,7 @@ import {
 } from "@marble/db/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import { generateSlug } from "@marble/utils";
-import {
-  POST_STATUS_POLICY,
-  POST_WRITE_STATUSES,
-  type PostStatus,
-} from "@marble/utils/post-status";
+import type { PostStatus } from "@marble/utils/post-status";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import {
   and,
@@ -568,9 +564,6 @@ export async function updatePost(
   if (!previousPost) {
     throw new PostError(404, "Post not found");
   }
-  if (!POST_STATUS_POLICY[previousPost.status].editable) {
-    throw new PostError(409, "Scheduled posts are read-only");
-  }
 
   try {
     const customFieldWrites = await buildCustomFieldWrites(
@@ -605,17 +598,11 @@ export async function updatePost(
             workspaceId,
             updatedAt: now,
           })
-          .where(
-            and(
-              eq(post.id, id),
-              eq(post.workspaceId, workspaceId),
-              inArray(post.status, POST_WRITE_STATUSES)
-            )
-          )
+          .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
           .returning();
 
         if (!updatedPost) {
-          throw new PostError(409, "Post is no longer editable");
+          throw new Error("Post not found");
         }
 
         if (values.tags) {
@@ -779,12 +766,11 @@ async function requirePost(
 ) {
   const row = await ctx.db.query.post.findFirst({
     where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
-    columns: { id: true, status: true },
+    columns: { id: true },
   });
   if (!row) {
     throw new PostError(404, "Post not found");
   }
-  return row;
 }
 
 export async function getPostFields(
@@ -816,10 +802,7 @@ export async function updatePostFields(
   actor: PostActor,
   input: unknown
 ) {
-  const existingPost = await requirePost(ctx, workspaceId, id);
-  if (!POST_STATUS_POLICY[existingPost.status].editable) {
-    throw new PostError(409, "Scheduled posts are read-only");
-  }
+  await requirePost(ctx, workspaceId, id);
   const payload = customFieldsPayloadSchema.safeParse(input);
   if (!payload.success) {
     throw new PostError(400, "Invalid request body", {
@@ -848,16 +831,10 @@ export async function updatePostFields(
       const [updatedPost] = await tx
         .update(post)
         .set({ updatedAt: new Date() })
-        .where(
-          and(
-            eq(post.id, id),
-            eq(post.workspaceId, workspaceId),
-            inArray(post.status, POST_WRITE_STATUSES)
-          )
-        )
+        .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
         .returning();
       if (!updatedPost) {
-        throw new PostError(409, "Post is no longer editable");
+        throw new PostError(404, "Post not found");
       }
       await emitEvent({
         type: "post_updated",

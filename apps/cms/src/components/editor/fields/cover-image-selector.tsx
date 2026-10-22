@@ -55,12 +55,10 @@ const urlSchema = z.string().url({
 
 interface CoverImageSelectorProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
-  disabled?: boolean;
 }
 
 export function CoverImageSelector<TFieldValues extends FieldValues>({
   control,
-  disabled = false,
 }: CoverImageSelectorProps<TFieldValues>) {
   const {
     field: { onChange, value: coverImage },
@@ -173,7 +171,6 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
           <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover/cover:opacity-100" />
           <button
             className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover/cover:opacity-100"
-            disabled={disabled}
             onClick={() => onChange(null)}
             type="button"
           >
@@ -182,10 +179,6 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
           </button>
         </div>
       );
-    }
-
-    if (disabled) {
-      return <p className="text-muted-foreground text-sm">No cover image</p>;
     }
 
     return (
@@ -296,7 +289,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
       {renderContent()}
 
       {/* Media Gallery Dialog */}
-      <Dialog onOpenChange={setIsGalleryOpen} open={!disabled && isGalleryOpen}>
+      <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
         <DialogContent
           className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
           variant="card"

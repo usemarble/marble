@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { cn } from "@marble/ui/lib/utils";
-import { POST_STATUS_POLICY } from "@marble/utils/post-status";
 import Link from "next/link";
 import { useState } from "react";
 import { useWorkspace } from "@/providers/workspace";
@@ -73,9 +72,7 @@ export default function PostActions({
               href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
             >
               <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
-              <span>
-                {POST_STATUS_POLICY[post.status].editable ? "Edit" : "View"}
-              </span>
+              <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
