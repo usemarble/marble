@@ -48,6 +48,11 @@ import {
 } from "./hooks";
 import { startWorkspaceCheckout } from "./polar/checkout";
 import { createPolarAuthClient } from "./polar/client";
+import {
+  createPolarCustomer,
+  deletePolarCustomer,
+  updatePolarCustomer,
+} from "./polar/customer";
 import { handleCustomerCreated } from "./polar/customer.created";
 import { handleSubscriptionCanceled } from "./polar/subscription.canceled";
 import { handleSubscriptionCreated } from "./polar/subscription.created";
@@ -266,7 +271,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
     plugins: [
       polar({
         client: polarClient,
-        createCustomerOnSignUp: env.MODE !== "dev",
+        createCustomerOnSignUp: false,
         authenticatedUsersOnly: true,
         use: [
           portal(),
@@ -292,24 +297,28 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
             ],
             successUrl: env.POLAR_SUCCESS_URL,
           }),
-          webhooks({
-            secret: env.POLAR_WEBHOOK_SECRET,
-            onCustomerCreated: async (payload) => {
-              await handleCustomerCreated(payload);
-            },
-            onSubscriptionCreated: async (payload) => {
-              await handleSubscriptionCreated(db, redis, payload);
-            },
-            onSubscriptionUpdated: async (payload) => {
-              await handleSubscriptionUpdated(db, redis, payload);
-            },
-            onSubscriptionCanceled: async (payload) => {
-              await handleSubscriptionCanceled(db, redis, payload);
-            },
-            onSubscriptionRevoked: async (payload) => {
-              await handleSubscriptionRevoked(db, redis, payload);
-            },
-          }),
+          ...(env.POLAR_WEBHOOK_SECRET
+            ? [
+                webhooks({
+                  secret: env.POLAR_WEBHOOK_SECRET,
+                  onCustomerCreated: async (payload) => {
+                    await handleCustomerCreated(payload);
+                  },
+                  onSubscriptionCreated: async (payload) => {
+                    await handleSubscriptionCreated(db, redis, payload);
+                  },
+                  onSubscriptionUpdated: async (payload) => {
+                    await handleSubscriptionUpdated(db, redis, payload);
+                  },
+                  onSubscriptionCanceled: async (payload) => {
+                    await handleSubscriptionCanceled(db, redis, payload);
+                  },
+                  onSubscriptionRevoked: async (payload) => {
+                    await handleSubscriptionRevoked(db, redis, payload);
+                  },
+                }),
+              ]
+            : []),
         ],
       }),
       organization({
@@ -468,6 +477,8 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
               },
             });
 
+            await createPolarCustomer({ polar: polarClient, env, user });
+
             const path = context?.path ?? "";
             const method = path.includes("sign-up/email")
               ? "email"
@@ -482,6 +493,16 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
               cookieHeader: context?.headers?.get("cookie"),
               method,
             });
+          },
+        },
+        update: {
+          after: async (user) => {
+            await updatePolarCustomer({ polar: polarClient, env, user });
+          },
+        },
+        delete: {
+          after: async (user) => {
+            await deletePolarCustomer({ polar: polarClient, env, user });
           },
         },
       },

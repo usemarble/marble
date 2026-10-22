@@ -96,6 +96,26 @@ describe("Worker auth configuration", () => {
     expect(await response.json()).toEqual({ ok: true });
   });
 
+  it("initializes local auth with omitted Polar credentials", async () => {
+    const {
+      POLAR_ACCESS_TOKEN: _token,
+      POLAR_WEBHOOK_SECRET: _secret,
+      ...env
+    } = testEnv();
+    const auth = createAuth({ db, env });
+    const response = await auth.handler(
+      new Request("http://localhost:8787/api/auth/ok")
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    const polarPlugin = auth.options.plugins.find(
+      (plugin) => plugin.id === "polar"
+    );
+    expect(polarPlugin?.endpoints).toHaveProperty("checkout");
+    expect(polarPlugin?.endpoints).toHaveProperty("portal");
+    expect(polarPlugin?.endpoints).not.toHaveProperty("polarWebhooks");
+  });
+
   it("shares staging cookies with the dashboard without using production names", async () => {
     const auth = createAuth({
       db,
@@ -120,6 +140,9 @@ describe("Worker auth configuration", () => {
     expect(context.trustedOrigins).toContain("https://staging.marblecms.com");
     expect(context.trustedOrigins).not.toContain("https://app.marblecms.com");
     expect(auth.options.plugins[0]?.id).toBe("polar");
+    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("checkout");
+    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("portal");
+    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("polarWebhooks");
   });
 
   it("keeps localhost cookies usable across ports", async () => {

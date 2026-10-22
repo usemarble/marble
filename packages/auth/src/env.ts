@@ -12,9 +12,9 @@ export interface AuthEnv {
   GOOGLE_CLIENT_SECRET: string;
   GITHUB_ID: string;
   GITHUB_SECRET: string;
-  POLAR_ACCESS_TOKEN: string;
+  POLAR_ACCESS_TOKEN?: string;
   POLAR_SERVER: "production" | "sandbox";
-  POLAR_WEBHOOK_SECRET: string;
+  POLAR_WEBHOOK_SECRET?: string;
   POLAR_SUCCESS_URL: string;
   POLAR_HOBBY_MONTHLY_PRODUCT_ID: string;
   POLAR_HOBBY_YEARLY_PRODUCT_ID: string;
