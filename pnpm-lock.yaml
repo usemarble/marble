@@ -603,6 +603,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.20(tailwindcss@4.3.3)
+      '@types/node':
+        specifier: ^22.20.1
+        version: 22.20.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
