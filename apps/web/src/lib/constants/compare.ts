@@ -244,6 +244,10 @@ const CONTENTFUL = {
     label: "Contentful pricing",
     href: "https://www.contentful.com/pricing/",
   },
+  usage: {
+    label: "Contentful usage limits",
+    href: "https://www.contentful.com/help/admin/usage/usage-limit/",
+  },
   dataModel: {
     label: "Contentful docs: Data model",
     href: "https://www.contentful.com/developers/docs/concepts/data-model/",
@@ -1262,7 +1266,7 @@ export const COMPARISONS: Comparison[] = [
       "You need configurable content types for products, landing pages, or other content alongside your blog.",
       "You reuse linked entries and assets across pages or embed structured entries inside Rich Text.",
       "You need localized fields and locale settings within the content platform.",
-      "You need Contentful's larger free allowance of 100,000 API calls a month and 10 users, or its GraphQL Content API.",
+      "You need GraphQL delivery or Contentful's larger API allowances. Free is limited to testing and learning; commercial blogs need a paid plan.",
     ],
     rows: [
       {
@@ -1301,8 +1305,8 @@ export const COMPARISONS: Comparison[] = [
         marble:
           "5,000 requests a month on Free, 25,000 on Hobby, and 50,000 on Pro.",
         competitor:
-          "100,000 API calls a month on Free and 1 million on Lite. The free allowance is substantially higher than Marble's.",
-        sources: [CONTENTFUL.pricing],
+          "100,000 API calls a month on Free, restricted to testing and learning, and 1 million on Lite. Free's allowance is higher than Marble's, but commercial use requires a paid plan.",
+        sources: [CONTENTFUL.pricing, CONTENTFUL.usage],
       },
       {
         topic: "Relationships and reuse",
@@ -1340,8 +1344,8 @@ export const COMPARISONS: Comparison[] = [
         marble:
           "Free at $0. Hobby is $5/month and Pro is $20/month per workspace on monthly billing. All include unlimited posts.",
         competitor:
-          "Free at $0, Lite at $300/month, and Enterprise at a custom price. Each plan includes a Starter Space.",
-        sources: [CONTENTFUL.pricing],
+          "Free at $0 for testing and learning only; commercial use is excluded. Lite costs $300/month, with custom Enterprise pricing. Each plan includes a Starter Space.",
+        sources: [CONTENTFUL.pricing, CONTENTFUL.usage],
       },
     ],
     workflow: {
@@ -1380,7 +1384,7 @@ export const COMPARISONS: Comparison[] = [
       },
       {
         question: "Are Marble and Contentful both free to start?",
-        answer: `Yes. Marble's Free plan includes 5,000 API requests a month and 1 team member. Contentful's Free plan includes 100,000 API calls a month and 10 users. Marble's paid plans are $5 and $20 per workspace per month on monthly billing. Contentful Lite is $300/month alongside its Free plan. Compare your usage against both <a href="https://marblecms.com/pricing" target="_blank" rel="noopener">Marble pricing</a> and <a href="${CONTENTFUL.pricing.href}" target="_blank" rel="noopener">Contentful pricing</a>.`,
+        answer: `Yes. Marble's Free plan includes 5,000 API requests a month and 1 team member. Contentful's Free plan includes 100,000 API calls a month and 10 users, but its <a href="${CONTENTFUL.usage.href}" target="_blank" rel="noopener">usage limits</a> restrict Free to testing and learning and exclude commercial use. Marble's paid plans are $5 and $20 per workspace per month on monthly billing. Contentful Lite is $300/month. Compare your needs against both <a href="https://marblecms.com/pricing" target="_blank" rel="noopener">Marble pricing</a> and <a href="${CONTENTFUL.pricing.href}" target="_blank" rel="noopener">Contentful pricing</a>.`,
       },
       {
         question: "Does every Contentful blog need a Rich Text renderer?",
