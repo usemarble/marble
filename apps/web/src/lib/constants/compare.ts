@@ -239,6 +239,37 @@ const STRAPI = {
   },
 };
 
+const CONTENTFUL = {
+  pricing: {
+    label: "Contentful pricing",
+    href: "https://www.contentful.com/pricing/",
+  },
+  dataModel: {
+    label: "Contentful docs: Data model",
+    href: "https://www.contentful.com/developers/docs/concepts/data-model/",
+  },
+  richText: {
+    label: "Contentful docs: Rich Text",
+    href: "https://www.contentful.com/developers/docs/concepts/rich-text/",
+  },
+  apis: {
+    label: "Contentful docs: API basics",
+    href: "https://www.contentful.com/developers/docs/references/api-basics/",
+  },
+  contentDelivery: {
+    label: "Contentful docs: Content Delivery API",
+    href: "https://www.contentful.com/developers/docs/references/content-delivery-api/overview/",
+  },
+  exporting: {
+    label: "Contentful docs: CLI import and export",
+    href: "https://www.contentful.com/developers/docs/tutorials/cli/import-and-export/",
+  },
+  webhooks: {
+    label: "Contentful docs: Webhooks",
+    href: "https://www.contentful.com/developers/docs/extensibility/webhooks/overview/",
+  },
+};
+
 const WORDPRESS = {
   overview: {
     label: "WordPress: Features",
@@ -1205,6 +1236,163 @@ export const COMPARISONS: Comparison[] = [
       {
         question: "Can I import my entire WordPress site into Marble?",
         answer: `No. Marble has no direct WordPress WXR or REST JSON importer. Convert blog posts into Markdown files with supported frontmatter, then use the <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> to create drafts. Review authors, covers, custom fields, image URLs, and redirects. Themes, plugins, comments, users, and custom content types need a separate plan.`,
+      },
+    ],
+  },
+  {
+    slug: "contentful",
+    name: "Contentful",
+    checked: "October 29, 2026",
+    summary:
+      "Contentful models structured, localized content with linked entries. Marble provides a ready-made post model and hosted editor for your blog.",
+    meta: {
+      title: "Marble vs Contentful for blog publishing",
+      description:
+        "Looking for a Contentful alternative for your blog? Compare Marble's post publishing workflow with Contentful's content model, APIs, and pricing.",
+    },
+    intro:
+      "Contentful is a hosted structured content platform. You configure content types, localize fields, and link entries and assets for delivery through APIs. Marble hosts an editor and API around a ready-made post model with authors, a category, tags, and custom fields. Both work with a frontend you build. Choose based on whether you need a service for blog publishing or a configurable model for several kinds of content.",
+    chooseMarble: [
+      "Your site needs blog posts, articles, or changelogs with authors and taxonomy already defined.",
+      "Writers need a hosted post editor without first designing content types and their relationships.",
+      "Your frontend should receive HTML or Markdown post bodies through a REST API or TypeScript SDK.",
+      "Your blog fits Marble's usage limits, and you want paid workspace plans at $5 or $20 a month on monthly billing.",
+    ],
+    chooseCompetitor: [
+      "You need configurable content types for products, landing pages, or other content alongside your blog.",
+      "You reuse linked entries and assets across pages or embed structured entries inside Rich Text.",
+      "You need localized fields and locale settings within the content platform.",
+      "You need Contentful's larger free allowance of 100,000 API calls a month and 10 users, or its GraphQL Content API.",
+    ],
+    rows: [
+      {
+        topic: "Content model",
+        marble:
+          "Posts with authors, one category, tags, and typed custom fields. No arbitrary content types to configure.",
+        competitor:
+          "Content types with fields you define, including text, dates, media, and references to other entries.",
+        sources: [CONTENTFUL.dataModel],
+      },
+      {
+        topic: "Hosted editing workflow",
+        marble:
+          "A hosted editor for posts. Create a workspace, write, and connect your frontend to the API.",
+        competitor:
+          "A hosted web app for editing entries. Define or adapt your content model, then connect your frontend to its delivery APIs.",
+        sources: [CONTENTFUL.dataModel, CONTENTFUL.apis],
+      },
+      {
+        topic: "Body format",
+        marble: "HTML by default, or Markdown through the format parameter.",
+        competitor:
+          "Rich Text returns JSON nodes, with renderers available. A Long Text field can hold Markdown instead, so your body format depends on your model.",
+        sources: [CONTENTFUL.richText, CONTENTFUL.dataModel],
+      },
+      {
+        topic: "Content delivery",
+        marble:
+          "REST endpoints for posts and related resources, plus a TypeScript SDK. Your frontend renders the returned content.",
+        competitor:
+          "A Content Delivery API for published JSON content, a Preview API for unpublished content, and a GraphQL Content API.",
+        sources: [CONTENTFUL.apis, CONTENTFUL.contentDelivery],
+      },
+      {
+        topic: "Included API usage",
+        marble:
+          "5,000 requests a month on Free, 25,000 on Hobby, and 50,000 on Pro.",
+        competitor:
+          "100,000 API calls a month on Free and 1 million on Lite. The free allowance is substantially higher than Marble's.",
+        sources: [CONTENTFUL.pricing],
+      },
+      {
+        topic: "Relationships and reuse",
+        marble:
+          "Posts have built-in author, category, and tag relationships. Custom fields extend post metadata.",
+        competitor:
+          "Reference fields link entries and assets. Rich Text can also embed or link entries and assets within the body.",
+        sources: [CONTENTFUL.dataModel, CONTENTFUL.richText],
+      },
+      {
+        topic: "Localization",
+        marble:
+          "The post model has no built-in localized field variants. Plan translated posts and their URL relationships in your application.",
+        competitor:
+          "Localized content within a space, with 2 locales on Free and 3 on Lite.",
+        sources: [CONTENTFUL.dataModel, CONTENTFUL.pricing],
+      },
+      {
+        topic: "Team access",
+        marble: "1 team member on Free, 5 on Hobby, and 10 on Pro.",
+        competitor:
+          "10 users and 2 roles on Free. Lite includes 20 users and 3 roles, plus live collaboration.",
+        sources: [CONTENTFUL.pricing],
+      },
+      {
+        topic: "Webhooks",
+        marble:
+          "Post and other workspace events can trigger your rebuild or revalidation endpoint, with signed payloads, retries, and delivery logs.",
+        competitor:
+          "Content changes can trigger HTTP callbacks. Filters can restrict events to an environment, entry, asset, or content type.",
+        sources: [CONTENTFUL.webhooks],
+      },
+      {
+        topic: "Pricing",
+        marble:
+          "Free at $0. Hobby is $5/month and Pro is $20/month per workspace on monthly billing. All include unlimited posts.",
+        competitor:
+          "Free at $0, Lite at $300/month, and Enterprise at a custom price. Each plan includes a Starter Space.",
+        sources: [CONTENTFUL.pricing],
+      },
+    ],
+    workflow: {
+      competitor: [
+        "Create a Contentful space and define or adapt a blog content type, its fields, and any author or category references.",
+        "Choose Rich Text or Long Text for the body, and configure localized fields if your blog needs them.",
+        "Write the entry in Contentful's web app and publish the entries and assets your post references.",
+        "Fetch published content with a delivery API. Render Rich Text nodes or Markdown and handle any linked content in your frontend.",
+        "Configure a webhook if your site needs to rebuild or revalidate after content changes.",
+      ],
+      marble: [
+        "Create a Marble workspace with its post model and hosted editor already available.",
+        "Write a post, add its authors, category, tags, and cover image, and publish it.",
+        "Create an API key and fetch the post through the REST API or TypeScript SDK.",
+        "Render the HTML body, or request Markdown for your frontend's Markdown renderer.",
+        "Configure a webhook to rebuild or revalidate your site when posts change.",
+      ],
+    },
+    migration: {
+      title: "Moving a Contentful blog to Marble",
+      steps: [
+        `Export the intended space and environment with <code>contentful space export</code>. Include drafts if you need them, and keep the export as a backup (<a href="${CONTENTFUL.exporting.href}" target="_blank" rel="noopener">Contentful CLI docs</a>).`,
+        "Select the entries that represent blog posts and the locale you intend to publish. Record each entry's old public URL and its new slug, including any locale prefixes or category paths.",
+        `For Rich Text bodies, resolve linked entries and assets before converting the nodes to Markdown. Decide how embedded entries become text, images, or frontend components. If the body is Long Text Markdown, keep that source and review its syntax (<a href="${CONTENTFUL.richText.href}" target="_blank" rel="noopener">Rich Text docs</a>).`,
+        `Create a .md or .mdx file per post with supported frontmatter for title, slug, description, date, one category, and tags. Marble cannot import Contentful JSON directly. Upload files individually or as a ZIP of up to 100 Markdown files, within the import size limits. They become drafts (<a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">Marble import docs</a>).`,
+        "Review the imported drafts before publishing. Match authors, check the category and tags, and set cover images and custom fields separately. Check converted formatting, especially tables and embedded components.",
+        "Audit every image URL. A ZIP import does not rehost Contentful assets. Upload images you need to retain to Marble's media library and update body and cover references before removing the old assets.",
+        "Plan locale groupings, arbitrary content types, editorial workflows, and relationships separately. They do not transfer as equivalent Marble features. Keep other content in Contentful or another suitable system, and add frontend redirects wherever public URLs change.",
+      ],
+    },
+    faqs: [
+      {
+        question: "Is Marble a Contentful alternative for a blog?",
+        answer:
+          "Yes, when your content fits posts with authors, a category, tags, and custom fields. Marble provides that model and a hosted editor and API. Contentful is a better fit when your blog shares structured entries with other content types or needs localized fields. Both require your own frontend.",
+      },
+      {
+        question: "Are Marble and Contentful both free to start?",
+        answer: `Yes. Marble's Free plan includes 5,000 API requests a month and 1 team member. Contentful's Free plan includes 100,000 API calls a month and 10 users. Marble's paid plans are $5 and $20 per workspace per month on monthly billing. Contentful Lite is $300/month alongside its Free plan. Compare your usage against both <a href="https://marblecms.com/pricing" target="_blank" rel="noopener">Marble pricing</a> and <a href="${CONTENTFUL.pricing.href}" target="_blank" rel="noopener">Contentful pricing</a>.`,
+      },
+      {
+        question: "Does every Contentful blog need a Rich Text renderer?",
+        answer: `No. Contentful's Rich Text field returns JSON nodes, and Contentful provides rendering tools. A Long Text field can hold Markdown instead. Check your existing content type before choosing a rendering or migration approach (<a href="${CONTENTFUL.dataModel.href}" target="_blank" rel="noopener">data model docs</a>, <a href="${CONTENTFUL.richText.href}" target="_blank" rel="noopener">Rich Text docs</a>). Marble returns post bodies as HTML or Markdown.`,
+      },
+      {
+        question: "Can Marble replace Contentful's localized content model?",
+        answer: `Marble does not provide equivalent localized fields or arbitrary linked content types. You can plan separate translated posts and routes in your application, but you must manage their relationships yourself. Keep Contentful when those platform features are central to your workflow (<a href="${CONTENTFUL.dataModel.href}" target="_blank" rel="noopener">Contentful data model</a>).`,
+      },
+      {
+        question: "Can I import a Contentful export directly into Marble?",
+        answer: `No. Select the blog entries and intended locale from your Contentful export, resolve linked content, and convert the bodies to Markdown. Marble's <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> creates drafts from Markdown or MDX files. Review authors, taxonomy, covers, custom fields, images, and old URL mappings before publishing.`,
       },
     ],
   },
