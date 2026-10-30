@@ -6,7 +6,7 @@ interface MetadataFooterProps {
 }
 
 export function MetadataFooter({ isSubmitting }: MetadataFooterProps) {
-  const { hasUnsavedChanges, mode, submit } = useEditorData();
+  const { hasUnsavedChanges, publication, submit } = useEditorData();
 
   return (
     <AsyncButton
@@ -16,7 +16,7 @@ export function MetadataFooter({ isSubmitting }: MetadataFooterProps) {
       onClick={submit}
       type="button"
     >
-      {mode === "create" ? "Save" : "Update"}
+      {publication.status === "published" ? "Update" : "Save"}
     </AsyncButton>
   );
 }

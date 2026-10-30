@@ -8,7 +8,6 @@ import {
 } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
-import { RPCHandler } from "@orpc/server/fetch";
 import { Redis } from "@upstash/redis";
 import { asc, eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -20,7 +19,6 @@ import {
   sessionFor,
   testEnv,
 } from "../testing";
-import { createPost, updatePost } from "./posts";
 
 let testDb: TestDatabase;
 const redis = new Redis({ url: testEnv.REDIS_URL, token: testEnv.REDIS_TOKEN });
@@ -71,12 +69,282 @@ async function fixture() {
   return { ...request, client, input, user };
 }
 
+type PostInput = Awaited<ReturnType<typeof fixture>>["input"];
+
+function updateInput({ status: _s, publishedAt: _p, ...input }: PostInput) {
+  return input;
+}
+
 function eventRows(workspaceId: string) {
   return testDb.db.query.workspaceEvent.findMany({
     where: eq(workspaceEvent.workspaceId, workspaceId),
     orderBy: [asc(workspaceEvent.createdAt), asc(workspaceEvent.id)],
   });
 }
+
+describe("scheduling from the dashboard", () => {
+  const future = () => new Date(Date.now() + 60 * 60_000);
+
+  async function publicationOf(id: string) {
+    const row = await testDb.db.query.post.findFirst({
+      where: eq(post.id, id),
+      columns: { status: true, publishedAt: true },
+    });
+    return row;
+  }
+
+  it("creates a scheduled post without publishing it", async () => {
+    const { client, input } = await fixture();
+    const publishedAt = future();
+
+    const { id } = await client.create({
+      ...input,
+      status: "scheduled",
+      publishedAt,
+    });
+
+    expect(await publicationOf(id)).toEqual({
+      status: "scheduled",
+      publishedAt,
+    });
+    const [event] = await eventRows(input.workspaceId);
+    expect(event).toMatchObject({
+      type: "post_created",
+      payload: { status: "scheduled" },
+    });
+  });
+
+  it("rejects scheduling a time that has passed", async () => {
+    const { client, input } = await fixture();
+
+    await expect(
+      client.create({
+        ...input,
+        status: "scheduled",
+        publishedAt: new Date(Date.now() - 60_000),
+      })
+    ).rejects.toMatchObject({ status: 400 });
+
+    const { id } = await client.create(input);
+    await expect(
+      client.update({
+        ...updateInput(input),
+        id,
+        publication: {
+          status: "scheduled",
+          publishedAt: new Date(Date.now() - 60_000),
+          expectedStatus: "draft",
+        },
+      })
+    ).rejects.toMatchObject({ status: 400 });
+    expect(await publicationOf(id)).toMatchObject({ status: "draft" });
+  });
+
+  it("emits post_updated for schedule, reschedule and unschedule", async () => {
+    const { client, input } = await fixture();
+    const { id } = await client.create(input);
+    const base = { ...updateInput(input), id };
+
+    await client.update({
+      ...base,
+      publication: {
+        status: "scheduled",
+        publishedAt: future(),
+        expectedStatus: "draft",
+      },
+    });
+    await client.update({
+      ...base,
+      publication: {
+        status: "scheduled",
+        publishedAt: new Date(Date.now() + 2 * 60 * 60_000),
+        expectedStatus: "scheduled",
+      },
+    });
+    await client.update({
+      ...base,
+      publication: { status: "draft", expectedStatus: "scheduled" },
+    });
+
+    const rows = await eventRows(input.workspaceId);
+    expect(rows.map((event) => event.type)).toEqual([
+      "post_created",
+      "post_updated",
+      "post_updated",
+      "post_updated",
+    ]);
+  });
+
+  it("a save never changes the status or go-live time", async () => {
+    const { client, input } = await fixture();
+    const publishedAt = future();
+    const { id } = await client.create({
+      ...input,
+      status: "scheduled",
+      publishedAt,
+    });
+
+    await client.update({ ...updateInput(input), id, title: "Typo fixed" });
+
+    expect(await publicationOf(id)).toEqual({
+      status: "scheduled",
+      publishedAt,
+    });
+  });
+
+  it("a save still works on an overdue scheduled post", async () => {
+    const { client, input } = await fixture();
+    const { id } = await client.create({
+      ...input,
+      status: "scheduled",
+      publishedAt: future(),
+    });
+    const overdue = new Date(Date.now() - 60_000);
+    await testDb.db
+      .update(post)
+      .set({ publishedAt: overdue })
+      .where(eq(post.id, id));
+
+    await client.update({ ...updateInput(input), id, title: "Typo fixed" });
+
+    const row = await testDb.db.query.post.findFirst({
+      where: eq(post.id, id),
+    });
+    expect(row).toMatchObject({
+      title: "Typo fixed",
+      status: "scheduled",
+      publishedAt: overdue,
+    });
+  });
+
+  it("returns 409 and changes nothing when the status moved underneath the user", async () => {
+    const { client, input } = await fixture();
+    const publishedAt = new Date("2025-06-01T00:00:00Z");
+    const { id } = await client.create({
+      ...input,
+      status: "published",
+      publishedAt,
+    });
+
+    await expect(
+      client.update({
+        ...updateInput(input),
+        id,
+        title: "Stale tab",
+        publication: { status: "draft", expectedStatus: "scheduled" },
+      })
+    ).rejects.toMatchObject({ status: 409 });
+
+    const row = await testDb.db.query.post.findFirst({
+      where: eq(post.id, id),
+    });
+    expect(row).toMatchObject({ title: input.title, status: "published" });
+  });
+
+  describe("the date when a post is published", () => {
+    const past = new Date("2021-03-04T00:00:00Z");
+
+    it("becomes now when a scheduled post is published early", async () => {
+      const { client, input } = await fixture();
+      const { id } = await client.create({
+        ...input,
+        status: "scheduled",
+        publishedAt: future(),
+      });
+      const before = Date.now();
+
+      await client.update({
+        ...updateInput(input),
+        id,
+        publication: { status: "published", expectedStatus: "scheduled" },
+      });
+
+      const row = await publicationOf(id);
+      expect(row?.status).toBe("published");
+      expect(row?.publishedAt.getTime()).toBeGreaterThanOrEqual(before);
+      expect(row?.publishedAt.getTime()).toBeLessThanOrEqual(Date.now());
+    });
+
+    it("stays put when a draft has a past date", async () => {
+      const { client, input } = await fixture();
+      const { id } = await client.create({ ...input, publishedAt: past });
+
+      await client.update({
+        ...updateInput(input),
+        id,
+        publication: { status: "published", expectedStatus: "draft" },
+      });
+
+      expect(await publicationOf(id)).toEqual({
+        status: "published",
+        publishedAt: past,
+      });
+    });
+
+    it("becomes now when a draft kept a future date", async () => {
+      const { client, input } = await fixture();
+      const { id } = await client.create({ ...input, publishedAt: future() });
+      const before = Date.now();
+
+      await client.update({
+        ...updateInput(input),
+        id,
+        publication: { status: "published", expectedStatus: "draft" },
+      });
+
+      const row = await publicationOf(id);
+      expect(row?.publishedAt.getTime()).toBeGreaterThanOrEqual(before);
+      expect(row?.publishedAt.getTime()).toBeLessThanOrEqual(Date.now());
+    });
+
+    it("follows a date the request sends, future or past", async () => {
+      const { client, input } = await fixture();
+      const { id } = await client.create(input);
+      const later = future();
+
+      await client.update({
+        ...updateInput(input),
+        id,
+        publication: {
+          status: "published",
+          publishedAt: later,
+          expectedStatus: "draft",
+        },
+      });
+      expect(await publicationOf(id)).toEqual({
+        status: "published",
+        publishedAt: later,
+      });
+
+      await client.update({
+        ...updateInput(input),
+        id,
+        publication: {
+          status: "published",
+          publishedAt: past,
+          expectedStatus: "published",
+        },
+      });
+      expect(await publicationOf(id)).toEqual({
+        status: "published",
+        publishedAt: past,
+      });
+    });
+  });
+
+  it("opens a scheduled post in the editor", async () => {
+    const { client, input } = await fixture();
+    const { id } = await client.create({
+      ...input,
+      status: "scheduled",
+      publishedAt: future(),
+    });
+
+    await expect(
+      client.get({ workspaceId: input.workspaceId, id })
+    ).resolves.toMatchObject({ status: "scheduled" });
+  });
+});
 
 describe("dashboard post writes", () => {
   it.each(["draft", "published"] as const)(
@@ -118,15 +386,20 @@ describe("dashboard post writes", () => {
     const { id } = await client.create(input);
     await flush();
     const transitions = [
-      ["draft", "post_updated"],
-      ["published", "post_published"],
-      ["published", "post_updated"],
-      ["draft", "post_unpublished"],
+      ["draft", "draft", "post_updated"],
+      ["draft", "published", "post_published"],
+      ["published", "published", "post_updated"],
+      ["published", "draft", "post_unpublished"],
     ] as const;
-    for (const [status, eventType] of transitions) {
+    for (const [expectedStatus, status, eventType] of transitions) {
       const key = `cache:${input.workspaceId}:posts:v1:${id}`;
       await redis.set(key, "stale");
-      const values = { ...input, id, status, title: `Edited ${eventType}` };
+      const values = {
+        ...updateInput(input),
+        id,
+        title: `Edited ${eventType}`,
+        publication: { status, expectedStatus },
+      };
       await client.update(values);
       await flush();
       const rows = await eventRows(input.workspaceId);
@@ -153,10 +426,10 @@ describe("dashboard post writes", () => {
           "tags",
           "authors",
           "category",
-          "status",
           "featured",
-          "publishedAt",
           "customFields",
+          "status",
+          "publishedAt",
         ]);
       } else {
         expect(latest?.payload).not.toHaveProperty("changes");
@@ -377,40 +650,5 @@ describe("scheduled dashboard posts", () => {
         })
       ).posts
     ).toEqual([]);
-  });
-
-  it("rejects scheduled input at RPC and service write boundaries", async () => {
-    const f = await scheduledFixture();
-    const input = { ...f.input, status: "scheduled" as const };
-    const handler = new RPCHandler(postsRouter);
-    for (const [procedure, body] of [
-      ["create", input],
-      ["update", { ...input, id: f.id }],
-    ] as const) {
-      const result = await handler.handle(
-        new Request(`http://localhost/rpc/${procedure}`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ json: body }),
-        }),
-        { prefix: "/rpc", context: f.context }
-      );
-      if (!result.matched) {
-        throw new Error("Post procedure did not match");
-      }
-      expect(result.response.status).toBe(400);
-      expect(await result.response.json()).toMatchObject({
-        json: { code: "BAD_REQUEST" },
-      });
-    }
-    await expect(
-      createPost(f.context, f.input.workspaceId, f.user, input)
-    ).rejects.toMatchObject({ status: 400 });
-    await expect(
-      updatePost(f.context, f.input.workspaceId, f.id, f.user, input)
-    ).rejects.toMatchObject({ status: 400 });
-    expect(
-      (await f.client.list({ workspaceId: f.input.workspaceId })).totalCount
-    ).toBe(1);
   });
 });

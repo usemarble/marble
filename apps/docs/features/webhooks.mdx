@@ -355,6 +355,8 @@ The top-level envelope is the same for `post.published`, `post.updated`, `post.d
 
 Post payloads include `id`, `title`, `slug`, `description`, `coverImage`, `status`, `featured`, `categoryId`, `primaryAuthorId`, `publishedAt`, `createdAt`, and `updatedAt`. Update events also include `changes`, an array of field names that changed.
 
+`status` is `published`, `draft`, or `scheduled`. A scheduled post sends `post.created` or `post.updated` with `status: "scheduled"` and is not live yet. When its publish time arrives, Marble sends `post.published`. That event has no user behind it, so its actor type is `system`.
+
 Category and tag payloads include `id`, `name`, `slug`, `description`, `createdAt`, and `updatedAt`. Author payloads include profile fields such as `name`, `slug`, `bio`, `role`, `image`, `email`, and `socials`. Media payloads use `name` and media metadata such as `url`, `alt`, `type`, `size`, `mimeType`, dimensions, duration, and `blurHash`.
 
 ## Event Types

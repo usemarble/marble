@@ -19,6 +19,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { PublishPopover } from "./publish-popover";
 import { ShareModal } from "./share-modal";
 
 interface EditorHeaderProps {
@@ -53,6 +54,7 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
 
       <div className="flex items-center gap-2">
         {postId && <ShareModal postId={postId} />}
+        <PublishPopover />
         <Tooltip>
           <TooltipTrigger
             delay={400}

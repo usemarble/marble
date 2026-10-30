@@ -3,7 +3,7 @@ import { ORPCError, ValidationError } from "@orpc/server";
 import { z } from "zod";
 import { workspaceProcedure } from "../index";
 import { customFieldsPayloadSchema } from "../lib/custom-fields";
-import { postSchema, postUpsertSchema } from "../lib/post-validation";
+import { postUpdateSchema, postUpsertSchema } from "../lib/post-validation";
 import {
   createPost,
   deletePost,
@@ -145,7 +145,7 @@ export const postsRouter = {
       z.object({
         slug: z.string(),
         title: z.string(),
-        status: postSchema.shape.status,
+        status: z.enum(POST_STATUSES),
         featured: z.boolean(),
         content: z.string(),
         coverImage: z.string().nullable(),
@@ -157,10 +157,9 @@ export const postsRouter = {
         authors: z.array(z.string()),
       })
     )
-    .handler(async ({ context, input }) => {
-      const post = await getPost(context, context.workspaceId, input.id);
-      return { ...post, status: postSchema.shape.status.parse(post.status) };
-    }),
+    .handler(({ context, input }) =>
+      getPost(context, context.workspaceId, input.id)
+    ),
   create: postsProcedure
     .route({
       method: "POST",
@@ -180,7 +179,7 @@ export const postsRouter = {
       tags: ["Posts"],
       summary: "Update a dashboard post",
     })
-    .input(postUpsertSchema.extend(postInput.shape))
+    .input(postUpdateSchema.extend(postInput.shape))
     .output(idOutput)
     .handler(({ context, input }) =>
       updatePost(

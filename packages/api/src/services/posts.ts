@@ -32,8 +32,11 @@ import {
   customFieldsPayloadSchema,
   resolveCustomFieldValues,
 } from "../lib/custom-fields";
+import { applyPublicationChange, postEventType } from "../lib/post-publication";
 import {
+  type PostUpdateValues,
   type PostUpsertValues,
+  postUpdateSchema,
   postUpsertSchema,
 } from "../lib/post-validation";
 import { transact } from "../lib/transaction";
@@ -212,8 +215,7 @@ export interface PostActor {
   image?: string | null;
 }
 
-function parsePost(input: unknown): PostUpsertValues {
-  const result = postUpsertSchema.safeParse(input);
+function parsePostBody<T>(result: z.ZodSafeParseResult<T>): T {
   if (!result.success) {
     throw new PostError(400, "Invalid request body", {
       details: result.error.issues,
@@ -221,6 +223,9 @@ function parsePost(input: unknown): PostUpsertValues {
   }
   return result.data;
 }
+
+const GO_LIVE_NOT_IN_FUTURE = "Choose a future time to schedule this post";
+const POST_STATUS_CHANGED = "This post changed since you opened it";
 
 async function validateWorkspaceTags(
   ctx: ServiceContext,
@@ -309,7 +314,12 @@ export async function createPost(
   input: unknown
 ) {
   const { db } = ctx;
-  const values = parsePost(input);
+  const values: PostUpsertValues = parsePostBody(
+    postUpsertSchema.safeParse(input)
+  );
+  if (values.status === "scheduled" && values.publishedAt <= new Date()) {
+    throw new PostError(400, GO_LIVE_NOT_IN_FUTURE);
+  }
   const existingPost = await db.query.post.findFirst({
     where: and(eq(post.slug, values.slug), eq(post.workspaceId, workspaceId)),
   });
@@ -502,7 +512,8 @@ export async function updatePost(
   input: unknown
 ) {
   const { db } = ctx;
-  const values = parsePost(input);
+  const { publication: publicationChange, ...values }: PostUpdateValues =
+    parsePostBody(postUpdateSchema.safeParse(input));
   const postWithSlug = await db.query.post.findFirst({
     where: and(
       eq(post.slug, values.slug),
@@ -556,15 +567,6 @@ export async function updatePost(
     throw new PostError(500, "Unable to determine primary author");
   }
 
-  const previousPost = await db.query.post.findFirst({
-    where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
-    columns: { status: true },
-  });
-
-  if (!previousPost) {
-    throw new PostError(404, "Post not found");
-  }
-
   try {
     const customFieldWrites = await buildCustomFieldWrites(
       db,
@@ -581,6 +583,31 @@ export async function updatePost(
       async ({ tx, emitEvent, invalidate }) => {
         const now = new Date();
 
+        // Locked so a publish by the jobs Worker can't land between this read
+        // and the write, which would send a second `post_published`.
+        const [previousPost] = await tx
+          .select({ status: post.status, publishedAt: post.publishedAt })
+          .from(post)
+          .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+          .for("update");
+
+        if (!previousPost) {
+          throw new PostError(404, "Post not found");
+        }
+
+        const publication = applyPublicationChange(
+          previousPost,
+          publicationChange,
+          now
+        );
+
+        if (publication === "status_changed") {
+          throw new PostError(409, POST_STATUS_CHANGED);
+        }
+        if (publication === "go_live_not_in_future") {
+          throw new PostError(400, GO_LIVE_NOT_IN_FUTURE);
+        }
+
         const [updatedPost] = await tx
           .update(post)
           .set({
@@ -588,13 +615,13 @@ export async function updatePost(
             contentJson,
             slug: values.slug,
             title: values.title,
-            status: values.status,
+            status: publication.status,
             featured: values.featured,
             content: cleanContent,
             categoryId: values.category,
             coverImage: values.coverImage,
             description: values.description,
-            publishedAt: values.publishedAt,
+            publishedAt: publication.publishedAt,
             workspaceId,
             updatedAt: now,
           })
@@ -628,17 +655,16 @@ export async function updatePost(
 
         await writeCustomFieldValues(tx, workspaceId, id, customFieldWrites);
 
-        const eventType =
-          previousPost.status !== "published" &&
-          updatedPost.status === "published"
-            ? "post_published"
-            : previousPost.status === "published" &&
-                updatedPost.status !== "published"
-              ? "post_unpublished"
-              : "post_updated";
+        const eventType = postEventType(
+          previousPost.status,
+          updatedPost.status
+        );
         const payload =
           eventType === "post_updated"
-            ? withChanges(toPostPayload(updatedPost), Object.keys(values))
+            ? withChanges(toPostPayload(updatedPost), [
+                ...Object.keys(values),
+                ...(publicationChange ? ["status", "publishedAt"] : []),
+              ])
             : toPostPayload(updatedPost);
         await emitEvent({
           type: eventType,

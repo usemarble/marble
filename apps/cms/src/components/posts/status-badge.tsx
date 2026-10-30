@@ -11,6 +11,7 @@ import {
   formatScheduledDate,
   POST_STATUS_PRESENTATION,
 } from "@/lib/post-status";
+import { useWorkspace } from "@/providers/workspace";
 
 export function PostStatusBadge({
   className,
@@ -21,6 +22,7 @@ export function PostStatusBadge({
   publishedAt: Date;
   status: PostStatus;
 }) {
+  const { activeWorkspace } = useWorkspace();
   const presentation = POST_STATUS_PRESENTATION[status];
   const badge = (
     <Badge className={className} variant={presentation.variant}>
@@ -34,7 +36,8 @@ export function PostStatusBadge({
     <Tooltip>
       <TooltipTrigger render={<span />}>{badge}</TooltipTrigger>
       <TooltipContent>
-        {presentation.dateLabel}: {formatScheduledDate(new Date(publishedAt))}
+        {presentation.dateLabel}:{" "}
+        {formatScheduledDate(new Date(publishedAt), activeWorkspace?.timezone)}
       </TooltipContent>
     </Tooltip>
   );
