@@ -2,8 +2,8 @@
 
 Cloudflare Worker for background jobs that should not run in the API or CMS
 request path. It currently owns webhook event fan-out, webhook delivery
-attempts, customer webhook failure notifications, dead-letter queue handling,
-and scheduled cleanup.
+attempts, customer webhook failure notifications, publishing scheduled posts,
+dead-letter queue handling, and scheduled cleanup.
 
 ## Queues
 
@@ -34,6 +34,19 @@ dead-letter queue, configured in `cloudflare.config.ts`.
 Fan-out is idempotent through the unique `(eventId, webhookEndpointId)` delivery
 constraint. If an event message is retried after a partial fan-out, existing
 delivery rows are reused instead of duplicated.
+
+## Scheduled publishing
+
+The `* * * * *` cron calls `publishDuePosts` from `@marble/api`. It flips each
+due post from `scheduled` to `published` in its own transaction, together with a
+`post_published` event (actor and source `system`). `FOR UPDATE SKIP LOCKED` and
+the status guard make overlapping and retried runs safe. After the commits it
+clears the API read cache for each affected workspace, then sends the events, so
+a site that rebuilds on the webhook never reads a list without the post.
+
+A run publishes at most 100 posts and the next run takes the rest. A post that
+fails is logged and skipped so it can't block others, and any post more than
+five minutes overdue logs an error.
 
 ## Outbox sweep
 
@@ -184,3 +197,7 @@ Required bindings and secrets:
 - `WEBHOOK_DELIVERY_QUEUE`: producer binding for `marble-webhook-deliveries`.
 - `APP_URL`: CMS origin for links in webhook failure emails.
 - `RESEND_API_KEY`: used for usage alerts and webhook failure emails.
+- `REDIS_URL`, `REDIS_TOKEN`: clear the API read cache when a scheduled post
+  goes live. They must point at the same Redis as the API Worker. A deploy fails
+  while a declared secret is missing, so add new ones with one interactive
+  `cf deploy --secrets-file` per mode.

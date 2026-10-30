@@ -22,7 +22,9 @@ const MIGRATIONS_FOLDER = fileURLToPath(
 
 export interface TestDatabase {
   db: HyperdriveDb;
-  /** Ends the connection and drops the database. */
+  /** Opens another connection, for tests that race two sessions. */
+  connect(): Promise<HyperdriveDb>;
+  /** Ends every connection and drops the database. */
   close(): Promise<void>;
 }
 
@@ -53,9 +55,18 @@ export async function createTestDatabase(): Promise<TestDatabase> {
     throw error;
   }
 
+  const extraClients: Client[] = [];
+
   return {
     db,
+    async connect() {
+      const extra = new Client({ connectionString: url.toString() });
+      await extra.connect();
+      extraClients.push(extra);
+      return drizzle({ client: extra, schema });
+    },
     async close() {
+      await Promise.all(extraClients.map((extra) => extra.end()));
       await client.end();
       await admin.query(`DROP DATABASE ${name} WITH (FORCE)`);
       await admin.end();
