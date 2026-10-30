@@ -1,12 +1,16 @@
 "use client";
 
+import { Rocket01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
+import { DialogBody } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import {
   Popover,
   PopoverContent,
+  PopoverTitle,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { Tabs, TabsList, TabsTrigger } from "@marble/ui/components/tabs";
@@ -386,14 +390,29 @@ export function PublishPopover() {
           </Button>
         }
       />
-      <PopoverContent align="end" className="flex w-80 flex-col gap-4 p-4">
-        <p className="font-medium text-sm">{label}</p>
-        {/* Keyed so a refetch that finds a new status or time resets the form. */}
-        <PublishForm
-          key={`${publication.status}:${publication.publishedAt.getTime()}`}
-          onDone={() => setOpen(false)}
-          timeZone={timeZone}
-        />
+      <PopoverContent
+        align="end"
+        className="flex w-80 flex-col rounded-[1.5rem] border-0 bg-surface p-1 shadow-2xl sm:p-1.5"
+      >
+        <div className="flex items-center gap-2 px-4 py-2">
+          <HugeiconsIcon
+            className="text-muted-foreground"
+            icon={Rocket01Icon}
+            size={18}
+            strokeWidth={2}
+          />
+          <PopoverTitle className="text-muted-foreground text-sm">
+            Status
+          </PopoverTitle>
+        </div>
+        <DialogBody>
+          {/* Keyed so a refetch that finds a new status or time resets the form. */}
+          <PublishForm
+            key={`${publication.status}:${publication.publishedAt.getTime()}`}
+            onDone={() => setOpen(false)}
+            timeZone={timeZone}
+          />
+        </DialogBody>
       </PopoverContent>
     </Popover>
   );
