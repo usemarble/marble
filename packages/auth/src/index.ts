@@ -62,6 +62,7 @@ import {
   getWorkspaceMembershipLimit,
   guardWorkspaceInviteSeat,
 } from "./subscription";
+import { resolveSignupTimezone } from "./timezone";
 import { findWorkspaceToActivate } from "./workspace";
 
 export type { AuthEnv } from "./env";
@@ -74,6 +75,10 @@ function getBodyString(body: unknown, key: string) {
   }
   const value = (body as Record<string, unknown>)[key];
   return typeof value === "string" ? value : undefined;
+}
+
+function cloudflareTimezone(request: Request | undefined) {
+  return (request as { cf?: { timezone?: unknown } } | undefined)?.cf?.timezone;
 }
 
 async function sendOnboardingEmails(
@@ -471,7 +476,10 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
               body: {
                 name: "Personal",
                 slug,
-                timezone: "Europe/London",
+                timezone: resolveSignupTimezone({
+                  cookieHeader: context?.headers?.get("cookie"),
+                  cloudflareTimezone: cloudflareTimezone(context?.request),
+                }),
                 userId: user.id,
                 logo: `https://api.dicebear.com/9.x/glass/svg?seed=${slug}`,
               },

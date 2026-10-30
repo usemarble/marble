@@ -193,4 +193,49 @@ describe("Worker auth configuration", () => {
       ),
     });
   });
+
+  it.each([
+    [
+      "the browser cookie",
+      { cookie: "marble_timezone=America%2FNew_York" },
+      "Asia/Tokyo",
+      "America/New_York",
+    ],
+    ["Cloudflare without a cookie", {}, "Asia/Tokyo", "Asia/Tokyo"],
+    [
+      "Europe/London with nothing usable",
+      { cookie: "marble_timezone=Mars%2FOlympus" },
+      undefined,
+      "Europe/London",
+    ],
+  ])(
+    "creates the Personal workspace with %s",
+    async (_source, headers, timezone, expected) => {
+      const auth = createAuth({ db, env: testEnv() });
+      const createOrganization = vi
+        .spyOn(auth.api, "createOrganization")
+        .mockResolvedValue(null as never);
+      const request = Object.assign(new Request("http://localhost:8787"), {
+        cf: { timezone },
+      });
+
+      await auth.options.databaseHooks.user.create.after(
+        {
+          id: "timezone-user",
+          name: "Timezone User",
+          email: "timezone@staging.invalid",
+          emailVerified: false,
+          image: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        { headers: new Headers(headers), request } as never
+      );
+
+      expect(createOrganization.mock.calls[0]?.[0]?.body).toMatchObject({
+        name: "Personal",
+        timezone: expected,
+      });
+    }
+  );
 });

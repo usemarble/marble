@@ -77,6 +77,9 @@ export const RESERVED_WORKSPACE_SLUGS = [
 
 export const timezones = Intl.supportedValuesOf("timeZone");
 
+/** Carries the browser's timezone from the dashboard to the sign-up request. */
+export const SIGNUP_TIMEZONE_COOKIE = "marble_timezone";
+
 const workspaceSlugField = z
   .string()
   .min(4, { message: "Slug must be at least 4 characters" })

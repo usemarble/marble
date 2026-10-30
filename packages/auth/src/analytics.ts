@@ -1,7 +1,7 @@
 import { Databuddy } from "@databuddy/sdk/node";
 import type { AuthEnv } from "./env";
 
-function cookieValue(header: string | null | undefined, name: string) {
+export function readCookie(header: string | null | undefined, name: string) {
   const value = header
     ?.split(";")
     .map((part) => part.trim())
@@ -12,11 +12,17 @@ function cookieValue(header: string | null | undefined, name: string) {
   }
 
   try {
-    const decoded = decodeURIComponent(value);
-    return /^[a-zA-Z0-9_-]{8,128}$/.test(decoded) ? decoded : undefined;
+    return decodeURIComponent(value);
   } catch {
     return;
   }
+}
+
+function cookieValue(header: string | null | undefined, name: string) {
+  const decoded = readCookie(header, name);
+  return decoded && /^[a-zA-Z0-9_-]{8,128}$/.test(decoded)
+    ? decoded
+    : undefined;
 }
 
 export async function trackRegistrationCompleted({
