@@ -374,6 +374,7 @@ export function PublishPopover() {
         render={
           <Button
             aria-label={`Post status: ${summary}. Change publishing options`}
+            className="active:scale-100"
             size="sm"
             type="button"
             variant="ghost"
