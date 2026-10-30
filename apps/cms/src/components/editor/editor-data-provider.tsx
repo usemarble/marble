@@ -385,7 +385,11 @@ export function EditorDataProvider({
 
   const submit = useCallback(() => {
     flushBeforeSubmit();
-    form.handleSubmit((values) => save(values), handleInvalidSubmit)();
+    form
+      .handleSubmit((values) => save(values), handleInvalidSubmit)()
+      .catch(() => {
+        // The mutation's onError already told the user.
+      });
   }, [flushBeforeSubmit, form, handleInvalidSubmit, save]);
 
   const changePublication = useCallback(

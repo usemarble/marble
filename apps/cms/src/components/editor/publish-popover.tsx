@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import { CalendarDotsIcon, CaretDownIcon } from "@phosphor-icons/react";
-import { addDays, format, isAfter, startOfDay } from "date-fns";
+import { addDays, addYears, format, isAfter, startOfDay } from "date-fns";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -33,13 +33,17 @@ import { FieldInfo } from "./fields/field-info";
 
 const FALLBACK_TIME_ZONE = "Europe/London";
 const DEFAULT_GO_LIVE_TIME = "09:00";
+/** The calendar's year dropdown otherwise stops at the end of this year. */
+const GO_LIVE_YEARS_AHEAD = 5;
 
 function DayPicker({
   disabled,
+  endMonth,
   onSelect,
   selected,
 }: {
   disabled?: (day: Date) => boolean;
+  endMonth?: Date;
   onSelect: (day: Date) => void;
   selected: Date;
 }) {
@@ -60,7 +64,9 @@ function DayPicker({
         <Calendar
           autoFocus
           captionLayout="dropdown"
+          defaultMonth={selected}
           disabled={disabled}
+          endMonth={endMonth}
           mode="single"
           onSelect={(day: Date | undefined) => {
             if (day) {
@@ -101,6 +107,7 @@ function GoLivePicker({
       <Label>Goes live</Label>
       <DayPicker
         disabled={(day) => day < toWallClockTime(new Date(), timeZone).day}
+        endMonth={addYears(new Date(), GO_LIVE_YEARS_AHEAD)}
         onSelect={(day) => onChange({ ...value, day })}
         selected={value.day}
       />
