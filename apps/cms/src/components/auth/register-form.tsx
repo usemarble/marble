@@ -15,6 +15,7 @@ import { env } from "@/env";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
+import { saveBrowserTimezone } from "@/lib/auth/signup-timezone";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
@@ -85,6 +86,7 @@ export function RegisterForm() {
     track("registration_started", { method: "email" });
 
     try {
+      saveBrowserTimezone();
       await saveAttribution();
       await authClient.signUp.email(
         {
@@ -119,6 +121,7 @@ export function RegisterForm() {
     }
 
     try {
+      saveBrowserTimezone();
       await saveAttribution();
       const result = await authClient.signIn.social({
         provider,

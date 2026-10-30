@@ -17,6 +17,11 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.url(),
     /** The marketing site. */
     NEXT_PUBLIC_SITE_URL: z.url().default("https://marblecms.com"),
+    /**
+     * The domain the API Worker shares its auth cookies on (AUTH_COOKIE_DOMAIN).
+     * Unset in local development, where localhost already shares cookies.
+     */
+    NEXT_PUBLIC_AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
     /** Analytics is off when these aren't set (local development). */
     NEXT_PUBLIC_DATABUDDY_CLIENT_ID: z.string().min(1).optional(),
     NEXT_PUBLIC_DATABUDDY_WEB_CLIENT_ID: z.string().min(1).optional(),
@@ -25,6 +30,7 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_AUTH_COOKIE_DOMAIN: process.env.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN,
     NEXT_PUBLIC_DATABUDDY_CLIENT_ID:
       process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID,
     NEXT_PUBLIC_DATABUDDY_WEB_CLIENT_ID:
