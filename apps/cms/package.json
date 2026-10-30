@@ -35,6 +35,7 @@
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "croner": "^9.1.0",
+    "@date-fns/tz": "^1.5.0",
     "date-fns": "^4.1.0",
     "input-otp": "^1.4.2",
     "lowlight": "^3.3.0",

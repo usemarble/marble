@@ -284,6 +284,9 @@ importers:
       '@databuddy/sdk':
         specifier: ^2.4.20
         version: 2.6.0(react@19.3.0)
+      '@date-fns/tz':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv-errors@3.0.0(ajv@8.20.0))(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.3)(effect@3.20.0)(react-hook-form@7.85.0(react@19.3.0))(valibot@1.4.2(typescript@5.9.3))(zod@4.6.5)

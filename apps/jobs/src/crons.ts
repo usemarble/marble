@@ -11,5 +11,8 @@ export const CLEANUP_CRON = "0 * * * *";
  */
 export const OUTBOX_SWEEP_CRON = "*/5 * * * *";
 
-/** Customer endpoint health and durable failure-email delivery. */
-export const WEBHOOK_NOTIFICATIONS_CRON = "* * * * *";
+/**
+ * Customer endpoint health, durable failure-email delivery, and publishing
+ * scheduled posts that are due.
+ */
+export const EVERY_MINUTE_CRON = "* * * * *";

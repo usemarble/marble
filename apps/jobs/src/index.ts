@@ -10,13 +10,10 @@ import { handleWebhookDeliveryQueue } from "@/consumers/deliveries";
 import { handleDeadLetterQueue } from "@/consumers/dlq";
 import { handleEventQueue } from "@/consumers/events";
 import { handleTaskQueue } from "@/consumers/tasks";
-import {
-  CLEANUP_CRON,
-  OUTBOX_SWEEP_CRON,
-  WEBHOOK_NOTIFICATIONS_CRON,
-} from "@/crons";
+import { CLEANUP_CRON, EVERY_MINUTE_CRON, OUTBOX_SWEEP_CRON } from "@/crons";
 import { handleCleanup } from "@/scheduled/cleanup";
 import { handleOutboxSweep } from "@/scheduled/outbox";
+import { handleScheduledPosts } from "@/scheduled/scheduled-posts";
 import { handleWebhookNotifications } from "@/scheduled/webhook-notifications";
 import type { Env } from "@/types/env";
 
@@ -60,8 +57,9 @@ export default {
       case OUTBOX_SWEEP_CRON:
         ctx.waitUntil(handleOutboxSweep());
         break;
-      case WEBHOOK_NOTIFICATIONS_CRON:
+      case EVERY_MINUTE_CRON:
         ctx.waitUntil(handleWebhookNotifications());
+        ctx.waitUntil(handleScheduledPosts());
         break;
       default:
         console.error(`[Jobs] Unknown cron: ${event.cron}`);

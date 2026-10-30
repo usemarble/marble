@@ -8,6 +8,7 @@ import {
   postEditorSchema,
 } from "@marble/api/lib/post-validation";
 import { toast } from "@marble/ui/components/sonner";
+import type { PostStatus } from "@marble/utils/post-status";
 import {
   skipToken,
   useMutation,
@@ -40,7 +41,56 @@ interface EditorBootstrap {
   values: PostEditorValues;
 }
 
+export interface PostPublication {
+  status: PostStatus;
+  publishedAt: Date;
+}
+
+export interface PublicationRequest {
+  status: PostStatus;
+  /** Left out, the server keeps the stored date or sets it for an early publish. */
+  publishedAt?: Date;
+}
+
+/** Refetching this long after the go-live time gives the cron room to run. */
+const GO_LIVE_REFETCH_DELAY_MS = 60_000;
+/** Timers can't run past about 24.8 days, and few tabs stay open for even one. */
+const GO_LIVE_REFETCH_HORIZON_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * When to refetch a scheduled post so its status chip flips as it goes live. An
+ * overdue post keeps polling until the cron publishes it.
+ */
+function goLiveRefetchInterval(post?: PostPublication) {
+  if (post?.status !== "scheduled") {
+    return false;
+  }
+  const delay =
+    post.publishedAt.getTime() - Date.now() + GO_LIVE_REFETCH_DELAY_MS;
+  return delay > GO_LIVE_REFETCH_HORIZON_MS
+    ? false
+    : Math.max(delay, GO_LIVE_REFETCH_DELAY_MS);
+}
+
+function publicationToast(from: PostStatus, to: PostStatus) {
+  if (to === "published" && from !== "published") {
+    return "Post published";
+  }
+  if (to === "scheduled") {
+    return from === "scheduled" ? "Post rescheduled" : "Post scheduled";
+  }
+  if (to === "draft" && from === "scheduled") {
+    return "Post unscheduled";
+  }
+  if (to === "draft" && from === "published") {
+    return "Post unpublished";
+  }
+  return "Post updated";
+}
+
 interface EditorDataContextValue {
+  /** Publish, schedule, unschedule or unpublish, with any unsaved edits. Resolves true on success. */
+  changePublication: (request: PublicationRequest) => Promise<boolean>;
   fieldDefinitions: CustomField[];
   form: ReturnType<typeof useForm<PostEditorInput, unknown, PostEditorValues>>;
   hasUnsavedChanges: boolean;
@@ -48,6 +98,9 @@ interface EditorDataContextValue {
   isSubmitting: boolean;
   mode: EditorMode;
   postId?: string;
+  /** Server state, not form state: a save can never change it. */
+  publication: PostPublication;
+  refreshPublication: () => void;
   /**
    * Register work that must run right before the form is submitted, such as
    * writing debounced editor content into the form. Returns an unregister
@@ -68,7 +121,6 @@ const CORE_FIELD_LABELS: Record<string, string> = {
   category: "Category",
   content: "Content",
   contentJson: "Content",
-  publishedAt: "Publish date",
   coverImage: "Cover image",
 };
 
@@ -77,15 +129,11 @@ function buildEditorValues(
   post?: PostValues,
   customFieldValues?: Record<string, string>
 ): PostEditorValues {
-  const values: PostValues = post
-    ? {
-        ...post,
-        publishedAt: new Date(post.publishedAt),
-      }
-    : {
-        ...emptyPost,
-        authors: [],
-      };
+  const {
+    status: _status,
+    publishedAt: _publishedAt,
+    ...values
+  }: PostValues = post ?? { ...emptyPost, authors: [] };
 
   return {
     ...values,
@@ -133,6 +181,7 @@ export function EditorDataProvider({
     orpc.posts.get.queryOptions({
       input: workspaceId && postId ? { workspaceId, id: postId } : skipToken,
       staleTime: 1000 * 60 * 5,
+      refetchInterval: (query) => goLiveRefetchInterval(query.state.data),
     })
   );
   const postFieldsQuery = useQuery(
@@ -168,6 +217,17 @@ export function EditorDataProvider({
       ),
     };
   }, [newFieldsQuery.data, postFieldsQuery.data, postId, postQuery.data]);
+  const publication = useMemo<PostPublication>(
+    () =>
+      postQuery.data
+        ? {
+            status: postQuery.data.status,
+            publishedAt: postQuery.data.publishedAt,
+          }
+        : { status: "draft", publishedAt: emptyPost.publishedAt },
+    [postQuery.data]
+  );
+  const { refetch: refetchPost } = postQuery;
   const bootstrapError = postId
     ? (postQuery.error ?? postFieldsQuery.error)
     : newFieldsQuery.error;
@@ -202,7 +262,6 @@ export function EditorDataProvider({
   const createMutation = useMutation(
     orpc.posts.create.mutationOptions({
       onSuccess: async (data) => {
-        toast.success("Post created");
         await queryClient.invalidateQueries({
           queryKey: orpc.posts.list.key({ input: { workspaceId } }),
         });
@@ -217,13 +276,17 @@ export function EditorDataProvider({
   const updateMutation = useMutation(
     orpc.posts.update.mutationOptions({
       onSuccess: async () => {
-        toast.success("Post updated");
         await queryClient.invalidateQueries({
           queryKey: orpc.posts.key({ input: { workspaceId } }),
         });
       },
       onError: (error) => {
         toast.error(error.message);
+        // The status moved under the user. Show the real one without a reload,
+        // which would lose unsaved edits.
+        if ("code" in error && error.code === "CONFLICT") {
+          refetchPost();
+        }
       },
     })
   );
@@ -254,8 +317,8 @@ export function EditorDataProvider({
     );
   }, [bootstrap, form.formState.errors]);
 
-  const handleValidSubmit = useCallback(
-    async (values: PostEditorValues) => {
+  const save = useCallback(
+    async (values: PostEditorValues, request?: PublicationRequest) => {
       if (!workspaceId) {
         throw new Error("Missing workspace ID");
       }
@@ -268,17 +331,40 @@ export function EditorDataProvider({
         ),
       };
       if (postId) {
-        await updateMutation.mutateAsync({ ...input, id: postId });
+        await updateMutation.mutateAsync({
+          ...input,
+          id: postId,
+          publication: request && {
+            ...request,
+            expectedStatus: publication.status,
+          },
+        });
         form.reset(values);
+        toast.success(
+          request
+            ? publicationToast(publication.status, request.status)
+            : "Post updated"
+        );
         return;
       }
-      await createMutation.mutateAsync(input);
+      await createMutation.mutateAsync({
+        ...input,
+        status: request?.status ?? publication.status,
+        publishedAt: request?.publishedAt ?? publication.publishedAt,
+      });
+      toast.success(
+        request
+          ? publicationToast(publication.status, request.status)
+          : "Post created"
+      );
     },
     [
       bootstrap?.fields,
       createMutation,
       form,
       postId,
+      publication.status,
+      publication.publishedAt,
       updateMutation,
       workspaceId,
     ]
@@ -291,17 +377,42 @@ export function EditorDataProvider({
     };
   }, []);
 
-  const submit = useCallback(() => {
+  const flushBeforeSubmit = useCallback(() => {
     for (const callback of beforeSubmitCallbacks.current) {
       callback();
     }
+  }, []);
 
-    form.handleSubmit(handleValidSubmit, handleInvalidSubmit)();
-  }, [form, handleInvalidSubmit, handleValidSubmit]);
+  const submit = useCallback(() => {
+    flushBeforeSubmit();
+    form
+      .handleSubmit((values) => save(values), handleInvalidSubmit)()
+      .catch(() => {
+        // The mutation's onError already told the user.
+      });
+  }, [flushBeforeSubmit, form, handleInvalidSubmit, save]);
+
+  const changePublication = useCallback(
+    async (request: PublicationRequest) => {
+      flushBeforeSubmit();
+      let succeeded = false;
+      try {
+        await form.handleSubmit(async (values) => {
+          await save(values, request);
+          succeeded = true;
+        }, handleInvalidSubmit)();
+      } catch {
+        // The mutation's onError already told the user.
+      }
+      return succeeded;
+    },
+    [flushBeforeSubmit, form, handleInvalidSubmit, save]
+  );
 
   const contextValue = useMemo<EditorDataContextValue>(() => {
     const fieldDefinitions = bootstrap?.fields ?? [];
     return {
+      changePublication,
       fieldDefinitions,
       form,
       hasUnsavedChanges: form.formState.isDirty,
@@ -309,26 +420,37 @@ export function EditorDataProvider({
       isSubmitting: createMutation.isPending || updateMutation.isPending,
       mode,
       postId,
+      publication,
+      refreshPublication: refetchPost,
       registerBeforeSubmit,
       submit,
     };
   }, [
     bootstrap,
+    changePublication,
     createMutation.isPending,
     form,
     form.formState.isDirty,
     hasHydrated,
     mode,
     postId,
+    publication,
+    refetchPost,
     registerBeforeSubmit,
     submit,
     updateMutation.isPending,
   ]);
 
-  if (bootstrapError) {
-    if ("code" in bootstrapError && bootstrapError.code === "NOT_FOUND") {
-      return notFound();
-    }
+  if (
+    bootstrapError &&
+    "code" in bootstrapError &&
+    bootstrapError.code === "NOT_FOUND"
+  ) {
+    return notFound();
+  }
+  // A failed background refetch keeps the loaded post on screen. Throwing would
+  // replace the editor and lose unsaved edits.
+  if (bootstrapError && !bootstrap) {
     throw bootstrapError;
   }
   if (!bootstrap || !hasHydrated) {

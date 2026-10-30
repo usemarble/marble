@@ -10,9 +10,7 @@ import { CoverImageSelector } from "../fields/cover-image-selector";
 import { CustomFieldsSection } from "../fields/custom-fields-section";
 import { DescriptionField } from "../fields/description-field";
 import { FeaturedField } from "../fields/featured-field";
-import { PublishDateField } from "../fields/publish-date-field";
 import { SlugField } from "../fields/slug-field";
-import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
 
 interface MetadataTabProps {
@@ -26,8 +24,6 @@ export function MetadataTab({ initialAuthors, tags }: MetadataTabProps) {
   return (
     <HiddenScrollbar className="h-full px-6">
       <section className="grid gap-6 pt-4 pb-5">
-        <StatusField control={control} />
-
         <FeaturedField control={control} />
 
         <Separator className="flex" orientation="horizontal" />
@@ -46,8 +42,6 @@ export function MetadataTab({ initialAuthors, tags }: MetadataTabProps) {
         <TagSelector control={control} defaultTags={tags || []} />
 
         <CategorySelector control={control} />
-
-        <PublishDateField control={control} />
 
         <CustomFieldsSection />
       </section>

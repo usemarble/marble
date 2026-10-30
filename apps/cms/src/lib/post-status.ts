@@ -21,9 +21,10 @@ export const POST_STATUS_PRESENTATION = {
   }
 >;
 
-export function formatScheduledDate(date: Date) {
+export function formatScheduledDate(date: Date, timeZone?: string) {
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "long",
+    timeZone,
   }).format(date);
 }

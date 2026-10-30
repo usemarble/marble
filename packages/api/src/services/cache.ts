@@ -1,4 +1,4 @@
-import type { ServiceContext } from "../context";
+import type { ApiEnv } from "../env";
 import { type CacheResource, createCacheClient } from "../lib/cache";
 
 /**
@@ -15,13 +15,17 @@ const DEPENDENTS: Record<CacheResource, readonly CacheResource[]> = {
   media: ["posts"],
 };
 
+export interface CacheContext {
+  env: Pick<ApiEnv, "REDIS_URL" | "REDIS_TOKEN">;
+}
+
 /**
  * Clears a workspace's cached reads of `resource` and everything that embeds
  * it. `cache:{ws}:{resource}:*` matches every view (`/v1` and dashboard).
  * Runs after the write commits; Redis errors are logged and swallowed.
  */
 export async function invalidateCache(
-  ctx: Pick<ServiceContext, "env">,
+  ctx: CacheContext,
   workspaceId: string,
   resource: CacheResource
 ) {
@@ -29,6 +33,20 @@ export async function invalidateCache(
   await Promise.all(
     [resource, ...DEPENDENTS[resource]].map((entry) =>
       cache.invalidateResource(workspaceId, entry)
+    )
+  );
+}
+
+/** Like `invalidateCache`, for a caller that must know the clear worked. */
+export async function invalidateCacheOrThrow(
+  ctx: CacheContext,
+  workspaceId: string,
+  resource: CacheResource
+) {
+  const cache = createCacheClient(ctx.env.REDIS_URL, ctx.env.REDIS_TOKEN);
+  await Promise.all(
+    [resource, ...DEPENDENTS[resource]].map((entry) =>
+      cache.invalidateResourceOrThrow(workspaceId, entry)
     )
   );
 }

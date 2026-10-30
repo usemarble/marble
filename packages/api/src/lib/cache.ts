@@ -27,6 +27,43 @@ export type CacheResource =
 export function createCacheClient(url: string, token: string) {
   const redis = new Redis({ url, token });
 
+  /** Uses SCAN to find keys iteratively, then DEL to remove them in batches. */
+  async function deleteMatching(pattern: string): Promise<number> {
+    let cursor: string | number = "0";
+    const allKeys: string[] = [];
+    const batchSize = 100;
+
+    // Use SCAN to iterate through keys matching the pattern
+    do {
+      const [nextCursor, keys]: [string | number, string[]] = await redis.scan(
+        cursor,
+        {
+          match: pattern,
+          count: batchSize,
+        }
+      );
+      cursor = nextCursor;
+      if (Array.isArray(keys)) {
+        allKeys.push(...keys);
+      }
+    } while (String(cursor) !== "0");
+
+    // Delete keys in batches to avoid large argument lists
+    let deletedCount = 0;
+    for (let i = 0; i < allKeys.length; i += batchSize) {
+      const batch = allKeys.slice(i, i + batchSize);
+      if (batch.length > 0) {
+        const deleted = await redis.del(...batch);
+        deletedCount += deleted;
+      }
+    }
+
+    if (deletedCount > 0) {
+      console.log(`[Cache] INVALIDATE: ${pattern} (${deletedCount} keys)`);
+    }
+    return deletedCount;
+  }
+
   return {
     /**
      * Get a cached value by key
@@ -100,46 +137,26 @@ export function createCacheClient(url: string, token: string) {
     },
 
     /**
-     * Invalidate cache keys matching a pattern
-     * Uses SCAN to find keys iteratively, then DEL to remove them in batches
+     * Invalidate cache keys matching a pattern. Redis errors are logged and
+     * swallowed, so a failed clear returns 0.
      */
     async invalidate(pattern: string): Promise<number> {
       try {
-        let cursor: string | number = "0";
-        const allKeys: string[] = [];
-        const batchSize = 100;
-
-        // Use SCAN to iterate through keys matching the pattern
-        do {
-          const [nextCursor, keys]: [string | number, string[]] =
-            await redis.scan(cursor, {
-              match: pattern,
-              count: batchSize,
-            });
-          cursor = nextCursor;
-          if (Array.isArray(keys)) {
-            allKeys.push(...keys);
-          }
-        } while (String(cursor) !== "0");
-
-        // Delete keys in batches to avoid large argument lists
-        let deletedCount = 0;
-        for (let i = 0; i < allKeys.length; i += batchSize) {
-          const batch = allKeys.slice(i, i + batchSize);
-          if (batch.length > 0) {
-            const deleted = await redis.del(...batch);
-            deletedCount += deleted;
-          }
-        }
-
-        if (deletedCount > 0) {
-          console.log(`[Cache] INVALIDATE: ${pattern} (${deletedCount} keys)`);
-        }
-        return deletedCount;
+        return await deleteMatching(pattern);
       } catch (error) {
         console.error(`[Cache] INVALIDATE error for ${pattern}:`, error);
         return 0;
       }
+    },
+
+    /** Like `invalidateResource`, for a caller that must know the clear worked. */
+    async invalidateResourceOrThrow(
+      workspaceId: string,
+      resource: CacheResource
+    ): Promise<number> {
+      return await deleteMatching(
+        `${CACHE_PREFIX}:${workspaceId}:${resource}:*`
+      );
     },
 
     /**

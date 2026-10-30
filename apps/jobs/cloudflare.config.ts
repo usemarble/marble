@@ -11,8 +11,8 @@ import type { EventMessage, TaskMessage, WebhookMessage } from "@marble/events";
 import { bindings, defineConfig, triggers } from "cf/config";
 import {
   CLEANUP_CRON,
+  EVERY_MINUTE_CRON,
   OUTBOX_SWEEP_CRON,
-  WEBHOOK_NOTIFICATIONS_CRON,
 } from "./src/crons.ts";
 
 export default defineConfig((ctx) => {
@@ -33,7 +33,7 @@ export default defineConfig((ctx) => {
       triggers: [
         triggers.scheduled({ schedule: CLEANUP_CRON }),
         triggers.scheduled({ schedule: OUTBOX_SWEEP_CRON }),
-        triggers.scheduled({ schedule: WEBHOOK_NOTIFICATIONS_CRON }),
+        triggers.scheduled({ schedule: EVERY_MINUTE_CRON }),
         triggers.queue({ ...consumer, name: queue.events }),
         triggers.queue({ ...consumer, name: queue.webhookDeliveries }),
         triggers.queue({ ...consumer, name: queue.tasks, maxBatchSize: 1 }),
@@ -60,6 +60,8 @@ export default defineConfig((ctx) => {
         MODE: bindings.text(mode),
         APP_URL: bindings.text(appUrl(mode)),
         API_URL: bindings.text(apiUrl(mode)),
+        REDIS_URL: bindings.secret(),
+        REDIS_TOKEN: bindings.secret(),
         RESEND_API_KEY: bindings.secret(),
       },
     },

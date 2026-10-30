@@ -81,7 +81,7 @@ export function Timezone() {
 
   return (
     <SettingsSection
-      description="The timezone of your workspace. Changes affect scheduled posts."
+      description="The timezone used to pick and show scheduled publishing times. Changing it does not move posts that are already scheduled."
       title="Workspace Timezone"
     >
       <form
