@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import type { HyperdriveDb } from "@marble/db/hyperdrive";
-import { category, post, postToTag, tag } from "@marble/db/schema";
+import { category, post, postToTag, tag, workspace } from "@marble/db/schema";
 import {
   type PostStatus,
   PUBLIC_POST_STATUSES,
@@ -18,19 +18,42 @@ import {
   sql,
 } from "drizzle-orm";
 
+export class SkippedLocalTime extends Error {
+  readonly timeZone: string;
+
+  constructor(timeZone: string) {
+    super("Local time skipped for daylight saving");
+    this.timeZone = timeZone;
+  }
+}
+
 /**
  * The instant a `publishedAt` input means. A value with no zone is a time on
- * the workspace's clock, and null means the clocks skip that time for daylight
- * saving.
+ * the workspace's clock, so only that form reads the workspace.
  */
-export function resolvePublishedAt(
-  value: string,
-  timeZone: string
-): Date | null {
+export async function resolvePublishedAt(
+  db: HyperdriveDb,
+  workspaceId: string,
+  value: string
+): Promise<Date> {
   if (/[Z+-]/.test(value.slice(value.indexOf("T")))) {
     return new Date(value);
   }
-  return wallClockToInstant(new Date(`${value}Z`).getTime(), timeZone);
+  const row = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: { timezone: true },
+  });
+  if (!row) {
+    throw new Error("Workspace not found");
+  }
+  const instant = wallClockToInstant(
+    new Date(`${value}Z`).getTime(),
+    row.timezone
+  );
+  if (!instant) {
+    throw new SkippedLocalTime(row.timezone);
+  }
+  return instant;
 }
 
 export function buildStatusFilter(status: PostStatus | "all"): SQL | undefined {

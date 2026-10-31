@@ -309,7 +309,6 @@ describe("scheduling posts", () => {
     const body = CreatePostResponseSchema.parse(await response.json());
     expect(body).toMatchObject({
       post: { status: "scheduled", publishedAt: FUTURE },
-      workspaceTimezone: "Europe/London",
     });
     expect(await eventTypes(body.post.id)).toEqual(["post_created"]);
     expect((await f.request("/v1/posts/new-post", f.keys.public)).status).toBe(
@@ -334,7 +333,6 @@ describe("scheduling posts", () => {
     expect(sent.status).toBe(200);
     expect(UpdatePostResponseSchema.parse(await sent.json())).toMatchObject({
       post: { status: "scheduled", publishedAt: FUTURE },
-      workspaceTimezone: "Europe/London",
     });
     expect(await eventTypes(f.draft.id)).toEqual(["post_updated"]);
 
@@ -369,21 +367,44 @@ describe("scheduling posts", () => {
     }
   });
 
-  it("reports the workspace timezone on a PATCH that changes nothing", async () => {
-    const f = await fixture("Asia/Tokyo");
-    const response = await f.request(
+  it("returns only the post from create and update", async () => {
+    const f = await fixture();
+    const created = await f.request(
+      "/v1/posts",
+      f.keys.private,
+      { ...f.createBody, status: "scheduled", publishedAt: FUTURE },
+      "POST"
+    );
+    expect(Object.keys(await created.json())).toEqual(["post"]);
+    const updated = await f.request(`/v1/posts/${f.draft.id}`, f.keys.private, {
+      title: "Updated",
+    });
+    expect(Object.keys(await updated.json())).toEqual(["post"]);
+    const unchanged = await f.request(
       `/v1/posts/${f.draft.id}`,
       f.keys.private,
       {}
     );
-    expect(response.status).toBe(200);
-    expect(UpdatePostResponseSchema.parse(await response.json())).toMatchObject(
-      {
-        post: { status: "draft" },
-        workspaceTimezone: "Asia/Tokyo",
+    expect(Object.keys(await unchanged.json())).toEqual(["post"]);
+  });
+
+  it("reads the workspace only for a publishedAt with no zone", async () => {
+    const f = await fixture();
+    const lookup = vi.spyOn(testDb.db.query.workspace, "findFirst");
+    try {
+      for (const publishedAt of [FUTURE, "2031-06-01T09:00:00+01:00"]) {
+        await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
+          publishedAt,
+        });
       }
-    );
-    expect(await eventTypes(f.draft.id)).toEqual([]);
+      expect(lookup).not.toHaveBeenCalled();
+      await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
+        publishedAt: "2031-06-01T09:00:00",
+      });
+      expect(lookup).toHaveBeenCalledTimes(1);
+    } finally {
+      lookup.mockRestore();
+    }
   });
 
   it("reschedules, unschedules and pulls a live post with the right events", async () => {
@@ -526,7 +547,6 @@ describe("scheduling posts", () => {
       expect(created.status).toBe(201);
       expect(await created.json()).toMatchObject({
         post: { publishedAt: expected },
-        workspaceTimezone: timezone,
       });
 
       const updated = await f.request(
@@ -537,7 +557,6 @@ describe("scheduling posts", () => {
       expect(updated.status).toBe(200);
       expect(await updated.json()).toMatchObject({
         post: { publishedAt: expected },
-        workspaceTimezone: timezone,
       });
     });
 

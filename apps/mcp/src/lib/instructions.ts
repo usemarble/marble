@@ -69,7 +69,7 @@ Published times default when omitted. **create_post** uses “now” unless **pu
 To schedule a post, call **create_post** or **update_post** with **status** set to **scheduled** and a **publishedAt** with no offset, such as \`2026-11-01T09:00:00\`. No offset means workspace time.
 
 - Do not ask the user for a timezone by default. Send an offset, such as \`2026-11-01T09:00:00-05:00\`, only when the user names a zone.
-- After scheduling, repeat the time and timezone to the user. The response gives **publishedAt** in UTC and **workspaceTimezone**. Older workspaces may still be on the default **Europe/London**, so this is how the user catches a wrong zone.
+- After scheduling, repeat the returned **publishedAt** to the user and say it is in UTC. This MCP server can't read the workspace timezone, so don't name one. The UTC time is how the user catches a workspace timezone they didn't expect.
 - **publishedAt** must be in the future. A local time that daylight saving skips returns an error, so ask the user for another time.
 - **status: published** with a future **publishedAt** goes live immediately. Only **scheduled** waits.
 - To publish a scheduled post now, send **status: published**. To unschedule it, send **status: draft**.

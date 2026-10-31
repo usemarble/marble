@@ -7,12 +7,6 @@ const STATUS_FILTER_DESCRIPTION =
 
 const PublishedAtInputSchema = z.iso.datetime({ offset: true, local: true });
 
-const WorkspaceTimezoneSchema = z.string().openapi({
-  example: "Europe/London",
-  description:
-    "The workspace timezone. A publishedAt sent with no offset was read in this timezone.",
-});
-
 export const SocialRefSchema = z
   .object({
     url: z.url().openapi({ example: "https://twitter.com/johndoe" }),
@@ -385,7 +379,6 @@ export const CreatePostResponseSchema = z
       publishedAt: z.string().openapi({ example: "2024-01-15T10:00:00.000Z" }),
       createdAt: z.string().openapi({ example: "2024-01-15T10:00:00.000Z" }),
     }),
-    workspaceTimezone: WorkspaceTimezoneSchema,
   })
   .openapi("CreatePostResponse");
 
@@ -467,6 +460,5 @@ export const UpdatePostResponseSchema = z
       publishedAt: z.string().openapi({ example: "2024-02-01T10:00:00.000Z" }),
       updatedAt: z.string().openapi({ example: "2024-02-01T12:00:00.000Z" }),
     }),
-    workspaceTimezone: WorkspaceTimezoneSchema,
   })
   .openapi("UpdatePostResponse");

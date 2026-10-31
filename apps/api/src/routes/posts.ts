@@ -10,7 +10,6 @@ import {
   postEventType,
 } from "@marble/api/lib/post-publication";
 import { transact } from "@marble/api/lib/transaction";
-import type { HyperdriveDb } from "@marble/db/hyperdrive";
 import { createRecordId } from "@marble/db/id";
 import {
   author,
@@ -22,7 +21,6 @@ import {
   postToAuthor,
   postToTag,
   tag,
-  workspace,
 } from "@marble/db/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import {
@@ -40,6 +38,7 @@ import {
   buildPostsListWhere,
   buildStatusFilter,
   resolvePublishedAt,
+  SkippedLocalTime,
 } from "@/lib/posts";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
@@ -230,17 +229,6 @@ async function writePostCustomFieldValues(
         },
       });
   }
-}
-
-async function getWorkspaceTimezone(db: HyperdriveDb, workspaceId: string) {
-  const row = await db.query.workspace.findFirst({
-    where: eq(workspace.id, workspaceId),
-    columns: { timezone: true },
-  });
-  if (!row) {
-    throw new Error("Workspace not found");
-  }
-  return row.timezone;
 }
 
 const listPostsRoute = createRoute({
@@ -766,14 +754,9 @@ posts.openapi(createPostRoute, async (c) => {
     }
 
     // 6. Determine publishedAt
-    const workspaceTimezone = await getWorkspaceTimezone(db, workspaceId);
     const publishedAt = body.publishedAt
-      ? resolvePublishedAt(body.publishedAt, workspaceTimezone)
+      ? await resolvePublishedAt(db, workspaceId, body.publishedAt)
       : new Date();
-
-    if (!publishedAt) {
-      return c.json(skippedLocalTime(workspaceTimezone), 400 as const);
-    }
 
     if (body.status === "scheduled" && publishedAt <= new Date()) {
       return c.json(GO_LIVE_NOT_IN_FUTURE, 400 as const);
@@ -881,8 +864,11 @@ posts.openapi(createPostRoute, async (c) => {
       }
     );
 
-    return c.json({ post: postCreated, workspaceTimezone }, 201 as const);
+    return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
+    if (error instanceof SkippedLocalTime) {
+      return c.json(skippedLocalTime(error.timeZone), 400 as const);
+    }
     console.error("Error creating post:", error);
     return c.json(
       {
@@ -1150,15 +1136,10 @@ posts.openapi(updatePostRoute, async (c) => {
     }
 
     // 7. Resolve the requested publishedAt
-    const workspaceTimezone = await getWorkspaceTimezone(db, workspaceId);
     const requestedPublishedAt =
       body.publishedAt === undefined
         ? undefined
-        : resolvePublishedAt(body.publishedAt, workspaceTimezone);
-
-    if (requestedPublishedAt === null) {
-      return c.json(skippedLocalTime(workspaceTimezone), 400 as const);
-    }
+        : await resolvePublishedAt(db, workspaceId, body.publishedAt);
 
     // 8. Build update data
     const updateData: Partial<typeof postTable.$inferInsert> = {};
@@ -1219,7 +1200,6 @@ posts.openapi(updatePostRoute, async (c) => {
             publishedAt: existingPost.publishedAt,
             updatedAt: existingPost.updatedAt,
           },
-          workspaceTimezone,
         },
         200 as const
       );
@@ -1347,8 +1327,11 @@ posts.openapi(updatePostRoute, async (c) => {
       }
     );
 
-    return c.json({ post: postUpdated, workspaceTimezone }, 200 as const);
+    return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
+    if (error instanceof SkippedLocalTime) {
+      return c.json(skippedLocalTime(error.timeZone), 400 as const);
+    }
     if (error instanceof GoLiveNotInFuture) {
       return c.json(GO_LIVE_NOT_IN_FUTURE, 400 as const);
     }
