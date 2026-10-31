@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@databuddy/sdk": "^2.4.20",
+    "@databuddy/sdk": "^3.4.2",
     "@hookform/resolvers": "^5.2.2",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",

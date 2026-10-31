@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.6",
-    "@databuddy/sdk": "^2.4.20",
+    "@databuddy/sdk": "^3.4.2",
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/utils": "workspace:*",
