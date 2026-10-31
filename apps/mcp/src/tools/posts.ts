@@ -225,7 +225,7 @@ export function registerPostTools(
     {
       title: "Create Post",
       description:
-        "Create a new post. Requires a private Marble API key. Category is required. If authors are omitted, the first workspace author is used. To schedule, send status scheduled and a publishedAt with no offset, then repeat the time and the workspaceTimezone from the response to the user.",
+        "Create a new post. Requires a private Marble API key. Category is required. If authors are omitted, the first workspace author is used. To schedule, send status scheduled and a publishedAt with no offset, which means workspace time. If the user names a zone, send Z or that zone's offset for the date. Then repeat the time and the workspaceTimezone from the response to the user.",
       inputSchema: {
         body: z.object(postBody),
       },
@@ -241,7 +241,7 @@ export function registerPostTools(
     {
       title: "Update Post",
       description:
-        "Update an existing post by ID or slug. All fields are optional - only provided fields are updated. Requires a private Marble API key. To schedule, send status scheduled and a publishedAt with no offset, then repeat the time and the workspaceTimezone from the response to the user.",
+        "Update an existing post by ID or slug. All fields are optional - only provided fields are updated. Requires a private Marble API key. To schedule, send status scheduled and a publishedAt with no offset, which means workspace time. If the user names a zone, send Z or that zone's offset for the date. Then repeat the time and the workspaceTimezone from the response to the user.",
       annotations: destructiveAnnotations,
       inputSchema: {
         ...identifierInput,
