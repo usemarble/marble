@@ -9,12 +9,20 @@ import {
   readOnlyAnnotations,
 } from "./shared";
 
+const POST_STATUSES = ["published", "draft", "scheduled"] as const;
+
+const postStatusFilter = z
+  .enum([...POST_STATUSES, "all"])
+  .optional()
+  .describe(
+    "Filter by post status. Defaults to published posts. Use scheduled for posts waiting to go live. all means published and draft, and never includes scheduled posts."
+  );
+
+const publishedAtInput = z.iso.datetime({ offset: true, local: true });
+
 const postFilters = {
   order: z.enum(["asc", "desc"]).optional().describe("Sort order."),
-  status: z
-    .enum(["published", "draft", "all"])
-    .optional()
-    .describe("Filter by post status. Defaults to published posts."),
+  status: postStatusFilter,
   format: z
     .enum(["html", "markdown"])
     .optional()
@@ -64,8 +72,10 @@ const postBody = {
   slug: z.string().min(1).describe("URL-friendly post slug."),
   categoryId: z.string().min(1).describe("Required category ID for the post."),
   status: z
-    .enum(["published", "draft"])
-    .describe("Initial post status: published or draft."),
+    .enum(POST_STATUSES)
+    .describe(
+      "Initial post status. published is live immediately, even with a future publishedAt. scheduled goes live at publishedAt, which must be in the future."
+    ),
   tags: z
     .array(z.string())
     .optional()
@@ -85,10 +95,11 @@ const postBody = {
     .nullable()
     .optional()
     .describe("Cover image URL. Use null to clear it."),
-  publishedAt: z.iso
-    .datetime()
+  publishedAt: publishedAtInput
     .optional()
-    .describe("ISO 8601 datetime. Defaults to current time if omitted."),
+    .describe(
+      "ISO 8601 datetime. Defaults to current time if omitted. With no offset, as in 2026-11-01T09:00:00, it means workspace time. Send Z or an offset such as +01:00 only when the user names a zone."
+    ),
   fields: customFields.optional(),
 };
 
@@ -113,9 +124,11 @@ const updatePostBody = {
     .describe("Updated URL-friendly post slug."),
   categoryId: z.string().min(1).optional().describe("Updated category ID."),
   status: z
-    .enum(["published", "draft"])
+    .enum(POST_STATUSES)
     .optional()
-    .describe("Updated post status."),
+    .describe(
+      "Updated post status. scheduled needs a future publishedAt, sent here or already stored on the post."
+    ),
   tags: z
     .array(z.string())
     .optional()
@@ -132,10 +145,11 @@ const updatePostBody = {
     .nullable()
     .optional()
     .describe("Updated cover image URL. Use null to clear it."),
-  publishedAt: z.iso
-    .datetime()
+  publishedAt: publishedAtInput
     .optional()
-    .describe("Updated ISO 8601 publication datetime."),
+    .describe(
+      "Updated ISO 8601 publication datetime. With no offset, as in 2026-11-01T09:00:00, it means workspace time. Send Z or an offset such as +01:00 only when the user names a zone."
+    ),
   fields: customFields.optional(),
 };
 
@@ -149,7 +163,7 @@ export function registerPostTools(
     {
       title: "Get Posts",
       description:
-        "Get a paginated list of published posts with optional filtering.",
+        "Get a paginated list of published posts with optional filtering. Use status to read drafts or scheduled posts.",
       annotations: readOnlyAnnotations,
       inputSchema: {
         ...paginationInput,
@@ -169,12 +183,12 @@ export function registerPostTools(
     {
       title: "Search Posts",
       description:
-        "Search Marble posts by title and content. Use status 'all' when the user wants drafts included.",
+        "Search Marble posts by title and content. Use status 'all' when the user wants drafts included, or 'scheduled' for posts waiting to go live.",
       annotations: readOnlyAnnotations,
       inputSchema: {
         ...paginationInput,
         query: z.string().min(1),
-        status: z.enum(["published", "draft", "all"]).optional(),
+        status: postStatusFilter,
         format: z.enum(["html", "markdown"]).optional(),
       },
     },
@@ -191,7 +205,7 @@ export function registerPostTools(
       annotations: readOnlyAnnotations,
       inputSchema: {
         ...identifierInput,
-        status: z.enum(["published", "draft", "all"]).optional(),
+        status: postStatusFilter,
         format: z.enum(["html", "markdown"]).optional(),
       },
     },
@@ -211,7 +225,7 @@ export function registerPostTools(
     {
       title: "Create Post",
       description:
-        "Create a new post. Requires a private Marble API key. Category is required. If authors are omitted, the first workspace author is used.",
+        "Create a new post. Requires a private Marble API key. Category is required. If authors are omitted, the first workspace author is used. To schedule, send status scheduled and a publishedAt with no offset, then repeat the time and the workspaceTimezone from the response to the user.",
       inputSchema: {
         body: z.object(postBody),
       },
@@ -227,7 +241,7 @@ export function registerPostTools(
     {
       title: "Update Post",
       description:
-        "Update an existing post by ID or slug. All fields are optional - only provided fields are updated. Requires a private Marble API key.",
+        "Update an existing post by ID or slug. All fields are optional - only provided fields are updated. Requires a private Marble API key. To schedule, send status scheduled and a publishedAt with no offset, then repeat the time and the workspaceTimezone from the response to the user.",
       annotations: destructiveAnnotations,
       inputSchema: {
         ...identifierInput,
