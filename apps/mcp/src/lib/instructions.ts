@@ -7,7 +7,7 @@ export function getServerInstructions() {
 
 Marble is a headless CMS. These tools manage posts, taxonomy (categories, tags), authors, and media in the workspace tied to the caller's Marble API key. Use HTTP tool responses as JSON: structured fields from the Marble API plus error details when requests fail — read the payload before assuming success.
 
-For **datetimes**, use ISO 8601 strings (RFC 3339). **publishedAt** and similar fields are absolute instants. This MCP server does not expose a workspace timezone; if calendar-day boundaries matter, follow what the user states in conversation rather than inventing offsets.
+For **datetimes**, use ISO 8601 strings. Responses return **publishedAt** and similar fields as UTC instants. When writing **publishedAt**, leave off the offset to mean workspace time.
 
 ## Critical post content format rule
 
@@ -56,13 +56,23 @@ Prefer **search_posts** or **get_posts** with **query** for discovery; use **get
 
 **Pagination**: list tools accept **limit** (1–100) and **page**. Increase **page** when metadata indicates more rows.
 
-Posts support **published**, **draft**, and **all** filters — include **draft** or **all** when the user needs drafts.
+Posts support **published**, **draft**, **scheduled**, and **all** filters — include **draft** or **all** when the user needs drafts, and **scheduled** for posts waiting to go live. **all** never includes scheduled posts.
 
 For new posts you need **categoryId** — resolve IDs with **get_categories** first when the user has not supplied one.
 
 **tags** and **authors** are optional arrays of IDs already present in Marble.
 
-Published times default when omitted. **create_post** uses “now” unless **publishedAt** is supplied. Supply **publishedAt** when backdating or scheduling needs to be explicit.
+Published times default when omitted. **create_post** uses “now” unless **publishedAt** is supplied. Supply **publishedAt** when backdating.
+
+## Scheduling posts
+
+To schedule a post, call **create_post** or **update_post** with **status** set to **scheduled** and a **publishedAt** with no offset, such as \`2026-11-01T09:00:00\`. No offset means workspace time.
+
+- Do not ask the user for a timezone by default. Send an offset, such as \`2026-11-01T09:00:00-05:00\`, only when the user names a zone.
+- After scheduling, repeat the returned **publishedAt** to the user and say it is in UTC. This MCP server can't read the workspace timezone, so don't name one. The UTC time is how the user catches a workspace timezone they didn't expect.
+- **publishedAt** must be in the future. A local time that daylight saving skips returns an error, so ask the user for another time.
+- **status: published** with a future **publishedAt** goes live immediately. Only **scheduled** waits.
+- To publish a scheduled post now, send **status: published**. To unschedule it, send **status: draft**.
 
 ## Safe read/edit/write workflow for agents
 

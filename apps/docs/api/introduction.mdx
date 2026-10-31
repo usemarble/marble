@@ -48,7 +48,7 @@ The full list of scopes:
 | Scope                | Key types       | Grants                                                  |
 | -------------------- | --------------- | ------------------------------------------------------- |
 | `posts_read`         | public, private | Read published posts                                    |
-| `posts_read_drafts`  | private         | Read drafts via `?status=draft` or `?status=all`        |
+| `posts_read_drafts`  | private         | Read drafts and scheduled posts via `?status=draft`, `?status=all`, or `?status=scheduled` |
 | `posts_write`        | private         | Create, update, and delete posts                        |
 | `authors_read`       | public, private | Read authors                                            |
 | `authors_write`      | private         | Create, update, and delete authors                      |
@@ -80,7 +80,7 @@ By default, `GET /v1/posts` returns only published posts. To include drafts you 
 
 1. Use a **private** API key, and
 2. Grant it the `posts_read_drafts` scope, and
-3. Pass `?status=draft` (drafts only) or `?status=all` (drafts + published).
+3. Pass `?status=draft` (drafts only), `?status=all` (drafts + published), or `?status=scheduled` (posts waiting to go live).
 
 ```bash
 curl -H "Authorization: msk_…" \

@@ -1,4 +1,5 @@
 import { TZDate } from "@date-fns/tz";
+import { wallClockToInstant } from "@marble/utils/wall-clock";
 import { format } from "date-fns";
 
 /** A time on a workspace's wall clock: a calendar day and an `HH:mm` time. */
@@ -27,7 +28,8 @@ export function toWallClockTime(
 
 /**
  * The instant a wall-clock time means in a timezone, or null for a time that
- * doesn't exist because the clocks skip it for daylight saving.
+ * doesn't exist because the clocks skip it for daylight saving. A time the
+ * clocks repeat means its first occurrence.
  */
 export function fromWallClockTime(
   { day, time }: WallClockTime,
@@ -37,18 +39,10 @@ export function fromWallClockTime(
   if (hours === undefined || minutes === undefined) {
     return null;
   }
-  const zoned = new TZDate(
-    day.getFullYear(),
-    day.getMonth(),
-    day.getDate(),
-    hours,
-    minutes,
+  return wallClockToInstant(
+    Date.UTC(day.getFullYear(), day.getMonth(), day.getDate(), hours, minutes),
     timeZone
   );
-  if (zoned.getHours() !== hours || zoned.getMinutes() !== minutes) {
-    return null;
-  }
-  return new Date(zoned.getTime());
 }
 
 export function formatInTimeZone(instant: Date, timeZone: string) {

@@ -1,7 +1,11 @@
 import { z } from "@hono/zod-openapi";
 import type { HyperdriveDb } from "@marble/db/hyperdrive";
-import { category, post, postToTag, tag } from "@marble/db/schema";
-import { PUBLIC_POST_STATUSES } from "@marble/utils/post-status";
+import { category, post, postToTag, tag, workspace } from "@marble/db/schema";
+import {
+  type PostStatus,
+  PUBLIC_POST_STATUSES,
+} from "@marble/utils/post-status";
+import { wallClockToInstant } from "@marble/utils/wall-clock";
 import {
   and,
   eq,
@@ -14,9 +18,45 @@ import {
   sql,
 } from "drizzle-orm";
 
-export function buildStatusFilter(
-  status: "published" | "draft" | "all"
-): SQL | undefined {
+export class SkippedLocalTime extends Error {
+  readonly timeZone: string;
+
+  constructor(timeZone: string) {
+    super("Local time skipped for daylight saving");
+    this.timeZone = timeZone;
+  }
+}
+
+/**
+ * The instant a `publishedAt` input means. A value with no zone is a time on
+ * the workspace's clock, so only that form reads the workspace.
+ */
+export async function resolvePublishedAt(
+  db: HyperdriveDb,
+  workspaceId: string,
+  value: string
+): Promise<Date> {
+  if (/[Z+-]/.test(value.slice(value.indexOf("T")))) {
+    return new Date(value);
+  }
+  const row = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: { timezone: true },
+  });
+  if (!row) {
+    throw new Error("Workspace not found");
+  }
+  const instant = wallClockToInstant(
+    new Date(`${value}Z`).getTime(),
+    row.timezone
+  );
+  if (!instant) {
+    throw new SkippedLocalTime(row.timezone);
+  }
+  return instant;
+}
+
+export function buildStatusFilter(status: PostStatus | "all"): SQL | undefined {
   if (status === "all") {
     return inArray(post.status, PUBLIC_POST_STATUSES);
   }
@@ -31,7 +71,7 @@ export interface PostsListFilterInput {
   excludeTags: string[];
   query?: string;
   featured?: string;
-  status: "published" | "draft" | "all";
+  status: PostStatus | "all";
 }
 
 export function buildPostsListWhere(

@@ -34,10 +34,10 @@ Key fields returned by the API:
 | `title` | The post title. |
 | `description` | Short summary, useful for previews and SEO meta tags. |
 | `content` | The body, returned as HTML or Markdown (see [content format](#content-format)). |
-| `status` | `published` or `draft`. |
+| `status` | `published`, `draft`, or `scheduled`. |
 | `featured` | Whether the post is flagged as featured. |
 | `coverImage` | URL of the cover image, or `null`. |
-| `publishedAt` | Publish timestamp (ISO 8601, UTC). |
+| `publishedAt` | Publish timestamp (ISO 8601, UTC). For a scheduled post, the time it goes live. |
 | `updatedAt` | Last-updated timestamp. |
 | `authors` | Array of author objects. |
 | `category` | The post's single category. |
@@ -55,7 +55,23 @@ curl -H "Authorization: YOUR_API_KEY" \
 
 ### Status and drafts
 
-A post is either `published` or `draft`. By default the API returns only published posts. Pass `status=draft` or `status=all` to include unpublished content — handy for building a preview environment.
+A post is `published`, `draft`, or `scheduled`. By default the API returns only published posts. Pass `status=draft` or `status=all` to include drafts — handy for building a preview environment. Pass `status=scheduled` to list posts waiting to go live. `status=all` returns published and draft posts and never includes scheduled ones, so a build that fetches `all` can't render a post early. Every status except `published` needs a private key with the `posts_read_drafts` scope.
+
+### Scheduling a post
+
+To schedule a post, send `status: "scheduled"` and a future `publishedAt` to `POST /v1/posts` or `PATCH /v1/posts/{identifier}`. Marble publishes it within about a minute of that time and sends the `post.published` webhook.
+
+`publishedAt` accepts three forms:
+
+| Form | Example | Meaning |
+| ---- | ------- | ------- |
+| `Z` | `2026-11-01T09:00:00Z` | UTC. |
+| Offset | `2026-11-01T09:00:00+01:00` | That offset from UTC. |
+| No zone | `2026-11-01T09:00:00` | Workspace time. |
+
+A no-zone time that daylight saving skips returns `400`, as does scheduling a time that isn't in the future. A no-zone time that happens twice, when the clocks go back, means the first one. Responses return `publishedAt` in UTC, so you can confirm the time back to whoever asked for it. Older workspaces may still be on the default `Europe/London`, so check the timezone in workspace settings before you rely on no-zone times.
+
+A post with `status: "published"` and a future `publishedAt` goes live immediately. Only `scheduled` waits. To publish a scheduled post early, `PATCH` it with `status: "published"`, which sets `publishedAt` to now unless you send one. To unschedule it, `PATCH` it with `status: "draft"`.
 
 ## Authors
 
