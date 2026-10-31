@@ -6,9 +6,11 @@
     "./api-key-scopes": "./src/constants/api-key.ts",
     "./post-status": "./src/constants/post-status.ts",
     "./sanitize": "./src/functions/sanitize.ts",
+    "./wall-clock": "./src/functions/wall-clock.ts",
     "./workspace": "./src/validations/workspace.ts"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.5.0",
     "nanoid": "^5.0.9",
     "sanitize-html": "^2.17.1",
     "shiki": "^3.12.2",

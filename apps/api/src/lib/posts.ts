@@ -1,4 +1,3 @@
-import { TZDate } from "@date-fns/tz";
 import { z } from "@hono/zod-openapi";
 import type { HyperdriveDb } from "@marble/db/hyperdrive";
 import { category, post, postToTag, tag } from "@marble/db/schema";
@@ -6,6 +5,7 @@ import {
   type PostStatus,
   PUBLIC_POST_STATUSES,
 } from "@marble/utils/post-status";
+import { wallClockToInstant } from "@marble/utils/wall-clock";
 import {
   and,
   eq,
@@ -30,24 +30,7 @@ export function resolvePublishedAt(
   if (/[Z+-]/.test(value.slice(value.indexOf("T")))) {
     return new Date(value);
   }
-  const clock = new Date(`${value}Z`);
-  const zoned = new TZDate(
-    clock.getUTCFullYear(),
-    clock.getUTCMonth(),
-    clock.getUTCDate(),
-    clock.getUTCHours(),
-    clock.getUTCMinutes(),
-    clock.getUTCSeconds(),
-    clock.getUTCMilliseconds(),
-    timeZone
-  );
-  if (
-    zoned.getHours() !== clock.getUTCHours() ||
-    zoned.getMinutes() !== clock.getUTCMinutes()
-  ) {
-    return null;
-  }
-  return new Date(zoned.getTime());
+  return wallClockToInstant(new Date(`${value}Z`).getTime(), timeZone);
 }
 
 export function buildStatusFilter(status: PostStatus | "all"): SQL | undefined {

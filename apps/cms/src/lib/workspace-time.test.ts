@@ -45,14 +45,17 @@ describe("workspace time", () => {
     ).toBeNull();
   });
 
-  it("accepts a time that happens twice when the clocks go back", () => {
-    expect(
-      fromWallClockTime(
-        { day: new Date(2026, 10, 1), time: "01:30" },
-        "America/New_York"
-      )
-    ).toBeInstanceOf(Date);
-  });
+  it.each([
+    [new Date(2026, 10, 1), "America/New_York", "2026-11-01T05:30:00.000Z"],
+    [new Date(2031, 9, 26), "Europe/London", "2031-10-26T00:30:00.000Z"],
+  ])(
+    "takes the first occurrence of a repeated time on %s in %s",
+    (day, timeZone, expected) => {
+      expect(
+        fromWallClockTime({ day, time: "01:30" }, timeZone)?.toISOString()
+      ).toBe(expected);
+    }
+  );
 
   it("formats an instant on the workspace clock", () => {
     expect(
