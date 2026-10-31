@@ -8,7 +8,8 @@ export interface PostPublication {
 export interface PostPublicationChange {
   status: PostStatus;
   publishedAt?: Date;
-  expectedStatus: PostStatus;
+  /** The status the caller saw. Omit it to apply the change to any status. */
+  expectedStatus?: PostStatus;
 }
 
 export type PublicationRejection = "status_changed" | "go_live_not_in_future";
@@ -25,7 +26,7 @@ export function applyPublicationChange(
   if (!change) {
     return stored;
   }
-  if (change.expectedStatus !== stored.status) {
+  if (change.expectedStatus && change.expectedStatus !== stored.status) {
     return "status_changed";
   }
 

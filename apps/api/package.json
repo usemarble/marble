@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.5.0",
     "@hono/zod-openapi": "^1.6.3",
     "@hono/zod-validator": "^0.9.1",
     "@marble/api": "workspace:*",

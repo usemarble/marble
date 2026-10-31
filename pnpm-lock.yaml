@@ -196,6 +196,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@date-fns/tz':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@hono/zod-openapi':
         specifier: ^1.6.3
         version: 1.6.3(hono@4.13.8)(zod@4.6.5)

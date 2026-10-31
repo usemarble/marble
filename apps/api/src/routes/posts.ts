@@ -5,7 +5,12 @@ import {
   createCacheClient,
   hashQueryParams,
 } from "@marble/api/lib/cache";
+import {
+  applyPublicationChange,
+  postEventType,
+} from "@marble/api/lib/post-publication";
 import { transact } from "@marble/api/lib/transaction";
+import type { HyperdriveDb } from "@marble/db/hyperdrive";
 import { createRecordId } from "@marble/db/id";
 import {
   author,
@@ -17,6 +22,7 @@ import {
   postToAuthor,
   postToTag,
   tag,
+  workspace,
 } from "@marble/db/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import {
@@ -25,7 +31,6 @@ import {
   htmlToTiptap,
   normalizePostContent,
 } from "@marble/parser";
-import { PUBLIC_POST_STATUSES } from "@marble/utils/post-status";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, asc, count, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
 import { serviceContext } from "@/lib/context";
@@ -34,6 +39,7 @@ import {
   buildFieldsObject,
   buildPostsListWhere,
   buildStatusFilter,
+  resolvePublishedAt,
 } from "@/lib/posts";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
@@ -58,8 +64,20 @@ import {
 } from "@/schemas/posts";
 import type { ApiKeyApp } from "@/types/env";
 
-class PostNoLongerWritable extends Error {}
-const publicPostStatus = z.enum(PUBLIC_POST_STATUSES);
+class PostDeleted extends Error {}
+class GoLiveNotInFuture extends Error {}
+
+const GO_LIVE_NOT_IN_FUTURE = {
+  error: "Invalid publishedAt",
+  message: "A scheduled post needs a publishedAt in the future.",
+};
+
+function skippedLocalTime(timeZone: string) {
+  return {
+    error: "Invalid publishedAt",
+    message: `That local time doesn't exist in ${timeZone} because the clocks skip it for daylight saving. Choose another time or send an offset.`,
+  };
+}
 
 const posts = new OpenAPIHono<ApiKeyApp>();
 
@@ -136,7 +154,6 @@ const postListWith = {
 
 function flattenPostRelations<
   T extends {
-    status: string;
     tags: Array<{
       tag: {
         id: string;
@@ -160,7 +177,6 @@ function flattenPostRelations<
 >(postRow: T) {
   return {
     ...postRow,
-    status: publicPostStatus.parse(postRow.status),
     tags: postRow.tags.map((row) => row.tag),
     authors: postRow.authors.map((row) => row.author),
   };
@@ -216,13 +232,24 @@ async function writePostCustomFieldValues(
   }
 }
 
+async function getWorkspaceTimezone(db: HyperdriveDb, workspaceId: string) {
+  const row = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: { timezone: true },
+  });
+  if (!row) {
+    throw new Error("Workspace not found");
+  }
+  return row.timezone;
+}
+
 const listPostsRoute = createRoute({
   method: "get",
   path: "/",
   tags: ["Posts"],
   summary: "List posts",
   description:
-    "Get a paginated list of published posts with optional filtering",
+    "Get a paginated list of published posts with optional filtering. Use status to read drafts or scheduled posts with a private key.",
   request: {
     query: PostsQuerySchema,
   },
@@ -279,7 +306,7 @@ const createPostRoute = createRoute({
   tags: ["Posts"],
   summary: "Create post",
   description:
-    "Create a new post. Requires a private API key. Category is required. If authors are not provided, the first workspace author is used.",
+    "Create a new post. Requires a private API key. Category is required. If authors are not provided, the first workspace author is used. To schedule a post, send status 'scheduled' and a future publishedAt.",
   request: {
     body: {
       content: { "application/json": { schema: CreatePostBodySchema } },
@@ -739,9 +766,18 @@ posts.openapi(createPostRoute, async (c) => {
     }
 
     // 6. Determine publishedAt
+    const workspaceTimezone = await getWorkspaceTimezone(db, workspaceId);
     const publishedAt = body.publishedAt
-      ? new Date(body.publishedAt)
+      ? resolvePublishedAt(body.publishedAt, workspaceTimezone)
       : new Date();
+
+    if (!publishedAt) {
+      return c.json(skippedLocalTime(workspaceTimezone), 400 as const);
+    }
+
+    if (body.status === "scheduled" && publishedAt <= new Date()) {
+      return c.json(GO_LIVE_NOT_IN_FUTURE, 400 as const);
+    }
 
     const normalizedContent = await normalizePostContent(body.content);
     const sanitizedContent = sanitizeHtml(normalizedContent.html);
@@ -845,15 +881,7 @@ posts.openapi(createPostRoute, async (c) => {
       }
     );
 
-    return c.json(
-      {
-        post: {
-          ...postCreated,
-          status: publicPostStatus.parse(postCreated.status),
-        },
-      },
-      201 as const
-    );
+    return c.json({ post: postCreated, workspaceTimezone }, 201 as const);
   } catch (error) {
     console.error("Error creating post:", error);
     return c.json(
@@ -872,7 +900,7 @@ const updatePostRoute = createRoute({
   tags: ["Posts"],
   summary: "Update post",
   description:
-    "Update an existing post by ID or slug. All fields are optional — only provided fields are updated. Requires a private API key.",
+    "Update an existing post by ID or slug. All fields are optional — only provided fields are updated. Requires a private API key. To schedule a post, send status 'scheduled' with a future publishedAt.",
   request: {
     params: PostParamsSchema,
     body: {
@@ -948,7 +976,6 @@ posts.openapi(updatePostRoute, async (c) => {
     const existingPost = await db.query.post.findFirst({
       where: and(
         eq(postTable.workspaceId, workspaceId),
-        inArray(postTable.status, PUBLIC_POST_STATUSES),
         or(eq(postTable.slug, identifier), eq(postTable.id, identifier))
       ),
     });
@@ -1122,7 +1149,18 @@ posts.openapi(updatePostRoute, async (c) => {
       customFieldWrites = resolvedCustomFields.values;
     }
 
-    // 7. Build update data
+    // 7. Resolve the requested publishedAt
+    const workspaceTimezone = await getWorkspaceTimezone(db, workspaceId);
+    const requestedPublishedAt =
+      body.publishedAt === undefined
+        ? undefined
+        : resolvePublishedAt(body.publishedAt, workspaceTimezone);
+
+    if (requestedPublishedAt === null) {
+      return c.json(skippedLocalTime(workspaceTimezone), 400 as const);
+    }
+
+    // 8. Build update data
     const updateData: Partial<typeof postTable.$inferInsert> = {};
     if (body.title !== undefined) {
       updateData.title = body.title;
@@ -1151,17 +1189,11 @@ posts.openapi(updatePostRoute, async (c) => {
     if (body.categoryId !== undefined) {
       updateData.categoryId = body.categoryId;
     }
-    if (body.status !== undefined) {
-      updateData.status = body.status;
-    }
     if (body.featured !== undefined) {
       updateData.featured = body.featured;
     }
     if (body.coverImage !== undefined) {
       updateData.coverImage = body.coverImage;
-    }
-    if (body.publishedAt !== undefined) {
-      updateData.publishedAt = new Date(body.publishedAt);
     }
     if (primaryAuthorId) {
       updateData.primaryAuthorId = primaryAuthorId;
@@ -1169,6 +1201,8 @@ posts.openapi(updatePostRoute, async (c) => {
 
     const shouldTouchPost =
       Object.keys(updateData).length > 0 ||
+      body.status !== undefined ||
+      body.publishedAt !== undefined ||
       validTagIds !== undefined ||
       authorIds !== undefined ||
       customFieldWrites !== undefined;
@@ -1180,11 +1214,12 @@ posts.openapi(updatePostRoute, async (c) => {
             id: existingPost.id,
             slug: existingPost.slug,
             title: existingPost.title,
-            status: publicPostStatus.parse(existingPost.status),
+            status: existingPost.status,
             featured: existingPost.featured,
             publishedAt: existingPost.publishedAt,
             updatedAt: existingPost.updatedAt,
           },
+          workspaceTimezone,
         },
         200 as const
       );
@@ -1195,18 +1230,49 @@ posts.openapi(updatePostRoute, async (c) => {
       async ({ tx, emitEvent, invalidate }) => {
         const now = new Date();
 
+        // Locked so a publish by the jobs Worker can't land between this read
+        // and the write, which would send a second `post_published`.
+        const [previousPost] = await tx
+          .select({
+            status: postTable.status,
+            publishedAt: postTable.publishedAt,
+          })
+          .from(postTable)
+          .where(eq(postTable.id, existingPost.id))
+          .for("update");
+
+        if (!previousPost) {
+          throw new PostDeleted();
+        }
+
+        const publication = applyPublicationChange(
+          previousPost,
+          {
+            status: body.status ?? previousPost.status,
+            // Here only a scheduled post moves to now when published early. A
+            // draft that goes live keeps its future date.
+            publishedAt:
+              requestedPublishedAt ??
+              (previousPost.status === "draft"
+                ? previousPost.publishedAt
+                : undefined),
+          },
+          now
+        );
+
+        if (typeof publication === "string") {
+          throw new GoLiveNotInFuture();
+        }
+
         const [updatedPost] = await tx
           .update(postTable)
           .set({
             ...updateData,
+            status: publication.status,
+            publishedAt: publication.publishedAt,
             updatedAt: now,
           })
-          .where(
-            and(
-              eq(postTable.id, existingPost.id),
-              inArray(postTable.status, PUBLIC_POST_STATUSES)
-            )
-          )
+          .where(eq(postTable.id, existingPost.id))
           .returning({
             id: postTable.id,
             slug: postTable.slug,
@@ -1218,7 +1284,7 @@ posts.openapi(updatePostRoute, async (c) => {
           });
 
         if (!updatedPost) {
-          throw new PostNoLongerWritable();
+          throw new Error("Post not found");
         }
 
         if (validTagIds !== undefined) {
@@ -1256,24 +1322,13 @@ posts.openapi(updatePostRoute, async (c) => {
           );
         }
 
-        // 8. Invalidate cache and emit the event with the commit
+        // 9. Invalidate cache and emit the event with the commit
         invalidate(workspaceId, "posts");
 
-        let eventType: "post_published" | "post_unpublished" | "post_updated";
-
-        if (
-          existingPost.status !== "published" &&
-          updatedPost.status === "published"
-        ) {
-          eventType = "post_published";
-        } else if (
-          existingPost.status === "published" &&
-          updatedPost.status !== "published"
-        ) {
-          eventType = "post_unpublished";
-        } else {
-          eventType = "post_updated";
-        }
+        const eventType = postEventType(
+          previousPost.status,
+          updatedPost.status
+        );
 
         await emitEvent({
           type: eventType,
@@ -1292,17 +1347,12 @@ posts.openapi(updatePostRoute, async (c) => {
       }
     );
 
-    return c.json(
-      {
-        post: {
-          ...postUpdated,
-          status: publicPostStatus.parse(postUpdated.status),
-        },
-      },
-      200 as const
-    );
+    return c.json({ post: postUpdated, workspaceTimezone }, 200 as const);
   } catch (error) {
-    if (error instanceof PostNoLongerWritable) {
+    if (error instanceof GoLiveNotInFuture) {
+      return c.json(GO_LIVE_NOT_IN_FUTURE, 400 as const);
+    }
+    if (error instanceof PostDeleted) {
       return c.json(
         {
           error: "Post not found",

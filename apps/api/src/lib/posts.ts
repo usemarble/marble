@@ -1,7 +1,11 @@
+import { TZDate } from "@date-fns/tz";
 import { z } from "@hono/zod-openapi";
 import type { HyperdriveDb } from "@marble/db/hyperdrive";
 import { category, post, postToTag, tag } from "@marble/db/schema";
-import { PUBLIC_POST_STATUSES } from "@marble/utils/post-status";
+import {
+  type PostStatus,
+  PUBLIC_POST_STATUSES,
+} from "@marble/utils/post-status";
 import {
   and,
   eq,
@@ -14,9 +18,39 @@ import {
   sql,
 } from "drizzle-orm";
 
-export function buildStatusFilter(
-  status: "published" | "draft" | "all"
-): SQL | undefined {
+/**
+ * The instant a `publishedAt` input means. A value with no zone is a time on
+ * the workspace's clock, and null means the clocks skip that time for daylight
+ * saving.
+ */
+export function resolvePublishedAt(
+  value: string,
+  timeZone: string
+): Date | null {
+  if (/[Z+-]/.test(value.slice(value.indexOf("T")))) {
+    return new Date(value);
+  }
+  const clock = new Date(`${value}Z`);
+  const zoned = new TZDate(
+    clock.getUTCFullYear(),
+    clock.getUTCMonth(),
+    clock.getUTCDate(),
+    clock.getUTCHours(),
+    clock.getUTCMinutes(),
+    clock.getUTCSeconds(),
+    clock.getUTCMilliseconds(),
+    timeZone
+  );
+  if (
+    zoned.getHours() !== clock.getUTCHours() ||
+    zoned.getMinutes() !== clock.getUTCMinutes()
+  ) {
+    return null;
+  }
+  return new Date(zoned.getTime());
+}
+
+export function buildStatusFilter(status: PostStatus | "all"): SQL | undefined {
   if (status === "all") {
     return inArray(post.status, PUBLIC_POST_STATUSES);
   }
@@ -31,7 +65,7 @@ export interface PostsListFilterInput {
   excludeTags: string[];
   query?: string;
   featured?: string;
-  status: "published" | "draft" | "all";
+  status: PostStatus | "all";
 }
 
 export function buildPostsListWhere(

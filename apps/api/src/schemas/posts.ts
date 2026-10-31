@@ -1,5 +1,17 @@
 import { z } from "@hono/zod-openapi";
+import { POST_STATUSES } from "@marble/utils/post-status";
 import { ContentFormatSchema, PaginationSchema } from "./common";
+
+const STATUS_FILTER_DESCRIPTION =
+  "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both. Use 'scheduled' for posts waiting to go live. 'all' never includes scheduled posts.";
+
+const PublishedAtInputSchema = z.iso.datetime({ offset: true, local: true });
+
+const WorkspaceTimezoneSchema = z.string().openapi({
+  example: "Europe/London",
+  description:
+    "The workspace timezone. A publishedAt sent with no offset was read in this timezone.",
+});
 
 export const SocialRefSchema = z
   .object({
@@ -55,7 +67,7 @@ export const PostSchema = z
     id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
     slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
     title: z.string().openapi({ example: "Getting Started with Next.js" }),
-    status: z.enum(["published", "draft"]).openapi({ example: "published" }),
+    status: z.enum(POST_STATUSES).openapi({ example: "published" }),
     featured: z.boolean().openapi({ example: false }),
     coverImage: z
       .string()
@@ -266,14 +278,13 @@ export const PostsQuerySchema = z.object({
       description: "Filter by featured status",
     }),
   status: z
-    .enum(["published", "draft", "all"])
+    .enum([...POST_STATUSES, "all"])
     .optional()
     .default("published")
     .openapi({
       param: { name: "status", in: "query" },
       example: "published",
-      description:
-        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+      description: STATUS_FILTER_DESCRIPTION,
     }),
 });
 
@@ -292,14 +303,13 @@ export const SinglePostQuerySchema = z.object({
     description: "Content format (html or markdown)",
   }),
   status: z
-    .enum(["published", "draft", "all"])
+    .enum([...POST_STATUSES, "all"])
     .optional()
     .default("published")
     .openapi({
       param: { name: "status", in: "query" },
       example: "published",
-      description:
-        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+      description: STATUS_FILTER_DESCRIPTION,
     }),
 });
 
@@ -326,7 +336,11 @@ export const CreatePostBodySchema = z
       .string()
       .min(1, "Category ID is required")
       .openapi({ example: "cryitfjp2345kl05weoybfk9" }),
-    status: z.enum(["published", "draft"]).openapi({ example: "draft" }),
+    status: z.enum(POST_STATUSES).openapi({
+      example: "draft",
+      description:
+        "Use 'scheduled' with a future publishedAt to go live at that time. A 'published' post is live immediately, even with a future publishedAt.",
+    }),
     tags: z
       .array(z.string())
       .optional()
@@ -348,9 +362,10 @@ export const CreatePostBodySchema = z
       .nullable()
       .optional()
       .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
-    publishedAt: z.iso.datetime().optional().openapi({
+    publishedAt: PublishedAtInputSchema.optional().openapi({
       example: "2024-01-15T10:00:00Z",
-      description: "ISO 8601 datetime. Defaults to current time if omitted.",
+      description:
+        "ISO 8601 datetime. Defaults to current time if omitted. May end in Z or an offset such as +01:00. With neither, as in 2026-11-01T09:00:00, it is read in the workspace timezone. A local time that daylight saving skips returns 400.",
     }),
     fields: CustomFieldsWriteSchema.optional(),
   })
@@ -362,11 +377,15 @@ export const CreatePostResponseSchema = z
       id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
       slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
       title: z.string().openapi({ example: "Getting Started with Next.js" }),
-      status: z.string().openapi({ example: "draft" }),
+      status: z.string().openapi({
+        example: "draft",
+        description: "One of published, draft, or scheduled.",
+      }),
       featured: z.boolean().openapi({ example: false }),
       publishedAt: z.string().openapi({ example: "2024-01-15T10:00:00.000Z" }),
       createdAt: z.string().openapi({ example: "2024-01-15T10:00:00.000Z" }),
     }),
+    workspaceTimezone: WorkspaceTimezoneSchema,
   })
   .openapi("CreatePostResponse");
 
@@ -398,10 +417,11 @@ export const UpdatePostBodySchema = z
       .min(1, "Category ID is required")
       .optional()
       .openapi({ example: "cryitfjp2345kl05weoybfk9" }),
-    status: z
-      .enum(["published", "draft"])
-      .optional()
-      .openapi({ example: "published" }),
+    status: z.enum(POST_STATUSES).optional().openapi({
+      example: "published",
+      description:
+        "Use 'scheduled' with a future publishedAt, sent or already stored, to go live at that time. Publishing a scheduled post early sets publishedAt to now unless you send one.",
+    }),
     tags: z
       .array(z.string())
       .optional()
@@ -424,10 +444,11 @@ export const UpdatePostBodySchema = z
       .nullable()
       .optional()
       .openapi({ example: "https://media.marblecms.com/new-cover.jpg" }),
-    publishedAt: z.iso
-      .datetime()
-      .optional()
-      .openapi({ example: "2024-02-01T10:00:00Z" }),
+    publishedAt: PublishedAtInputSchema.optional().openapi({
+      example: "2024-02-01T10:00:00Z",
+      description:
+        "ISO 8601 datetime. May end in Z or an offset such as +01:00. With neither, as in 2026-11-01T09:00:00, it is read in the workspace timezone. A local time that daylight saving skips returns 400.",
+    }),
     fields: CustomFieldsWriteSchema.optional(),
   })
   .openapi("UpdatePostBody");
@@ -438,10 +459,14 @@ export const UpdatePostResponseSchema = z
       id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
       slug: z.string().openapi({ example: "updated-post-slug" }),
       title: z.string().openapi({ example: "Updated Post Title" }),
-      status: z.string().openapi({ example: "published" }),
+      status: z.string().openapi({
+        example: "published",
+        description: "One of published, draft, or scheduled.",
+      }),
       featured: z.boolean().openapi({ example: true }),
       publishedAt: z.string().openapi({ example: "2024-02-01T10:00:00.000Z" }),
       updatedAt: z.string().openapi({ example: "2024-02-01T12:00:00.000Z" }),
     }),
+    workspaceTimezone: WorkspaceTimezoneSchema,
   })
   .openapi("UpdatePostResponse");
