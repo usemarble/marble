@@ -54,7 +54,7 @@ export type Post = {
   id: string;
   slug: string;
   title: string;
-  status: "published" | "draft";
+  status: "published" | "draft" | "scheduled";
   content: string;
   featured: boolean;
   description: string;
@@ -214,7 +214,7 @@ const PostSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
-  status: z.enum(["published", "draft"]),
+  status: z.enum(["published", "draft", "scheduled"]),
   content: z.string(),
   featured: z.boolean(),
   description: z.string(),
