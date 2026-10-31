@@ -13,7 +13,16 @@ import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import type { ApiScope } from "@marble/utils/api-key-scopes";
 import { and, eq } from "drizzle-orm";
 import { createRequestLogger } from "evlog";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { hashApiKey } from "@/lib/crypto";
 import { restrictLegacyPostStatus } from "@/lib/legacy-posts";
 import { keyAuthorization } from "@/middleware/key-authorization";
@@ -33,6 +42,13 @@ beforeAll(async () => {
 });
 afterAll(async () => {
   await testDb.close();
+});
+// The dates below are future or past relative to this clock, not the real one.
+beforeEach(() => {
+  vi.setSystemTime(new Date("2026-10-31T12:00:00Z"));
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 async function fixture(timezone = "Europe/London") {
