@@ -69,6 +69,41 @@ The rail is keyboard accessible. Press `Tab` to focus a line and see its preview
 
 The rail only appears when your post has at least two headings. It's hidden on small screens.
 
+## Publishing and Scheduling
+
+The status chip at the top of the editor shows whether a post is a **Draft**, **Scheduled**, or **Published**. Click it to open the publish options. Any unsaved edits are saved along with what you choose.
+
+### Publish or schedule a draft
+
+Choose when the post goes live:
+
+- **Now** publishes the post straight away. The publish date defaults to the post's current date, and you can set any date up to today. This is how you backdate a post, and imported posts keep their original date.
+- **Later** lets you pick a date and time, then click **Schedule**. Marble publishes the post within about a minute of that time.
+
+Scheduled posts aren't available through the public API until they go live. When a post goes live, Marble sends the `post.published` [webhook](/features/webhooks), so a site that rebuilds on it picks up the new post.
+
+### Change a scheduled post
+
+Open the status chip on a scheduled post to:
+
+- **Reschedule** it by picking a new date or time.
+- **Publish now** to skip the wait.
+- **Unschedule** it to move it back to a draft.
+
+You can keep editing a scheduled post until it goes live. Save your edits as usual, and the post goes live with the latest saved version. If the post has already gone live when you try one of these actions, Marble tells you the post changed and shows its current status.
+
+### Change a published post
+
+Open the status chip on a published post to change its **Published on** date or to **Unpublish** it. Unpublished posts return to drafts and are hidden from the public API.
+
+### Time zones
+
+Scheduling times use your workspace timezone, and the zone appears under the time. Hover over the info icon to see the time in your own timezone if it's different. You can change the workspace timezone in **Settings**. Changing it doesn't move posts that are already scheduled.
+
+<Tip>
+  To schedule through the API or MCP, see [Scheduling a post](/concepts/content-model#scheduling-a-post).
+</Tip>
+
 ## Sidebar
 
 The sidebar keeps metadata and analytics tucked away until you need them. Toggle it open to access two tabs: **Metadata** and **Analysis**.
@@ -77,17 +112,17 @@ The sidebar keeps metadata and analytics tucked away until you need them. Toggle
 
 Control everything about your post without leaving the editor:
 
-| Field            | Description                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------ |
-| **Published**    | Toggle to publish or unpublish your post. Unpublished posts are hidden from the API. |
-| **Featured**     | Mark a post as featured for special treatment on your site.                          |
-| **Cover Image**  | Set a featured image for your post.                                                  |
-| **Description**  | A short summary for SEO and previews.                                                |
-| **Slug**         | The URL-friendly identifier for your post.                                           |
-| **Authors**      | Select one or more authors.                                                          |
-| **Tags**         | Add multiple tags to organize content.                                               |
-| **Category**     | Assign a single category.                                                            |
-| **Published On** | Set or schedule the publish date.                                                    |
+| Field           | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| **Featured**    | Mark a post as featured for special treatment on your site. |
+| **Cover Image** | Set a featured image for your post.                         |
+| **Description** | A short summary for SEO and previews.                       |
+| **Slug**        | The URL-friendly identifier for your post.                  |
+| **Authors**     | Select one or more authors.                                 |
+| **Tags**        | Add multiple tags to organize content.                      |
+| **Category**    | Assign a single category.                                   |
+
+The button at the bottom of this tab saves your content and metadata. It never changes whether a post is live or when it goes live. Use the status chip for that.
 
 ### Analysis Tab
 
