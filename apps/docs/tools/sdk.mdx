@@ -117,6 +117,48 @@ const result = await marble.posts.list({
 
 For a complete guide on filtering options and behavior, see the [Filtering documentation](/api/filtering).
 
+## Scheduling Posts
+
+Set `status` to `scheduled` and `publishedAt` to a future time. Marble publishes the post within about a minute of that time. This needs a private API key:
+
+```typescript
+const result = await marble.posts.create({
+  title: "Launch day",
+  content: "<p>We're live.</p>",
+  description: "Our launch post",
+  slug: "launch-day",
+  categoryId: "your-category-id",
+  status: "scheduled",
+  publishedAt: new Date("2026-11-20T09:00:00Z"),
+});
+```
+
+Use `posts.update` to change a scheduled post:
+
+```typescript
+// Reschedule
+await marble.posts.update({
+  identifier: "launch-day",
+  body: { publishedAt: new Date("2026-11-21T09:00:00Z") },
+});
+
+// Publish now
+await marble.posts.update({
+  identifier: "launch-day",
+  body: { status: "published" },
+});
+
+// Unschedule, which moves it back to a draft
+await marble.posts.update({
+  identifier: "launch-day",
+  body: { status: "draft" },
+});
+```
+
+To list scheduled posts, call `posts.list({ status: "scheduled" })`. The default list returns published posts only, and `status: "all"` leaves scheduled posts out.
+
+The SDK's `publishedAt` is a JavaScript `Date`, so it always sends an exact moment in UTC. The workspace-time form in the REST API isn't available here. For the full rules, see [Scheduling a post](/concepts/content-model#scheduling-a-post).
+
 ## Pagination
 
 Paginated endpoints return an async iterable. Use `for await...of` to iterate through pages:
