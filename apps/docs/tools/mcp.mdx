@@ -214,8 +214,8 @@ Tool badges describe how clients may present or approve tool calls:
     | `get_posts` | Get a paginated list of published posts with optional filtering. | `READ-ONLY` |
     | `search_posts` | Search posts by title and content. Use this when an agent needs to find content before editing or linking to it. | `READ-ONLY` |
     | `get_post` | Get a single post by ID or slug, with optional status and content format filtering. | `READ-ONLY` |
-    | `create_post` | Create a new post. Category is required. If authors are not provided, the first workspace author is used. Requires a private API key. |  |
-    | `update_post` | Update an existing post by ID or slug. All fields are optional, and only provided fields are updated. Requires a private API key. | `DESTRUCTIVE` |
+    | `create_post` | Create a new post. Category is required. If authors are not provided, the first workspace author is used. Set `status` to `scheduled` with a future `publishedAt` to publish later. Requires a private API key. |  |
+    | `update_post` | Update an existing post by ID or slug. All fields are optional, and only provided fields are updated. Use it to schedule, reschedule, or unschedule a post. Requires a private API key. | `DESTRUCTIVE` |
     | `delete_post` | Delete a post by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
   </Accordion>
 
@@ -269,6 +269,19 @@ Tool badges describe how clients may present or approve tool calls:
     | `delete_field` | Delete a custom field and its saved values. Requires a private API key. | `DESTRUCTIVE` |
   </Accordion>
 </AccordionGroup>
+
+## Scheduling Posts
+
+Scheduling uses `create_post` and `update_post`, so there's no separate tool. Ask your agent in plain words:
+
+- "Schedule this post for Friday at 9am."
+- "Move the launch post to next Monday."
+- "Publish the scheduled launch post now."
+- "Unschedule the launch post."
+
+Times use your workspace timezone unless you name a zone, such as "9am New York time". Your agent reads scheduled posts through a private API key.
+
+The agent repeats the go-live time back to you in UTC. Check that it matches what you asked for. The agent can't see your workspace timezone, and older workspaces may still be on the default `Europe/London`. If the time looks wrong, change the timezone in **Settings** and reschedule the post.
 
 ## Authentication
 
