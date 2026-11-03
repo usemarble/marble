@@ -19,6 +19,10 @@
 - **Realtime webhooks** to trigger workflows when content changes
 - Fetch your content anywhere through the **REST API**
 
+## 🚀 One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/Marble/)
+
 ## 🛠 Local Development & Contributing
 
 Want to run Marble locally or contribute a feature? Check out our
