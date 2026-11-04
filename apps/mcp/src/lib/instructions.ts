@@ -112,7 +112,7 @@ Use normal article HTML such as:
 
 ## Allowed tags and URLs
 
-Allowed content tags include: p, h1, h2, h3, h4, h5, h6, strong, b, em, i, u, s, sub, sup, a, ul, ol, li, blockquote, pre, code, table, thead, tbody, tfoot, tr, th, td, img, figure, figcaption, video, track, iframe, div, span, mark, small, input, label, and hr.
+Allowed content tags include: p, h1, h2, h3, h4, h5, h6, strong, b, em, i, u, s, sub, sup, a, ul, ol, li, blockquote, pre, code, table, thead, tbody, tfoot, tr, th, td, img, figure, figcaption, video, audio, source, track, iframe, div, span, mark, small, input, label, and hr.
 
 Anchor **href** values may use **http**, **https**, **ftp**, or **mailto** URLs, same-page fragments such as **#introduction**, or root-relative internal paths such as **/pricing**.
 
@@ -120,7 +120,7 @@ Do not use scheme-relative links such as **//example.com**.
 
 Images may use **http**, **https**, or **data** URLs.
 
-Videos may use **http** or **https** URLs.
+Audio, video, and source elements may use **http** or **https** URLs.
 
 Iframes must use **https** and are restricted to YouTube hosts: **www.youtube.com** and **www.youtube-nocookie.com**.
 
@@ -135,6 +135,8 @@ Useful allowed attributes include:
 - **iframe**: src, allowfullscreen, style, width, height
 - **figure**: data-width, data-align, data-type
 - **video**: src, controls, preload, muted, loop, playsinline
+- **audio**: src, controls, preload, muted, loop
+- **source**: src, type
 - **track**: kind, src, srclang, label
 - **code**: class
 - **div**: data-twitter, data-src, data-youtube-video
@@ -170,6 +172,14 @@ Video:
 Use **data-align** sparingly: **left**, **center**, or **right**.
 
 Use **data-width** as a percentage-like string such as **"100"**.
+
+## Audio
+
+Wrap audio in a figure with an optional plain-text caption. Use a direct file URL in **src**:
+
+\`<figure data-type="audio"><audio src="https://example.com/audio.mp3" controls preload="metadata"></audio><figcaption>Optional caption</figcaption></figure>\`
+
+Reuse a media library URL or upload a file with **upload_media_from_url**. Use the audio file URL, not the URL of a web page containing a player.
 
 ## Embeds
 

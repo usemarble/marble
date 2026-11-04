@@ -15,7 +15,9 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@marble/utils": "workspace:*",
     "@tiptap/core": "3.31.3",
+    "@tiptap/extension-audio": "3.31.3",
     "@tiptap/extension-highlight": "3.31.3",
     "@tiptap/extension-image": "3.31.3",
     "@tiptap/extension-list": "3.31.3",

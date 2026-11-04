@@ -4,8 +4,9 @@
 export type {
   ImageUploadOptions,
   MediaItem,
-  VideoUploadOptions,
+  MediaUploadOptions,
 } from "../types";
+export { Audio } from "./audio";
 export { BlockMove } from "./block-move";
 export { CodeBlock } from "./code-block";
 // Extension Kit
@@ -17,6 +18,7 @@ export {
 export { Figure } from "./figure";
 export { ImageUpload } from "./image-upload";
 export { MarkdownInput } from "./markdown-input";
+export { AudioUpload, VideoUpload } from "./media-upload";
 export { configureSlashCommand, SlashCommand } from "./slash-command";
 export {
   Table,
@@ -28,5 +30,4 @@ export {
 } from "./table";
 export { TwitterUpload } from "./twitter/twitter-upload";
 export { Video } from "./video";
-export { VideoUpload } from "./video-upload";
 export { YouTubeUpload } from "./youtube/youtube-upload";

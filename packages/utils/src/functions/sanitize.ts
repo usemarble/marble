@@ -14,6 +14,8 @@ export function sanitizeHtml(content: string): string {
       "a",
       "img",
       "video",
+      "audio",
+      "source",
       "track",
       "h1",
       "h2",
@@ -70,6 +72,8 @@ export function sanitizeHtml(content: string): string {
       span: ["style", "data-color"],
       track: ["kind", "src", "srclang", "label"],
       video: ["src", "controls", "preload", "muted", "loop", "playsinline"],
+      audio: ["src", "controls", "preload", "muted", "loop"],
+      source: ["src", "type"],
     },
     allowedStyles: {
       "*": {
@@ -95,6 +99,8 @@ export function sanitizeHtml(content: string): string {
       iframe: ["https"],
       img: ["http", "https", "data"],
       video: ["http", "https"],
+      audio: ["http", "https"],
+      source: ["http", "https"],
     },
     exclusiveFilter: (frame) => {
       if (frame.tag === "script") {

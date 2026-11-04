@@ -39,7 +39,7 @@ export interface ImageUploadCompProps {
   onCancel: () => void;
   upload: (file: File) => Promise<string>;
   media?: MediaItem[];
-  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+  fetchMediaPage?: (cursor?: string, type?: "image") => Promise<MediaPage>;
   onError?: (error: Error) => void;
 }
 
@@ -79,7 +79,7 @@ export const ImageUploadComp = ({
     let active = true;
     setIsLoadingMedia(true);
 
-    fetchMediaPage()
+    fetchMediaPage(undefined, "image")
       .then((page) => {
         if (active) {
           setMedia(page.media);
@@ -109,7 +109,7 @@ export const ImageUploadComp = ({
     }
     setIsLoadingMore(true);
     try {
-      const page = await fetchMediaPage(nextCursor);
+      const page = await fetchMediaPage(nextCursor, "image");
       setMedia((prev) => [...(prev || []), ...page.media]);
       setNextCursor(page.nextCursor);
     } catch {
@@ -344,7 +344,7 @@ export const ImageUploadComp = ({
                   type="button"
                   variant="outline"
                 >
-                  View Gallery
+                  Media library
                 </Button>
               )}
               <Button
@@ -371,7 +371,7 @@ export const ImageUploadComp = ({
         </CardFooter>
       </Card>
 
-      {/* Media Gallery Dialog */}
+      {/* Media library Dialog */}
       {(media !== undefined || fetchMediaPage) && (
         <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
           <DialogContent
@@ -386,7 +386,7 @@ export const ImageUploadComp = ({
                   size={20}
                 />
                 <DialogTitle className="font-medium text-muted-foreground text-sm">
-                  Media Gallery
+                  Media library
                 </DialogTitle>
               </div>
               <DialogX />
@@ -451,7 +451,8 @@ export const ImageUploadComp = ({
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                     <ImagesIcon className="size-8" />
                     <p className="font-medium text-sm">
-                      Your gallery is empty. Upload some media to get started.
+                      Your media library has no images. Upload some media to get
+                      started.
                     </p>
                   </div>
                 </div>

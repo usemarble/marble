@@ -15,6 +15,7 @@ export interface ParseableElement {
   getAttribute: (name: string) => string | null;
   parentElement: ParseableElement | null;
   querySelector: (selector: string) => ParseableElement | null;
+  querySelectorAll: (selector: string) => ArrayLike<ParseableElement>;
   tagName: string;
   textContent: string | null;
 }

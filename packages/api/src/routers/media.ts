@@ -86,6 +86,7 @@ export const mediaRouter = {
         cursor: z.string().nullish(),
         limit: z.number().int().min(1).max(100),
         sort: sort.default("createdAt_desc"),
+        type: z.enum(["image", "video", "audio"]).optional(),
       })
     )
     .output(

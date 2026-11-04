@@ -69,6 +69,8 @@ export function isCustomNodeSelected(
     "image",
     "video",
     "videoUpload",
+    "audio",
+    "audioUpload",
   ];
 
   if (isFigureTextSelection(editor)) {

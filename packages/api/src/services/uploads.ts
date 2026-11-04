@@ -10,6 +10,7 @@ import {
 } from "@marble/db/schema";
 import { toMediaPayload } from "@marble/events";
 import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
+import { ALLOWED_AUDIO_MIME_TYPES } from "@marble/utils/media";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { AwsClient } from "aws4fetch";
@@ -51,6 +52,7 @@ const rasterTypes = [
 ];
 const mediaTypes = [
   ...rasterTypes,
+  ...ALLOWED_AUDIO_MIME_TYPES,
   "video/mp4",
   "video/webm",
   "video/ogg",
@@ -464,7 +466,9 @@ export async function completeUpload(
           ? "image"
           : intent.mimeType.startsWith("video/")
             ? "video"
-            : "document";
+            : intent.mimeType.startsWith("audio/")
+              ? "audio"
+              : "document";
         const [created] = await tx
           .insert(media)
           .values({

@@ -160,11 +160,13 @@ async function getImageMetadata(file: File): Promise<UploadMetadata> {
 }
 
 /**
- * Extracts video dimensions and duration from browser media metadata.
+ * Extracts audio/video duration and video dimensions from browser media metadata.
  */
-function getVideoMetadata(file: File): Promise<UploadMetadata> {
+function getMediaMetadata(file: File): Promise<UploadMetadata> {
   return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
+    const video = file.type.startsWith("audio/")
+      ? document.createElement("audio")
+      : document.createElement("video");
     const objectUrl = URL.createObjectURL(file);
 
     video.preload = "metadata";
@@ -172,8 +174,14 @@ function getVideoMetadata(file: File): Promise<UploadMetadata> {
       URL.revokeObjectURL(objectUrl);
       resolve({
         mimeType: file.type,
-        width: video.videoWidth || undefined,
-        height: video.videoHeight || undefined,
+        width:
+          video instanceof HTMLVideoElement
+            ? video.videoWidth || undefined
+            : undefined,
+        height:
+          video instanceof HTMLVideoElement
+            ? video.videoHeight || undefined
+            : undefined,
         // Browser media duration is seconds; Marble stores media duration in milliseconds.
         duration: Number.isFinite(video.duration)
           ? Math.round(video.duration * 1000)
@@ -182,7 +190,7 @@ function getVideoMetadata(file: File): Promise<UploadMetadata> {
     };
     video.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      reject(new Error("Failed to read video metadata."));
+      reject(new Error("Failed to read media metadata."));
     };
     video.src = objectUrl;
   });
@@ -196,8 +204,8 @@ async function getUploadMetadata(file: File): Promise<UploadMetadata> {
     if (file.type.startsWith("image/")) {
       return await getImageMetadata(file);
     }
-    if (file.type.startsWith("video/")) {
-      return await getVideoMetadata(file);
+    if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
+      return await getMediaMetadata(file);
     }
   } catch (error) {
     console.warn("Failed to extract upload metadata:", error);

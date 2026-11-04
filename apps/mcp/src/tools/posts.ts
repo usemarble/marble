@@ -66,7 +66,7 @@ const postBody = {
     .string()
     .min(1)
     .describe(
-      "Post body content as HTML. Use clean semantic HTML. Marble sanitizes content before storing it, so avoid scripts, event handlers, unsupported attributes, unsafe URL schemes, and non-YouTube iframes. For captioned images or videos, prefer editor-compatible figure markup. Figure captions may contain inline links and inline formatting tags: a, strong, b, em, i, s, u, code, span, and mark."
+      'Post body content as HTML. Use clean semantic HTML. Marble sanitizes content before storing it, so avoid scripts, event handlers, unsupported attributes, unsafe URL schemes, and non-YouTube iframes. For audio, use <figure data-type="audio"><audio src="https://example.com/audio.mp3" controls preload="metadata"></audio><figcaption>Optional plain-text caption</figcaption></figure> with a direct file URL. For captioned images or videos, prefer editor-compatible figure markup. Image figure captions may contain inline links and inline formatting tags: a, strong, b, em, i, s, u, code, span, and mark.'
     ),
   description: z.string().min(1).describe("Short post description or excerpt."),
   slug: z.string().min(1).describe("URL-friendly post slug."),
@@ -110,7 +110,7 @@ const updatePostBody = {
     .min(1)
     .optional()
     .describe(
-      "Updated post body content as HTML. Use clean semantic HTML. Marble sanitizes content before storing it, so avoid scripts, event handlers, unsupported attributes, unsafe URL schemes, and non-YouTube iframes. For captioned images or videos, prefer editor-compatible figure markup. Figure captions may contain inline links and inline formatting tags: a, strong, b, em, i, s, u, code, span, and mark."
+      'Updated post body content as HTML. Use clean semantic HTML. Marble sanitizes content before storing it, so avoid scripts, event handlers, unsupported attributes, unsafe URL schemes, and non-YouTube iframes. For audio, use <figure data-type="audio"><audio src="https://example.com/audio.mp3" controls preload="metadata"></audio><figcaption>Optional plain-text caption</figcaption></figure> with a direct file URL. For captioned images or videos, prefer editor-compatible figure markup. Image figure captions may contain inline links and inline formatting tags: a, strong, b, em, i, s, u, code, span, and mark.'
     ),
   description: z
     .string()
