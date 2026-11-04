@@ -67,6 +67,7 @@ export const MediaUploadComp = ({
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const mediaSession = useRef(0);
 
   const { loading, uploadMedia } = useUploader({
     onUpload,
@@ -88,7 +89,9 @@ export const MediaUploadComp = ({
     }
 
     let active = true;
+    mediaSession.current += 1;
     setIsLoadingMedia(true);
+    setIsLoadingMore(false);
 
     fetchMediaPage(undefined, mediaType)
       .then((page) => {
@@ -110,6 +113,7 @@ export const MediaUploadComp = ({
 
     return () => {
       active = false;
+      mediaSession.current += 1;
     };
   }, [fetchMediaPage, providedMedia, mediaType, isMediaLibraryOpen]);
 
@@ -118,15 +122,21 @@ export const MediaUploadComp = ({
     if (!fetchMediaPage || !nextCursor || isLoadingMore) {
       return;
     }
+    const session = mediaSession.current;
     setIsLoadingMore(true);
     try {
       const page = await fetchMediaPage(nextCursor, mediaType);
+      if (session !== mediaSession.current) {
+        return;
+      }
       setMedia((prev) => [...(prev || []), ...page.media]);
       setNextCursor(page.nextCursor);
     } catch {
       // Ignore errors on load more
     } finally {
-      setIsLoadingMore(false);
+      if (session === mediaSession.current) {
+        setIsLoadingMore(false);
+      }
     }
   }, [fetchMediaPage, nextCursor, isLoadingMore, mediaType]);
 

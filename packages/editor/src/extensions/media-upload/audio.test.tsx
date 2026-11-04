@@ -5,6 +5,7 @@ import { EditorContent } from "@tiptap/react";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { MediaPage, MediaUploadOptions } from "../../types";
 import { ExtensionKit } from "../extension-kit";
 import { defaultSlashSuggestions } from "../slash-command/groups";
 import { AudioUpload, VideoUpload } from "./index";
@@ -42,6 +43,107 @@ afterEach(async () => {
 });
 
 describe("audio authoring", () => {
+  it("preserves every fallback audio source when editing and saving", async () => {
+    await mount(AudioUpload);
+    const sources = [
+      { src: "https://cdn.example.com/song.ogg", type: "audio/ogg" },
+      { src, type: "audio/mpeg" },
+    ];
+    await act(async () => {
+      editor.commands.setContent(
+        `<figure><audio controls><source src="${sources[0]?.src}" type="audio/ogg"><source src="${src}" type="audio/mpeg"></audio><figcaption>A song</figcaption></figure>`
+      );
+    });
+    expect(editor.getJSON().content?.[0]?.attrs?.sources).toEqual(sources);
+    expect(container.querySelectorAll("audio source")).toHaveLength(2);
+    const saved = sanitizeHtml(editor.getHTML());
+    const document = new DOMParser().parseFromString(saved, "text/html");
+    expect(document.querySelector("audio")?.hasAttribute("src")).toBe(false);
+    expect(
+      Array.from(document.querySelectorAll("audio source"), (source) => ({
+        src: source.getAttribute("src"),
+        type: source.getAttribute("type"),
+      }))
+    ).toEqual(sources);
+    await act(async () => {
+      editor.commands.setContent(saved);
+    });
+    expect(editor.getJSON().content?.[0]?.attrs?.sources).toEqual(sources);
+  });
+
+  it.each([true, false])(
+    "matches controls=%s in the editor and exported HTML",
+    async (controls) => {
+      await mount(AudioUpload);
+      await act(async () => {
+        editor.commands.setContent(
+          `<figure><audio src="${src}" ${controls ? "controls" : ""}></audio></figure>`
+        );
+      });
+      expect(container.querySelector("audio")?.controls).toBe(controls);
+      const saved = new DOMParser().parseFromString(
+        editor.getHTML(),
+        "text/html"
+      );
+      expect(saved.querySelector("audio")?.controls).toBe(controls);
+    }
+  );
+
+  it("discards a pending page when the media library is reopened", async () => {
+    let finishOldPage: ((page: MediaPage) => void) | undefined;
+    const oldPage = new Promise<MediaPage>((resolve) => {
+      finishOldPage = resolve;
+    });
+    const media = (id: string) => ({
+      id,
+      name: `${id}.mp3`,
+      url: `https://cdn.example.com/${id}.mp3`,
+      type: "audio" as const,
+    });
+    const fetchMediaPage = vi
+      .fn<NonNullable<MediaUploadOptions["fetchMediaPage"]>>()
+      .mockResolvedValueOnce({ media: [media("first")], nextCursor: "page-2" })
+      .mockResolvedValueOnce({ media: [media("second")], nextCursor: "page-3" })
+      .mockReturnValueOnce(oldPage)
+      .mockResolvedValueOnce({
+        media: [media("fresh")],
+        nextCursor: "fresh-page-2",
+      })
+      .mockResolvedValueOnce({ media: [media("fresh-second")] });
+    await mount(
+      AudioUpload.configure({ upload: async () => src, fetchMediaPage })
+    );
+    await act(async () => {
+      editor.commands.setAudioUpload();
+    });
+    const libraryButton = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent?.includes("Media library")
+    );
+    const loadMore = () =>
+      Array.from(document.querySelectorAll("button")).find(
+        (button) => button.textContent?.trim() === "Load More"
+      );
+    await act(async () => libraryButton?.click());
+    await act(async () => loadMore()?.click());
+    await act(async () => loadMore()?.click());
+    expect(fetchMediaPage).toHaveBeenLastCalledWith("page-3", "audio");
+    await act(async () =>
+      document
+        .querySelector<HTMLButtonElement>('[data-slot="dialog-close"]')
+        ?.click()
+    );
+    await act(async () => libraryButton?.click());
+    expect(document.body.textContent).toContain("fresh.mp3");
+    await act(async () => {
+      finishOldPage?.({
+        media: [media("stale-third")],
+        nextCursor: "old-page-4",
+      });
+    });
+    expect(document.body.textContent).not.toContain("stale-third.mp3");
+    await act(async () => loadMore()?.click());
+    expect(fetchMediaPage).toHaveBeenLastCalledWith("fresh-page-2", "audio");
+  });
   it("edits an attached caption and preserves it in saved HTML and JSON", async () => {
     await mount(AudioUpload);
     await act(async () => {

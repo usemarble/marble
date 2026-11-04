@@ -39,7 +39,7 @@ export interface ImageUploadCompProps {
   onCancel: () => void;
   upload: (file: File) => Promise<string>;
   media?: MediaItem[];
-  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+  fetchMediaPage?: (cursor?: string, type?: "image") => Promise<MediaPage>;
   onError?: (error: Error) => void;
 }
 
@@ -79,7 +79,7 @@ export const ImageUploadComp = ({
     let active = true;
     setIsLoadingMedia(true);
 
-    fetchMediaPage()
+    fetchMediaPage(undefined, "image")
       .then((page) => {
         if (active) {
           setMedia(page.media);
@@ -109,7 +109,7 @@ export const ImageUploadComp = ({
     }
     setIsLoadingMore(true);
     try {
-      const page = await fetchMediaPage(nextCursor);
+      const page = await fetchMediaPage(nextCursor, "image");
       setMedia((prev) => [...(prev || []), ...page.media]);
       setNextCursor(page.nextCursor);
     } catch {

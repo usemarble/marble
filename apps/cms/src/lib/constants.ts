@@ -21,6 +21,7 @@ export const MEDIA_DROPZONE_ACCEPT = {
   "audio/mpeg": [".mp3"],
   "audio/mp4": [".m4a"],
   "audio/ogg": [".ogg", ".oga", ".opus"],
+  "audio/opus": [".opus"],
   "audio/wav": [".wav"],
   "audio/webm": [".webm"],
   "audio/aac": [".aac"],

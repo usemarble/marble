@@ -78,6 +78,14 @@ describe("dashboard media", () => {
     });
     expect(page.totalCount).toBe(2);
     expect(page.media.every((item) => item.type === "audio")).toBe(true);
+    const images = await client.editor({
+      workspaceId: ws.id,
+      type: "image",
+      limit: 1,
+    });
+    expect(images.media).toHaveLength(1);
+    expect(images.media[0]?.type).toBe("image");
+    expect(images.nextCursor).toBeUndefined();
   });
   it("scopes reads, verifies member access, deletes R2 objects and invalidates caches", async () => {
     const actor = await seedUser(testDb.db);

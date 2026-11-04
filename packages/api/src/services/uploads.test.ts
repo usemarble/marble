@@ -87,30 +87,33 @@ async function fillStorage(workspaceId: string, size: number) {
 }
 
 describe("dashboard uploads", () => {
-  it("uploads audio with its duration and preserves the audio media type", async () => {
-    const f = await fixture();
-    f.input.fileType = "audio/mpeg";
-    const upload = await f.initiate();
-    f.objects.set(upload.key, {
-      size: f.input.fileSize,
-      httpMetadata: { contentType: "audio/mpeg" },
-    });
-    const result = await f.complete(upload, {
-      name: "song.mp3",
-      duration: 24_000,
-    });
-    expect(result).toMatchObject({
-      type: "audio",
-      mimeType: "audio/mpeg",
-      duration: 24_000,
-    });
-    expect(
-      await testDb.db.query.media.findFirst({
-        where: eq(media.storageKey, upload.key),
-      })
-    ).toMatchObject({ type: "audio", name: "song.mp3" });
-    await f.request.flush();
-  });
+  it.each(["audio/mpeg", "audio/opus"])(
+    "uploads %s with its duration and preserves the audio media type",
+    async (mimeType) => {
+      const f = await fixture();
+      f.input.fileType = mimeType;
+      const upload = await f.initiate();
+      f.objects.set(upload.key, {
+        size: f.input.fileSize,
+        httpMetadata: { contentType: mimeType },
+      });
+      const result = await f.complete(upload, {
+        name: "song.mp3",
+        duration: 24_000,
+      });
+      expect(result).toMatchObject({
+        type: "audio",
+        mimeType,
+        duration: 24_000,
+      });
+      expect(
+        await testDb.db.query.media.findFirst({
+          where: eq(media.storageKey, upload.key),
+        })
+      ).toMatchObject({ type: "audio", name: "song.mp3" });
+      await f.request.flush();
+    }
+  );
   it("rejects expired and altered intents, and wrong user or workspace completion", async () => {
     const f = await fixture();
     const upload = await f.initiate();

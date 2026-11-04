@@ -110,6 +110,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
         cursor,
         limit: 20,
         sort: "createdAt_desc",
+        type: "image",
       }),
       staleTime: 1000 * 60 * 5,
       getNextPageParam: (lastPage) => lastPage.nextCursor,

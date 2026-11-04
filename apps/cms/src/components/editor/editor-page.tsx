@@ -120,7 +120,10 @@ function EditorPageContent() {
   );
 
   const fetchMediaPage = useCallback(
-    async (cursor?: string, type?: "audio" | "video"): Promise<MediaPage> => {
+    async (
+      cursor?: string,
+      type?: "image" | "audio" | "video"
+    ): Promise<MediaPage> => {
       if (!workspaceId) {
         return { media: [] };
       }

@@ -98,7 +98,7 @@ export interface ImageUploadOptions {
   /** Pre-loaded media library items */
   media?: MediaItem[];
   /** Fetch media with pagination - takes optional cursor, returns page with media and next cursor */
-  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+  fetchMediaPage?: (cursor?: string, type?: "image") => Promise<MediaPage>;
 }
 
 /**
