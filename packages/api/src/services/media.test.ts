@@ -25,6 +25,68 @@ afterAll(async () => {
 });
 
 describe("dashboard media", () => {
+  it("lists audio in the media page and paginates only audio in the editor", async () => {
+    const actor = await seedUser(testDb.db);
+    const ws = await seedWorkspace(testDb.db, actor.id);
+    const otherWs = await seedWorkspace(testDb.db, actor.id);
+    const audioIds = [createRecordId(), createRecordId()] as const;
+    for (const [id, workspaceId, type] of [
+      [audioIds[0], ws.id, "audio"],
+      [audioIds[1], ws.id, "audio"],
+      [createRecordId(), ws.id, "image"],
+      [createRecordId(), ws.id, "video"],
+      [createRecordId(), otherWs.id, "audio"],
+    ] as const) {
+      await testDb.db.insert(media).values({
+        id,
+        workspaceId,
+        type,
+        name: id,
+        storageKey: `media/${workspaceId}/${id}`,
+        url: `https://cdn.example.com/${id}`,
+        size: 17,
+      });
+    }
+    const client = createRouterClient(mediaRouter, {
+      context: createTestContext(testDb.db, { session: sessionFor(actor) })
+        .context,
+    });
+    const first = await client.editor({
+      workspaceId: ws.id,
+      type: "audio",
+      limit: 1,
+    });
+    expect(first.media).toHaveLength(1);
+    expect(first.nextCursor).toBeDefined();
+    const second = await client.editor({
+      workspaceId: ws.id,
+      type: "audio",
+      limit: 1,
+      cursor: first.nextCursor,
+    });
+    expect(second.media).toHaveLength(1);
+    expect(second.nextCursor).toBeUndefined();
+    expect(
+      new Set([...first.media, ...second.media].map((item) => item.id))
+    ).toEqual(new Set(audioIds));
+    const page = await client.list({
+      workspaceId: ws.id,
+      type: "audio",
+      page: 1,
+      perPage: 20,
+      sort: "createdAt_desc",
+    });
+    expect(page.totalCount).toBe(2);
+    expect(page.media.every((item) => item.type === "audio")).toBe(true);
+    const images = await client.editor({
+      workspaceId: ws.id,
+      type: "image",
+      limit: 1,
+    });
+    expect(images.media).toHaveLength(1);
+    expect(images.media[0]?.type).toBe("image");
+    expect(images.nextCursor).toBeUndefined();
+  });
   it("scopes reads, verifies member access, deletes R2 objects and invalidates caches", async () => {
     const actor = await seedUser(testDb.db);
     const memberUser = await seedUser(testDb.db);

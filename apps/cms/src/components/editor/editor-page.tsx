@@ -10,6 +10,7 @@ import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import "@/styles/editor.css";
 import {
+  AudioUpload,
   type Editor,
   EditorContext,
   EditorOutline,
@@ -24,6 +25,7 @@ import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { generateSlug } from "@marble/utils";
+import { ALLOWED_AUDIO_MIME_TYPES } from "@marble/utils/media";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -103,7 +105,7 @@ function EditorPageContent() {
     [workspaceId]
   );
 
-  const handleVideoUpload = useCallback(
+  const handleMediaUpload = useCallback(
     async (file: File): Promise<string> => {
       if (!workspaceId) {
         throw new Error("Workspace unavailable");
@@ -118,7 +120,10 @@ function EditorPageContent() {
   );
 
   const fetchMediaPage = useCallback(
-    async (cursor?: string): Promise<MediaPage> => {
+    async (
+      cursor?: string,
+      type?: "image" | "audio" | "video"
+    ): Promise<MediaPage> => {
       if (!workspaceId) {
         return { media: [] };
       }
@@ -128,6 +133,7 @@ function EditorPageContent() {
           cursor,
           limit: 20,
           sort: "createdAt_desc",
+          type,
         });
         return {
           media: data.media.map((item) => ({
@@ -135,7 +141,9 @@ function EditorPageContent() {
             url: item.url,
             name: item.name,
             type:
-              item.type === "image" || item.type === "video"
+              item.type === "image" ||
+              item.type === "video" ||
+              item.type === "audio"
                 ? item.type
                 : "file",
           })),
@@ -236,15 +244,22 @@ function EditorPageContent() {
         onError: handleUploadError,
         fetchMediaPage,
       }),
+      AudioUpload.configure({
+        accept: ALLOWED_AUDIO_MIME_TYPES.join(","),
+        maxSize: MAX_MEDIA_FILE_SIZE,
+        upload: handleMediaUpload,
+        onError: handleUploadError,
+        fetchMediaPage,
+      }),
       VideoUpload.configure({
         accept: "video/*",
         maxSize: MAX_MEDIA_FILE_SIZE,
-        upload: handleVideoUpload,
+        upload: handleMediaUpload,
         onError: handleUploadError,
         fetchMediaPage,
       }),
     ],
-    [fetchMediaPage, handleImageUpload, handleUploadError, handleVideoUpload]
+    [fetchMediaPage, handleImageUpload, handleUploadError, handleMediaUpload]
   );
 
   const editor = useMarbleEditor({

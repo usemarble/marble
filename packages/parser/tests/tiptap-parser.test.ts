@@ -11,6 +11,90 @@ import {
 } from "../src";
 
 describe("htmlToTiptap", () => {
+  it("keeps every fallback audio source through normalization and Markdown import", async () => {
+    const html =
+      '<figure><audio controls><source src="https://cdn.example.com/song.ogg" type="audio/ogg"><source src="https://cdn.example.com/song.mp3" type="audio/mpeg"></audio><figcaption>A song</figcaption></figure>';
+    const sources = [
+      { src: "https://cdn.example.com/song.ogg", type: "audio/ogg" },
+      { src: "https://cdn.example.com/song.mp3", type: "audio/mpeg" },
+    ];
+    expect(htmlToTiptap(html).content?.[0]?.attrs?.sources).toEqual(sources);
+    const markdown = `# Song\n\n${htmlToMarkdown(html)}`;
+    expect(
+      (await normalizePostContent(markdown)).contentJson.content?.[1]?.attrs
+        ?.sources
+    ).toEqual(sources);
+    expect(markdownToTiptap(markdown).content?.[1]).toMatchObject({
+      type: "audio",
+      attrs: { sources, caption: "A song" },
+    });
+  });
+
+  it("imports bare audio from exported Markdown", () => {
+    const html =
+      '<audio src="https://cdn.example.com/song.mp3" controls></audio>';
+    expect(markdownToTiptap(htmlToMarkdown(html)).content?.[0]).toMatchObject({
+      type: "audio",
+      attrs: { src: "https://cdn.example.com/song.mp3" },
+    });
+  });
+  it("preserves the source and caption of an audio figure", async () => {
+    const html =
+      '<figure data-type="audio"><audio src="https://cdn.example.com/song.mp3" controls preload="metadata"></audio><figcaption>Live &amp; acoustic</figcaption></figure>';
+    const result = htmlToTiptap(html);
+    expect(result.content).toEqual([
+      expect.objectContaining({
+        type: "audio",
+        attrs: expect.objectContaining({
+          src: "https://cdn.example.com/song.mp3",
+          caption: "Live & acoustic",
+          controls: true,
+          preload: "metadata",
+        }),
+      }),
+    ]);
+    const markdown = htmlToMarkdown(html);
+    expect(
+      (await normalizePostContent(`# Audio\n\n${markdown}`)).contentJson.content
+    ).toContainEqual(result.content?.[0]);
+  });
+
+  it("reads audio sources nested in an audio figure", () => {
+    expect(
+      htmlToTiptap(
+        '<figure><audio controls><source src="https://cdn.example.com/song.mp3" type="audio/mpeg"></audio><figcaption>A song</figcaption></figure>'
+      ).content?.[0]
+    ).toMatchObject({
+      type: "audio",
+      attrs: {
+        src: null,
+        sources: [
+          { src: "https://cdn.example.com/song.mp3", type: "audio/mpeg" },
+        ],
+        caption: "A song",
+      },
+    });
+  });
+  it("preserves native audio through HTML, Markdown, and normalized content", async () => {
+    const html =
+      '<audio src="https://cdn.example.com/song.mp3" controls="" preload="metadata"></audio>';
+    const result = htmlToTiptap(html);
+    expect(result.content).toEqual([
+      expect.objectContaining({
+        type: "audio",
+        attrs: expect.objectContaining({
+          src: "https://cdn.example.com/song.mp3",
+          preload: "metadata",
+        }),
+      }),
+    ]);
+    const markdown = htmlToMarkdown(html);
+    expect(markdown).toContain("<audio");
+    expect(htmlToTiptap(markdown)).toEqual(result);
+    expect(
+      (await normalizePostContent(`# Audio\n\n${markdown}`)).contentJson.content
+    ).toContainEqual(result.content?.[0]);
+  });
   it("converts HTML into Tiptap JSON", () => {
     const result = htmlToTiptap("<h2>Hello</h2><p>World</p>");
 

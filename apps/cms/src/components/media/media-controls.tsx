@@ -27,6 +27,7 @@ const typeOptions = [
   { label: "All", value: "all" },
   { label: "Image", value: "image" },
   { label: "Video", value: "video" },
+  { label: "Audio", value: "audio" },
 ];
 
 const sortOptions = [

@@ -239,6 +239,7 @@ const nodeToMarkdown = (node: ChildNode): string => {
     case "TABLE":
       return tableToMarkdown(node);
     case "FIGURE":
+    case "AUDIO":
       return rawHtmlBlock(node);
     case "DIV":
       if (

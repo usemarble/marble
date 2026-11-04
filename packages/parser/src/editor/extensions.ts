@@ -19,6 +19,7 @@ import { TextStyleKit } from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import { Youtube } from "@tiptap/extension-youtube";
 import StarterKit from "@tiptap/starter-kit";
+import { ServerAudio } from "./audio";
 import type { ParseableElement } from "./types";
 
 const queryHtml = (element: HTMLElement, selector: string) =>
@@ -237,6 +238,7 @@ const ServerTwitter = TiptapNode.create({
  * closely enough for API conversions without importing React node views.
  */
 export const htmlExtensions: AnyExtension[] = [
+  ServerAudio,
   StarterKit.configure({
     link: {
       openOnClick: false,

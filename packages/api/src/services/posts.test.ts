@@ -347,6 +347,28 @@ describe("scheduling from the dashboard", () => {
 });
 
 describe("dashboard post writes", () => {
+  it("saves and reopens captioned audio HTML and editor JSON", async () => {
+    const { client, input, flush } = await fixture();
+    const content =
+      '<figure data-type="audio"><audio controls preload="metadata" src="https://cdn.example.com/song.mp3"></audio><figcaption>Live recording</figcaption></figure>';
+    const contentJson = JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "audio",
+          attrs: {
+            src: "https://cdn.example.com/song.mp3",
+            caption: "Live recording",
+          },
+        },
+      ],
+    });
+    const { id } = await client.create({ ...input, content, contentJson });
+    const reopened = await client.get({ workspaceId: input.workspaceId, id });
+    expect(reopened.content).toBe(content);
+    expect(JSON.parse(reopened.contentJson)).toEqual(JSON.parse(contentJson));
+    await flush();
+  });
   it.each(["draft", "published"] as const)(
     "creating a %s emits the CMS event and invalidates posts",
     async (status) => {

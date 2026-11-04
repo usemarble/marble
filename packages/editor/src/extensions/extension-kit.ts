@@ -1,4 +1,5 @@
 import { cn } from "@marble/ui/lib/utils";
+import { ALLOWED_AUDIO_MIME_TYPES } from "@marble/utils/media";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
@@ -12,18 +13,19 @@ import { Youtube } from "@tiptap/extension-youtube";
 import { CharacterCount, Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
 import StarterKit from "@tiptap/starter-kit";
+import { Audio } from "./audio";
 import { BlockMove } from "./block-move";
 import { CodeBlock } from "./code-block";
 import { Figure } from "./figure";
 import { ImageUpload } from "./image-upload";
 import { MarkdownInput } from "./markdown-input";
+import { AudioUpload, VideoUpload } from "./media-upload";
 import { OrderedList } from "./ordered-list";
 import { configureSlashCommand } from "./slash-command";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
 import { Twitter } from "./twitter/index";
 import { TwitterUpload } from "./twitter/twitter-upload";
 import { Video } from "./video";
-import { VideoUpload } from "./video-upload";
 import { YouTubeUpload } from "./youtube/youtube-upload";
 import "../styles/task-list.css";
 
@@ -168,12 +170,16 @@ export const ExtensionKit = ({
 
   // Video (self-hosted video with caption support)
   Video,
+  Audio.configure({
+    addPasteHandler: false,
+  }),
+  AudioUpload,
 
   // Video Upload (placeholder node for video upload component)
   // Note: Will be unconfigured by default, CMS app should pass configured version
   VideoUpload,
 
-  // File Handler for drag-and-drop and paste image/video uploads
+  // File Handler for drag-and-drop and paste media uploads
   FileHandler.configure({
     allowedMimeTypes: [
       "image/png",
@@ -184,6 +190,7 @@ export const ExtensionKit = ({
       "video/webm",
       "video/ogg",
       "video/quicktime",
+      ...ALLOWED_AUDIO_MIME_TYPES,
     ],
     // Drop at the position under the pointer rather than at the caret, which
     // is usually somewhere else entirely by the time a file is dragged in.
@@ -193,7 +200,9 @@ export const ExtensionKit = ({
       for (const [index, file] of files.entries()) {
         const options = index === 0 ? { file, pos } : { file };
 
-        if (file.type.startsWith("video/")) {
+        if (file.type.startsWith("audio/")) {
+          currentEditor.chain().focus().setAudioUpload(options).run();
+        } else if (file.type.startsWith("video/")) {
           currentEditor.chain().focus().setVideoUpload(options).run();
         } else {
           currentEditor.chain().focus().setImageUpload(options).run();
@@ -202,7 +211,9 @@ export const ExtensionKit = ({
     },
     onPaste: (currentEditor, files) => {
       for (const file of files) {
-        if (file.type.startsWith("video/")) {
+        if (file.type.startsWith("audio/")) {
+          currentEditor.chain().focus().setAudioUpload({ file }).run();
+        } else if (file.type.startsWith("video/")) {
           currentEditor.chain().focus().setVideoUpload({ file }).run();
         } else {
           currentEditor.chain().focus().setImageUpload({ file }).run();

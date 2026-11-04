@@ -5,6 +5,7 @@
     ".": "./src/index.ts",
     "./api-key-scopes": "./src/constants/api-key.ts",
     "./post-status": "./src/constants/post-status.ts",
+    "./media": "./src/constants/media.ts",
     "./sanitize": "./src/functions/sanitize.ts",
     "./wall-clock": "./src/functions/wall-clock.ts",
     "./workspace": "./src/validations/workspace.ts"

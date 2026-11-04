@@ -97,6 +97,8 @@ const SUPPORTED_NODE_TYPES = new Set([
   "imageUpload",
   "video",
   "videoUpload",
+  "audio",
+  "audioUpload",
   "twitter",
   "twitterUpload",
   "youtube",

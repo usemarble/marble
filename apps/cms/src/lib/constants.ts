@@ -1,3 +1,5 @@
+import { ALLOWED_AUDIO_MIME_TYPES } from "@marble/utils/media";
+
 export const VALID_DISCORD_DOMAINS = [
   "discord.com",
   "canary.discord.com",
@@ -16,6 +18,14 @@ export const IMAGE_DROPZONE_ACCEPT = [
 ];
 
 export const MEDIA_DROPZONE_ACCEPT = {
+  "audio/mpeg": [".mp3"],
+  "audio/mp4": [".m4a"],
+  "audio/ogg": [".ogg", ".oga", ".opus"],
+  "audio/opus": [".opus"],
+  "audio/wav": [".wav"],
+  "audio/webm": [".webm"],
+  "audio/aac": [".aac"],
+  "audio/flac": [".flac"],
   "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif"],
   "video/*": [
     ".mp4",
@@ -49,6 +59,7 @@ export const ALLOWED_VIDEO_MIME_TYPES = [
 export const ALLOWED_MIME_TYPES = [
   ...ALLOWED_RASTER_MIME_TYPES,
   ...ALLOWED_VIDEO_MIME_TYPES,
+  ...ALLOWED_AUDIO_MIME_TYPES,
 ] as const;
 
 export type AllowedRasterMimeType = (typeof ALLOWED_RASTER_MIME_TYPES)[number];

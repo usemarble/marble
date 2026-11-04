@@ -1,3 +1,5 @@
+import { ALLOWED_AUDIO_MIME_TYPES } from "@marble/utils/media";
+
 /**
  * Available API route resources.
  * Used for route dispatching and redirect logic.
@@ -29,16 +31,6 @@ export const ALLOWED_VIDEO_MIME_TYPES = [
   "video/webm",
   "video/ogg",
   "video/quicktime",
-] as const;
-
-export const ALLOWED_AUDIO_MIME_TYPES = [
-  "audio/mpeg",
-  "audio/mp4",
-  "audio/ogg",
-  "audio/wav",
-  "audio/webm",
-  "audio/aac",
-  "audio/flac",
 ] as const;
 
 export const ALLOWED_DOCUMENT_MIME_TYPES = [

@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/core";
 import { marked, type Token, type Tokens } from "marked";
+import { htmlToTiptap } from "./html";
 
 /**
  * Converts Markdown tokens into Tiptap JSON for the CMS import flow.
@@ -70,7 +71,17 @@ export class MarkdownToTiptapParser {
     };
   }
 
-  static parseParagraph(token: Tokens.Paragraph): JSONContent {
+  static parseParagraph(token: Tokens.Paragraph): JSONContent | JSONContent[] {
+    if (
+      token.tokens?.some(
+        (item) => item.type === "html" && /^<audio(?:\s|>)/i.test(item.text)
+      )
+    ) {
+      const html = /^\s*<audio(?:\s|>)[\s\S]*<\/audio>\s*$/i.test(token.text)
+        ? token.text
+        : marked.parser([token]);
+      return htmlToTiptap(html).content ?? [];
+    }
     return {
       type: "paragraph",
       content: MarkdownToTiptapParser.parseInlineTokens(token.tokens || []),
@@ -129,6 +140,9 @@ export class MarkdownToTiptapParser {
   static parseListItem(item: Tokens.ListItem): JSONContent {
     const parser = new MarkdownToTiptapParser();
     let content = parser.parseTokens(item.tokens || []);
+    if (content[0]?.type === "audio") {
+      content.unshift({ type: "paragraph" });
+    }
 
     if (
       content.length > 0 &&
@@ -221,8 +235,11 @@ export class MarkdownToTiptapParser {
     return { type: "table", content: rows };
   }
 
-  static parseHTML(token: Tokens.HTML): JSONContent | null {
+  static parseHTML(token: Tokens.HTML): JSONContent | JSONContent[] | null {
     const text = token.text;
+    if (/<audio(?:\s|>)/i.test(text)) {
+      return htmlToTiptap(text).content ?? [];
+    }
     const imgMatch = text.match(
       /<img[^>]+src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>/i
     );
