@@ -70,7 +70,7 @@ export interface MediaItem {
   id: string;
   url: string;
   name: string;
-  type: "image" | "video" | "file";
+  type: "image" | "video" | "audio" | "file";
 }
 
 /**
@@ -102,12 +102,12 @@ export interface ImageUploadOptions {
 }
 
 /**
- * Video upload extension options
+ * Audio and video upload extension options
  */
-export interface VideoUploadOptions {
+export interface MediaUploadOptions {
   /** Upload handler function - required for upload functionality */
   upload?: (file: File) => Promise<string>;
-  /** File accept types (default: 'video/*') */
+  /** Accepted MIME types; defaults to the media kind's wildcard. */
   accept?: string;
   /** Max file size in bytes */
   maxSize?: number;
@@ -118,5 +118,8 @@ export interface VideoUploadOptions {
   /** Pre-loaded media library items */
   media?: MediaItem[];
   /** Fetch media with pagination - takes optional cursor, returns page with media and next cursor */
-  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+  fetchMediaPage?: (
+    cursor?: string,
+    type?: "audio" | "video"
+  ) => Promise<MediaPage>;
 }

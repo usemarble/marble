@@ -155,12 +155,9 @@ export function MediaDropzone({
     <Dropzone
       accept={MEDIA_DROPZONE_ACCEPT}
       placeholder={{
-        idle:
-          placeholder?.idle || "Drag & drop a media here, or click to select",
+        idle: placeholder?.idle || "Drag & drop media here, or click to select",
         active: placeholder?.active || "Drop the media here...",
-        subtitle:
-          placeholder?.subtitle ||
-          "Supports all common image and video formats",
+        subtitle: placeholder?.subtitle || "Supports images, videos, and audio",
       }}
       {...props}
     />

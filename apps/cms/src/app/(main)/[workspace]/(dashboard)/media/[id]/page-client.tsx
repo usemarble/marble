@@ -222,6 +222,15 @@ export default function MediaDetailPage({
                   preview={false}
                   src={media.url}
                 />
+              ) : media.type === "audio" ? (
+                // biome-ignore lint/a11y/useMediaCaption: Media library previews do not have transcript assets.
+                <audio
+                  aria-label={`Play ${media.name}`}
+                  className="w-full max-w-xl"
+                  controls
+                  preload="metadata"
+                  src={media.url}
+                />
               ) : (
                 <div className="rounded-lg border border-dashed px-4 py-3 text-muted-foreground text-sm">
                   Preview unavailable

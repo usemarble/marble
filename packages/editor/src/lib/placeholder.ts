@@ -2,7 +2,7 @@ import type { Content, NodeViewProps } from "@tiptap/core";
 
 /**
  * The parts of a node view needed to locate a placeholder node in the
- * document. Upload and embed placeholders (`imageUpload`, `videoUpload`,
+ * document. Upload and embed placeholders (`imageUpload`, `videoUpload`, `audioUpload`,
  * `twitterUpload`, `youtubeUpload`) all hold a spot in the document until
  * their real content is ready.
  */

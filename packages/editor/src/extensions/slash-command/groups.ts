@@ -1,6 +1,7 @@
 import {
   CheckSquareIcon,
   CodeIcon,
+  FileAudioIcon,
   ImageIcon,
   ListBulletsIcon,
   ListNumbersIcon,
@@ -217,6 +218,15 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
             type: "videoUpload",
           })
           .run();
+      },
+    },
+    {
+      title: "Audio",
+      description: "Upload or link an audio file.",
+      searchTerms: ["audio", "music", "sound", "mp3", "podcast"],
+      icon: FileAudioIcon,
+      command: ({ editor, range }) => {
+        editor.chain().focus().deleteRange(range).setAudioUpload().run();
       },
     },
   ];

@@ -129,7 +129,12 @@ export async function listMedia(
 export async function listEditorMedia(
   ctx: ServiceContext,
   workspaceId: string,
-  input: { cursor?: string | null; limit: number; sort: MediaSort }
+  input: {
+    cursor?: string | null;
+    limit: number;
+    sort: MediaSort;
+    type?: MediaType;
+  }
 ) {
   const [{ count: mediaCount } = { count: 0 }] = await ctx.db
     .select({ count: count() })
@@ -137,6 +142,9 @@ export async function listEditorMedia(
     .where(eq(media.workspaceId, workspaceId));
   const { column, direction, by } = order(input.sort);
   const conditions: SQL[] = [eq(media.workspaceId, workspaceId)];
+  if (input.type) {
+    conditions.push(eq(media.type, input.type));
+  }
   if (input.cursor) {
     const separator = input.cursor.indexOf("_");
     if (separator < 0) {

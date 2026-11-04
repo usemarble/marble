@@ -11,6 +11,57 @@ import {
 } from "../src";
 
 describe("htmlToTiptap", () => {
+  it("preserves the source and caption of an audio figure", async () => {
+    const html =
+      '<figure data-type="audio"><audio src="https://cdn.example.com/song.mp3" controls preload="metadata"></audio><figcaption>Live &amp; acoustic</figcaption></figure>';
+    const result = htmlToTiptap(html);
+    expect(result.content).toEqual([
+      expect.objectContaining({
+        type: "audio",
+        attrs: expect.objectContaining({
+          src: "https://cdn.example.com/song.mp3",
+          caption: "Live & acoustic",
+          controls: true,
+          preload: "metadata",
+        }),
+      }),
+    ]);
+    const markdown = htmlToMarkdown(html);
+    expect(
+      (await normalizePostContent(`# Audio\n\n${markdown}`)).contentJson.content
+    ).toContainEqual(result.content?.[0]);
+  });
+
+  it("reads audio sources nested in an audio figure", () => {
+    expect(
+      htmlToTiptap(
+        '<figure><audio controls><source src="https://cdn.example.com/song.mp3" type="audio/mpeg"></audio><figcaption>A song</figcaption></figure>'
+      ).content?.[0]
+    ).toMatchObject({
+      type: "audio",
+      attrs: { src: "https://cdn.example.com/song.mp3", caption: "A song" },
+    });
+  });
+  it("preserves native audio through HTML, Markdown, and normalized content", async () => {
+    const html =
+      '<audio src="https://cdn.example.com/song.mp3" controls="" preload="metadata"></audio>';
+    const result = htmlToTiptap(html);
+    expect(result.content).toEqual([
+      expect.objectContaining({
+        type: "audio",
+        attrs: expect.objectContaining({
+          src: "https://cdn.example.com/song.mp3",
+          preload: "metadata",
+        }),
+      }),
+    ]);
+    const markdown = htmlToMarkdown(html);
+    expect(markdown).toContain("<audio");
+    expect(htmlToTiptap(markdown)).toEqual(result);
+    expect(
+      (await normalizePostContent(`# Audio\n\n${markdown}`)).contentJson.content
+    ).toContainEqual(result.content?.[0]);
+  });
   it("converts HTML into Tiptap JSON", () => {
     const result = htmlToTiptap("<h2>Hello</h2><p>World</p>");
 

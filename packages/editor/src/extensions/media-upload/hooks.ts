@@ -16,15 +16,50 @@ export const useUploader = ({
   onUpload,
   upload,
   onError,
+  mediaType,
+  accept,
+  maxSize,
 }: {
   onUpload: (url: string) => void;
   upload: (file: File) => Promise<string>;
   onError?: (error: Error) => void;
+  mediaType: "audio" | "video";
+  accept?: string;
+  maxSize?: number;
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const uploadVideo = useCallback(
+  const uploadMedia = useCallback(
     async (file: File) => {
+      if (
+        !file.type.startsWith(`${mediaType}/`) ||
+        (accept &&
+          !accept
+            .split(",")
+            .some(
+              (type) =>
+                type.trim() === file.type || type.trim() === `${mediaType}/*`
+            ))
+      ) {
+        const error = new Error(`This ${mediaType} format is not supported.`);
+        if (onError) {
+          onError(error);
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
+      if (maxSize && file.size > maxSize) {
+        const error = new Error(
+          `File exceeds the ${maxSize / (1024 * 1024)} MB upload limit.`
+        );
+        if (onError) {
+          onError(error);
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
       setLoading(true);
       try {
         const url = await upload(file);
@@ -42,7 +77,9 @@ export const useUploader = ({
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Failed to upload video";
+          error instanceof Error
+            ? error.message
+            : `Failed to upload ${mediaType}`;
         const uploadError = new Error(errorMessage);
         if (onError) {
           onError(uploadError);
@@ -52,10 +89,10 @@ export const useUploader = ({
       }
       setLoading(false);
     },
-    [onUpload, upload, onError]
+    [onUpload, upload, onError, mediaType, accept, maxSize]
   );
 
-  return { loading, uploadVideo };
+  return { loading, uploadMedia };
 };
 
 export const useDropZone = ({
@@ -81,14 +118,7 @@ export const useDropZone = ({
         }
       }
 
-      // Validate only video files
-      if (files.some((file) => !file.type.startsWith("video/"))) {
-        toast.error("Only video files are allowed");
-        return;
-      }
-
-      const filteredFiles = files.filter((f) => f.type.startsWith("video/"));
-      const file = filteredFiles.length > 0 ? filteredFiles[0] : undefined;
+      const file = files[0];
 
       if (file) {
         uploader(file);

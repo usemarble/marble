@@ -88,6 +88,8 @@ export {
 } from "./components";
 export * from "./components/ui";
 export {
+  Audio,
+  AudioUpload,
   BlockMove,
   CodeBlock,
   configureSlashCommand,
@@ -115,7 +117,7 @@ export type {
   ImageUploadOptions,
   MediaItem,
   MediaPage,
+  MediaUploadOptions,
   SlashNodeAttrs,
   SuggestionItem,
-  VideoUploadOptions,
 } from "./types";

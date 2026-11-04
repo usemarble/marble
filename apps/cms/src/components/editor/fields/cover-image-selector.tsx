@@ -272,7 +272,9 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <HugeiconsIcon icon={Album02Icon} />
-              <p className="font-medium text-sm">Click to view your gallery</p>
+              <p className="font-medium text-sm">
+                Choose from your media library
+              </p>
             </div>
           </button>
         </TabsContent>
@@ -288,7 +290,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
       </div>
       {renderContent()}
 
-      {/* Media Gallery Dialog */}
+      {/* Media library Dialog */}
       <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
         <DialogContent
           className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
@@ -302,7 +304,7 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
                 size={20}
               />
               <DialogTitle className="font-medium text-muted-foreground text-sm">
-                Media Gallery
+                Media library
               </DialogTitle>
             </div>
             <DialogX />
@@ -367,7 +369,8 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <HugeiconsIcon icon={Album02Icon} />
                   <p className="font-medium text-sm">
-                    Your gallery is empty. Upload some media to get started.
+                    Your media library has no images. Upload some media to get
+                    started.
                   </p>
                 </div>
               </div>

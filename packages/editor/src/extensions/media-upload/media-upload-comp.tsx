@@ -1,5 +1,3 @@
-import { Video02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardContent, CardFooter } from "@marble/ui/components/card";
 import {
@@ -14,36 +12,45 @@ import { Input } from "@marble/ui/components/input";
 import { cn } from "@marble/ui/lib/utils";
 import {
   CheckIcon,
+  FileAudioIcon,
   SpinnerIcon,
   VideoCameraIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MediaItem, MediaPage } from "../../types";
 import { useDropZone, useFileUpload, useUploader } from "./hooks";
 
 // Simple URL validation
 const isValidUrl = (url: string): boolean => {
   try {
-    new URL(url);
-    return true;
+    return ["http:", "https:"].includes(new URL(url).protocol);
   } catch {
     return false;
   }
 };
 
-export interface VideoUploadCompProps {
+export interface MediaUploadCompProps {
+  mediaType: "audio" | "video";
+  accept?: string;
+  maxSize?: number;
   initialFile?: File;
   onUpload: (url: string) => void;
   onCancel: () => void;
   upload: (file: File) => Promise<string>;
   media?: MediaItem[];
-  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+  fetchMediaPage?: (
+    cursor?: string,
+    type?: "audio" | "video"
+  ) => Promise<MediaPage>;
   onError?: (error: Error) => void;
 }
 
-export const VideoUploadComp = ({
+export const MediaUploadComp = ({
+  mediaType,
+  accept = `${mediaType}/*`,
+  maxSize,
   initialFile,
   onUpload,
   onCancel,
@@ -51,32 +58,39 @@ export const VideoUploadComp = ({
   media: providedMedia,
   fetchMediaPage,
   onError,
-}: VideoUploadCompProps) => {
+}: MediaUploadCompProps) => {
   const [showEmbedInput, setShowEmbedInput] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[] | undefined>(providedMedia);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { loading, uploadVideo } = useUploader({ onUpload, upload, onError });
+  const { loading, uploadMedia } = useUploader({
+    onUpload,
+    upload,
+    onError,
+    mediaType,
+    accept,
+    maxSize,
+  });
   const { handleUploadClick, ref } = useFileUpload();
   const { draggedInside, onDrop, onDragEnter, onDragLeave, onDragOver } =
     useDropZone({
-      uploader: uploadVideo,
+      uploader: uploadMedia,
     });
 
   useEffect(() => {
-    if (!fetchMediaPage || providedMedia) {
+    if (!isMediaLibraryOpen || !fetchMediaPage || providedMedia) {
       return;
     }
 
     let active = true;
     setIsLoadingMedia(true);
 
-    fetchMediaPage()
+    fetchMediaPage(undefined, mediaType)
       .then((page) => {
         if (active) {
           setMedia(page.media);
@@ -97,7 +111,7 @@ export const VideoUploadComp = ({
     return () => {
       active = false;
     };
-  }, [fetchMediaPage, providedMedia]);
+  }, [fetchMediaPage, providedMedia, mediaType, isMediaLibraryOpen]);
 
   // Load more media handler
   const handleLoadMore = useCallback(async () => {
@@ -106,7 +120,7 @@ export const VideoUploadComp = ({
     }
     setIsLoadingMore(true);
     try {
-      const page = await fetchMediaPage(nextCursor);
+      const page = await fetchMediaPage(nextCursor, mediaType);
       setMedia((prev) => [...(prev || []), ...page.media]);
       setNextCursor(page.nextCursor);
     } catch {
@@ -114,7 +128,7 @@ export const VideoUploadComp = ({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [fetchMediaPage, nextCursor, isLoadingMore]);
+  }, [fetchMediaPage, nextCursor, isLoadingMore, mediaType]);
 
   // Update media when providedMedia changes
   useEffect(() => {
@@ -124,20 +138,23 @@ export const VideoUploadComp = ({
   }, [providedMedia]);
 
   // Auto-upload if initialFile is provided
+  const uploadedFile = useRef<File | undefined>(undefined);
   useEffect(() => {
-    if (initialFile) {
-      uploadVideo(initialFile);
+    if (initialFile && uploadedFile.current !== initialFile) {
+      uploadedFile.current = initialFile;
+      uploadMedia(initialFile);
     }
-  }, [initialFile, uploadVideo]);
+  }, [initialFile, uploadMedia]);
 
   const onFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      e.target.value = "";
       if (file) {
-        uploadVideo(file);
+        uploadMedia(file);
       }
     },
-    [uploadVideo]
+    [uploadMedia]
   );
 
   const handleDrop = useCallback(
@@ -170,7 +187,7 @@ export const VideoUploadComp = ({
   const handleMediaSelect = useCallback(
     (url: string) => {
       onUpload(url);
-      setIsGalleryOpen(false);
+      setIsMediaLibraryOpen(false);
     },
     [onUpload]
   );
@@ -192,22 +209,21 @@ export const VideoUploadComp = ({
   // Get dropzone text based on drag state
   const getDropzoneText = () => {
     if (draggedInside) {
-      return "Drop video here";
+      return `Drop ${mediaType} here`;
     }
     return "Drag and drop or click to upload";
   };
+
+  const MediaIcon = mediaType === "audio" ? FileAudioIcon : VideoCameraIcon;
+  const matchingMedia = media?.filter((item) => item.type === mediaType);
 
   return (
     <>
       <Card className="col-span-full gap-0 rounded-[20px] border-none bg-surface p-2 pt-0">
         <div className="flex h-10 select-none items-center justify-between gap-2 p-1.5">
-          <HugeiconsIcon
-            className="shrink-0 text-muted-foreground"
-            icon={Video02Icon}
-            size={18}
-          />
+          <MediaIcon className="shrink-0 text-muted-foreground" size={18} />
           <span className="font-normal text-muted-foreground text-xs">
-            Upload or embed a video
+            Upload or link {mediaType}
           </span>
         </div>
         <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
@@ -215,13 +231,13 @@ export const VideoUploadComp = ({
           {loading ? (
             <div className="flex min-h-[260px] flex-1 flex-col items-center justify-center">
               <p className="text-muted-foreground text-sm">
-                Uploading video...
+                Uploading {mediaType}...
               </p>
             </div>
           ) : (
             // biome-ignore lint/a11y/useSemanticElements: Dropzone requires div for drag-and-drop functionality
             <div
-              aria-label="Upload video by clicking or dragging and dropping"
+              aria-label={`Upload ${mediaType} by clicking or dragging and dropping`}
               className={cn(
                 "flex min-h-[260px] flex-1 cursor-pointer flex-col items-center justify-center gap-2",
                 draggedInside
@@ -246,8 +262,8 @@ export const VideoUploadComp = ({
                 {getDropzoneText()}
               </p>
               <input
-                accept="video/*"
-                aria-label="Upload video"
+                accept={accept}
+                aria-label={`Upload ${mediaType}`}
                 className="sr-only size-0 overflow-hidden opacity-0"
                 onChange={onFileChange}
                 ref={ref}
@@ -272,13 +288,15 @@ export const VideoUploadComp = ({
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && embedUrl && !loading) {
+                      e.preventDefault();
                       handleEmbedUrl(embedUrl);
                     }
                   }}
-                  placeholder="Paste video URL"
+                  placeholder={`Paste ${mediaType} file URL`}
                   value={embedUrl}
                 />
                 <Button
+                  aria-label={`Insert ${mediaType} URL`}
                   className="size-8 shrink-0 shadow-none"
                   disabled={!embedUrl || loading}
                   onClick={() => handleEmbedUrl(embedUrl)}
@@ -308,18 +326,18 @@ export const VideoUploadComp = ({
               )}
             </div>
           ) : (
-            // Media and Embed URL buttons - shown by default
+            // Media and File URL buttons - shown by default
             <div className="flex items-center gap-2">
               {(media !== undefined || fetchMediaPage) && (
                 <Button
                   className="shrink-0 text-muted-foreground shadow-none"
                   disabled={loading}
-                  onClick={() => setIsGalleryOpen(true)}
+                  onClick={() => setIsMediaLibraryOpen(true)}
                   size="sm"
                   type="button"
                   variant="outline"
                 >
-                  View Gallery
+                  Media library
                 </Button>
               )}
               <Button
@@ -330,7 +348,7 @@ export const VideoUploadComp = ({
                 type="button"
                 variant="outline"
               >
-                Embed URL
+                File URL
               </Button>
             </div>
           )}
@@ -346,22 +364,18 @@ export const VideoUploadComp = ({
         </CardFooter>
       </Card>
 
-      {/* Media Gallery Dialog */}
+      {/* Media library dialog */}
       {(media !== undefined || fetchMediaPage) && (
-        <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
+        <Dialog onOpenChange={setIsMediaLibraryOpen} open={isMediaLibraryOpen}>
           <DialogContent
             className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
             variant="card"
           >
             <DialogHeader className="flex-row items-center justify-between px-4 py-2">
               <div className="flex flex-1 items-center gap-2">
-                <HugeiconsIcon
-                  className="text-muted-foreground"
-                  icon={Video02Icon}
-                  size={20}
-                />
+                <MediaIcon className="text-muted-foreground" size={20} />
                 <DialogTitle className="font-medium text-muted-foreground text-sm">
-                  Video Gallery
+                  Media library
                 </DialogTitle>
               </div>
               <DialogX />
@@ -374,22 +388,28 @@ export const VideoUploadComp = ({
                     <p className="font-medium text-sm">Loading media...</p>
                   </div>
                 </div>
-              ) : media && media.length > 0 ? (
+              ) : (matchingMedia && matchingMedia.length > 0) || nextCursor ? (
                 <div className="flex max-h-[500px] flex-col gap-4 overflow-y-auto">
                   <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
-                    {media
-                      ?.filter((item) => item.type === "video")
-                      .map((item) => (
-                        <li
-                          className="group relative size-[8.125rem]"
-                          key={item.id}
+                    {matchingMedia?.map((item) => (
+                      <li
+                        className="group relative size-[8.125rem]"
+                        key={item.id}
+                      >
+                        <button
+                          className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
+                          onClick={() => handleMediaSelect(item.url)}
+                          type="button"
                         >
-                          <button
-                            className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
-                            onClick={() => handleMediaSelect(item.url)}
-                            type="button"
-                          >
-                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-md border border-border">
+                          <div className="flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-md border border-border">
+                            {mediaType === "audio" ? (
+                              <>
+                                <FileAudioIcon className="size-8 text-muted-foreground" />
+                                <span className="line-clamp-2 px-2 text-xs">
+                                  {item.name}
+                                </span>
+                              </>
+                            ) : (
                               <video
                                 className="h-full w-full object-cover"
                                 muted
@@ -398,10 +418,11 @@ export const VideoUploadComp = ({
                               >
                                 <track kind="captions" />
                               </video>
-                            </div>
-                          </button>
-                        </li>
-                      ))}
+                            )}
+                          </div>
+                        </button>
+                      </li>
+                    ))}
                   </ul>
                   {nextCursor && (
                     <div className="flex justify-center py-2">
@@ -426,10 +447,9 @@ export const VideoUploadComp = ({
               ) : (
                 <div className="flex min-h-[360px] items-center justify-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                    <VideoCameraIcon className="size-8" />
+                    <MediaIcon className="size-8" />
                     <p className="font-medium text-sm">
-                      Your gallery has no videos. Upload some media to get
-                      started.
+                      No {mediaType} files yet. Upload a file to get started.
                     </p>
                   </div>
                 </div>
