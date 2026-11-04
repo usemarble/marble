@@ -2,11 +2,11 @@ import contentIntelImage from "../../assets/images/content-intelligence.png";
 import apiImage from "../../assets/images/headless-api.png";
 import mediaImage from "../../assets/images/media-management.png";
 import webhooksImage from "../../assets/images/webhooks.png";
+import AtoBeach from "../../components/icons/brand/AtoBeach.astro";
 import Candle from "../../components/icons/brand/Candle.astro";
 import Databuddy from "../../components/icons/brand/Databuddy.astro";
 import Helix from "../../components/icons/brand/Helix.astro";
 import Ia from "../../components/icons/brand/Ia.astro";
-import Notra from "../../components/icons/brand/Notra.astro";
 import Opencut from "../../components/icons/brand/Opencut.astro";
 
 export const FEATURES = [
@@ -62,22 +62,16 @@ export const FEATURES = [
 
 export const USERS = [
   {
-    name: "I.A",
-    url: "https://independent-arts.org",
-    component: Ia,
-    showWordmark: true,
+    name: "AtoBeach",
+    url: "https://atobeach.com",
+    component: AtoBeach,
+    showWordmark: false,
   },
   {
     name: "OpenCut",
     url: "https://opencut.app",
     component: Opencut,
     showWordmark: true,
-  },
-  {
-    name: "Notra",
-    url: "https://www.usenotra.com",
-    component: Notra,
-    showWordmark: false,
   },
   {
     name: "Helix DB",
@@ -96,6 +90,12 @@ export const USERS = [
     url: "https://www.trycandle.app/",
     component: Candle,
     showWordmark: false,
+  },
+  {
+    name: "I.A",
+    url: "https://independent-arts.org",
+    component: Ia,
+    showWordmark: true,
   },
 ];
 
@@ -136,10 +136,10 @@ export const REVIEWS = [
     link: "https://x.com/vvaltterisa/status/1999549602668691822?s=20",
   },
   {
-    text: "Chat, which app is this? such clean UX,",
-    author: "Moinul Moin",
-    role: "Developer",
-    avatar: "/avatars/moinul.jpg",
-    link: "https://x.com/moinulmoin/status/1964969896884011362?s=20",
+    text: "Prior to Marble I never used another CMS, I'd always self-host markdown files due to how clunky CMS felt. I'm so glad I tried Marble because the experience is so simple to use and implement, but also so feature packed that it ticks every box",
+    author: "Charlie",
+    role: "Founder, AtoBeach",
+    avatar: "/avatars/charlie.jpg",
+    link: "https://x.com/chazza",
   },
 ];
