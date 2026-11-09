@@ -1,6 +1,19 @@
 // Cloudflare Queues supports at most a 24-hour delay for each send or retry.
 export const MAX_QUEUE_DELAY_SECONDS = 24 * 60 * 60;
 
+const HOURLY_RETRY_DELAY_SECONDS = 60 * 60;
+
+const WEBHOOK_RETRY_DELAYS_SECONDS: readonly number[] = [
+  ...new Array<number>(10).fill(60),
+  ...new Array<number>(24).fill(HOURLY_RETRY_DELAY_SECONDS),
+];
+export const WEBHOOK_MAX_ATTEMPTS = WEBHOOK_RETRY_DELAYS_SECONDS.length + 1;
+export const WEBHOOK_TEST_MAX_ATTEMPTS = 3;
+
+const INTERNAL_ERROR_QUEUE_RETRIES = 16;
+export const WEBHOOK_DELIVERY_QUEUE_MAX_RETRIES =
+  WEBHOOK_RETRY_DELAYS_SECONDS.length + INTERNAL_ERROR_QUEUE_RETRIES;
+
 const BASE_RATE_LIMIT_DELAY_SECONDS = 60;
 const MAX_RATE_LIMIT_DELAY_SECONDS = 60 * 60;
 const MAX_RETRY_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
@@ -58,57 +71,56 @@ export class WebhookDeliveryDeferredError extends Error {
   }
 }
 
-/** A receiver requested a cooldown after an actual outbound attempt. */
 export class WebhookDeliveryRetryError extends Error {
   readonly retryAt: Date;
 
-  constructor(status: number, retryAt: Date) {
-    super(`Webhook returned ${status}; retry after ${retryAt.toISOString()}`);
+  constructor(reason: string, retryAt: Date) {
+    super(`${reason}; retry after ${retryAt.toISOString()}`);
     this.name = "WebhookDeliveryRetryError";
     this.retryAt = retryAt;
   }
 }
 
-/**
- * Honor Retry-After up to seven days on 429 and 503. Without a usable header,
- * only 429 gets exponential backoff; other failures retain the default delay.
- * Positive jitter never advances a retry ahead of an accepted deadline.
- */
-export function getWebhookRetryAt(
-  response: Pick<Response, "status" | "headers">,
-  attemptNumber: number,
-  now = new Date(),
-  random = Math.random
-): Date | null {
-  if (response.status !== 429 && response.status !== 503) {
-    return null;
-  }
-
-  const requestedTimestamp = parseRetryAfter(
-    response.headers.get("retry-after"),
-    now
-  );
-
-  if (requestedTimestamp !== null) {
-    const jitterSeconds = 1 + Math.floor(random() * MAX_JITTER_SECONDS);
-    return new Date(requestedTimestamp + jitterSeconds * 1000);
-  }
-
-  if (response.status !== 429) {
-    return null;
-  }
-
-  const exponent = Math.min(6, Math.max(0, attemptNumber - 1));
-  const delaySeconds = Math.min(
-    MAX_RATE_LIMIT_DELAY_SECONDS - MAX_JITTER_SECONDS,
-    BASE_RATE_LIMIT_DELAY_SECONDS * 2 ** exponent
-  );
+function withJitter(now: Date, delaySeconds: number, random: () => number) {
   const jitterLimit = Math.min(
     MAX_JITTER_SECONDS,
     Math.ceil(delaySeconds * 0.2)
   );
   const jitterSeconds = 1 + Math.floor(random() * jitterLimit);
   return new Date(now.getTime() + (delaySeconds + jitterSeconds) * 1000);
+}
+
+export function getWebhookRetryAt(
+  response: Pick<Response, "status" | "headers"> | null,
+  attemptNumber: number,
+  now = new Date(),
+  random = Math.random
+): Date {
+  if (response?.status === 429 || response?.status === 503) {
+    const requestedTimestamp = parseRetryAfter(
+      response.headers.get("retry-after"),
+      now
+    );
+
+    if (requestedTimestamp !== null) {
+      const jitterSeconds = 1 + Math.floor(random() * MAX_JITTER_SECONDS);
+      return new Date(requestedTimestamp + jitterSeconds * 1000);
+    }
+  }
+
+  if (response?.status === 429) {
+    const exponent = Math.min(6, Math.max(0, attemptNumber - 1));
+    const delaySeconds = Math.min(
+      MAX_RATE_LIMIT_DELAY_SECONDS - MAX_JITTER_SECONDS,
+      BASE_RATE_LIMIT_DELAY_SECONDS * 2 ** exponent
+    );
+    return withJitter(now, delaySeconds, random);
+  }
+
+  const delaySeconds =
+    WEBHOOK_RETRY_DELAYS_SECONDS[attemptNumber - 1] ??
+    HOURLY_RETRY_DELAY_SECONDS;
+  return withJitter(now, delaySeconds, random);
 }
 
 /** Round up so second-granularity queue delays cannot send before retryAt. */

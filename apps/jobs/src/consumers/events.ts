@@ -7,6 +7,10 @@ import {
 } from "@marble/db/schema";
 import { and, arrayContains, eq } from "drizzle-orm";
 import { createDbClient } from "@/lib/db";
+import {
+  WEBHOOK_MAX_ATTEMPTS,
+  WEBHOOK_TEST_MAX_ATTEMPTS,
+} from "@/lib/webhook-retry";
 import type { EventMessage } from "@/types/env";
 
 export async function handleEventQueue(batch: MessageBatch<EventMessage>) {
@@ -67,6 +71,9 @@ export async function handleEventQueue(batch: MessageBatch<EventMessage>) {
             url: webhook.url,
             status: "pending",
             isTest,
+            maxAttempts: isTest
+              ? WEBHOOK_TEST_MAX_ATTEMPTS
+              : WEBHOOK_MAX_ATTEMPTS,
           })
           .onConflictDoNothing({
             target: [

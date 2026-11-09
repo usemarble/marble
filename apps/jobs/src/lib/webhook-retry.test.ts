@@ -3,6 +3,7 @@ import {
   getWebhookQueueDelaySeconds,
   getWebhookRetryAt,
   MAX_QUEUE_DELAY_SECONDS,
+  WEBHOOK_MAX_ATTEMPTS,
 } from "./webhook-retry";
 
 const NOW = new Date("2026-10-13T12:00:00.000Z");
@@ -79,12 +80,12 @@ describe("receiver retry policy", () => {
     );
   });
 
-  it("honors Retry-After on 503 and preserves normal retries otherwise", () => {
+  it("honors Retry-After on 503 and follows the retry schedule otherwise", () => {
     expect(retryAt(503, "120")).toEqual(new Date(NOW.getTime() + 121_000));
-    expect(retryAt(503)).toBeNull();
-    expect(retryAt(503, "-1")).toBeNull();
-    expect(retryAt(500, "120")).toBeNull();
-    expect(retryAt(400, "120")).toBeNull();
+    expect(retryAt(503)).toEqual(new Date(NOW.getTime() + 61_000));
+    expect(retryAt(503, "-1")).toEqual(new Date(NOW.getTime() + 61_000));
+    expect(retryAt(500, "120")).toEqual(new Date(NOW.getTime() + 61_000));
+    expect(retryAt(400, "120")).toEqual(new Date(NOW.getTime() + 61_000));
   });
 
   it("preserves receiver deadlines longer than one queue delay", () => {
@@ -116,6 +117,71 @@ describe("receiver retry policy", () => {
     "Thu, 13 Oct 2050 12:00:00 GMT",
   ])("uses normal backoff instead of an excessive cooldown: %s", (header) => {
     expect(retryAt(429, header)).toEqual(new Date(NOW.getTime() + 61_000));
-    expect(retryAt(503, header)).toBeNull();
+    expect(retryAt(503, header)).toEqual(new Date(NOW.getTime() + 61_000));
+  });
+});
+
+describe("retry schedule", () => {
+  it.each([
+    { attemptNumber: 1, expected: "2026-10-13T12:01:01.000Z" },
+    { attemptNumber: 10, expected: "2026-10-13T12:01:01.000Z" },
+    { attemptNumber: 11, expected: "2026-10-13T13:00:01.000Z" },
+    { attemptNumber: 34, expected: "2026-10-13T13:00:01.000Z" },
+    { attemptNumber: 35, expected: "2026-10-13T13:00:01.000Z" },
+    { attemptNumber: 1000, expected: "2026-10-13T13:00:01.000Z" },
+  ])(
+    "retries a 500 on attempt $attemptNumber at $expected",
+    ({ attemptNumber, expected }) => {
+      expect(retryAt(500, undefined, attemptNumber)).toEqual(
+        new Date(expected)
+      );
+    }
+  );
+
+  it("retries every minute for ten minutes, then hourly", () => {
+    const response = new Response(null, { status: 500 });
+    let at = NOW;
+    const delays: number[] = [];
+    for (let attempt = 1; attempt < WEBHOOK_MAX_ATTEMPTS; attempt++) {
+      const next = getWebhookRetryAt(response, attempt, at, () => 0);
+      delays.push((next.getTime() - at.getTime()) / 1000);
+      at = next;
+    }
+    expect(delays).toEqual([
+      ...new Array<number>(10).fill(61),
+      ...new Array<number>(24).fill(3601),
+    ]);
+    expect(at).toEqual(new Date("2026-10-14T12:10:34.000Z"));
+  });
+
+  it("schedules a request that got no response like any other failure", () => {
+    expect(getWebhookRetryAt(null, 1, NOW, () => 0)).toEqual(
+      new Date("2026-10-13T12:01:01.000Z")
+    );
+    expect(getWebhookRetryAt(null, 11, NOW, () => 0)).toEqual(
+      new Date("2026-10-13T13:00:01.000Z")
+    );
+  });
+
+  it("keeps scheduled jitter positive and bounded", () => {
+    expect(getWebhookRetryAt(null, 1, NOW, () => 0.999)).toEqual(
+      new Date("2026-10-13T12:01:12.000Z")
+    );
+    expect(getWebhookRetryAt(null, 11, NOW, () => 0.999)).toEqual(
+      new Date("2026-10-13T13:00:30.000Z")
+    );
+  });
+
+  it("keeps exponential backoff for a 429 without a usable header", () => {
+    expect(retryAt(429, undefined, 3)).toEqual(
+      new Date("2026-10-13T12:04:01.000Z")
+    );
+    expect(retryAt(429, undefined, 11)).toEqual(
+      new Date("2026-10-13T12:59:31.000Z")
+    );
+  });
+
+  it("allows 35 attempts, the documented default", () => {
+    expect(WEBHOOK_MAX_ATTEMPTS).toBe(35);
   });
 });

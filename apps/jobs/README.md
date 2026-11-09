@@ -77,18 +77,33 @@ delivery, and timestamp headers are included for receiver routing, replay
 protection, and debugging.
 
 Deliveries use a 15 second fetch timeout. Network errors, timeouts, and non-2xx
-responses are recorded as attempts. Failed deliveries are retried by the queue
-until the delivery reaches `maxAttempts`.
+responses are recorded as attempts. After a failed attempt, `getWebhookRetryAt`
+in `src/lib/webhook-retry.ts` picks the next attempt time. The consumer stores
+it in `nextRetryAt` and retries the queue message with that delay. When the
+delivery reaches `maxAttempts`, it is marked `failed` instead.
+
+The retry schedule is a table in `src/lib/webhook-retry.ts`: 10 retries one
+minute apart, then 24 retries one hour apart. `WEBHOOK_MAX_ATTEMPTS` (35) is the
+table length plus the first attempt. The events consumer sets `maxAttempts`
+when it creates a delivery. Test deliveries get `WEBHOOK_TEST_MAX_ATTEMPTS` (3),
+because failed tests never count toward endpoint health. Each scheduled delay
+gets positive jitter of 1 second up to 20% of the delay, capped at 30 seconds,
+so a retry never runs before its scheduled time. The webhook-deliveries queue
+consumer allows `WEBHOOK_DELIVERY_QUEUE_MAX_RETRIES` (50) queue retries: one
+for each scheduled retry, plus 16 for retries after internal errors.
 
 Rate-limited deliveries (`429`) honor `Retry-After` delay seconds or HTTP dates
 up to seven days ahead. Longer waits are treated as invalid so a receiver
 cannot keep deliveries queued indefinitely. Without a valid header, retries
 use exponential backoff starting at 60 seconds, with positive jitter and a
-one-hour cap. `503` responses also honor a valid `Retry-After`; other failures
-keep the queue's 60-second delay. The existing three-attempt delivery limit is
-unchanged.
+one-hour cap. `503` responses also honor a valid `Retry-After`. Without one,
+they follow the retry schedule like any other failure.
 
-Receiver cooldowns are stored per delivery in `nextRetryAt`, so duplicate queue
+Internal errors, such as a failed database write or signing step, call
+`message.retry()` with no delay, so the queue's 60-second `retryDelay` applies.
+They do not count toward endpoint health.
+
+Each delivery stores its next attempt time in `nextRetryAt`, so duplicate queue
 messages cannot send early. Deadlines longer than the queue's 24-hour delay
 limit are processed in delayed chunks, preserving the accepted deadline.
 Waiting messages are re-enqueued before acknowledgment and do not consume HTTP
@@ -112,9 +127,10 @@ clear an incident without automatically re-enabling a disabled endpoint.
 The policy in `src/lib/webhook-health.ts` is:
 
 - Warn after at least 10 consecutive failed outbound requests and at least
-  10 minutes since the incident's first failure. Counts are shared across
-  deliveries, including retries; this is not a promise of 10 retries per
-  delivery. The three-attempt limit and normal 60-second delay remain in place.
+  one hour since the incident's first failure. Counts are shared across
+  deliveries, including retries. One delivery reaches 10 failures within its
+  first ten minutes of retries, so the one-hour minimum keeps a single short
+  outage from sending the warning.
 - Disable only after a failed outbound request at least three days after the
   warning email was accepted by the email provider, with no intervening
   success. Quiet endpoints are not disabled solely because time has passed.

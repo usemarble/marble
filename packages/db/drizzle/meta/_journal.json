@@ -57,6 +57,13 @@
       "when": 1792701027893,
       "tag": "0007_scheduled_post_readiness",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794261183570,
+      "tag": "0008_webhook_delivery_max_attempts",
+      "breakpoints": true
     }
   ]
 }

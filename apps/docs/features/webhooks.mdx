@@ -79,7 +79,7 @@ Click a row to expand it and see the full delivery record:
 - **HTTP response**: the status code returned by your endpoint, or `No response` if the request never completed.
 - **Duration**: how long the latest attempt took, in milliseconds.
 - **Response**: the response body returned by the endpoint, including rejection messages such as `{"error":"Malformed body"}`. If the request failed without an HTTP response, the recorded network, DNS, or timeout error appears here instead. Use **Copy response** to copy the stored body or error. Response bodies are limited to 5,000 characters.
-- **Next retry**: the scheduled retry time when the endpoint has requested a cooldown or Marble is backing off from rate limiting.
+- **Next retry**: when a delivery is waiting to retry, the time Marble sends the next attempt.
 - **Payload**: the event payload rendered in the webhook's current format. Use **Copy payload** to copy it for debugging; changing the format can change this preview for older deliveries.
 
 The expanded row shows the latest attempt's result. Marble retains earlier attempt records for diagnostics, but they are not separate delivery rows or displayed in the expanded view.
@@ -88,15 +88,24 @@ A failed delivery without a recorded attempt does not establish that the endpoin
 
 ### Rate limits and retries
 
-If your endpoint returns `429 Too Many Requests`, Marble respects the `Retry-After` header before retrying that delivery. The header can contain a number of seconds, such as `Retry-After: 120`, or an HTTP date. Marble also respects this header on `503 Service Unavailable` responses.
+An attempt fails when your endpoint returns a non-`2xx` status, times out, or cannot be reached. Marble then retries the delivery on a fixed schedule:
 
-Marble accepts `Retry-After` deadlines up to seven days ahead. Longer waits are treated as invalid to prevent deliveries from remaining queued indefinitely. Without a valid header, `429` retries use increasing delays starting at 60 seconds, with a small random delay to spread retry traffic. Other failures use the usual 60-second retry delay. Deliveries currently have a maximum of three attempts, including the initial request.
+- Every minute for the first 10 minutes.
+- Every hour for the next 24 hours.
+
+Each delivery has up to 35 attempts, including the initial request. If the last attempt fails, the delivery's status becomes **Failed**. If your endpoint recovers before then, waiting deliveries arrive within about an hour. Marble adds up to 30 seconds of random delay to each retry so that retries for many deliveries do not arrive at the same moment.
+
+Test webhooks have 3 attempts, about one minute apart.
+
+If your endpoint returns `429 Too Many Requests`, Marble respects the `Retry-After` header before retrying that delivery. The header can contain a number of seconds, such as `Retry-After: 120`, or an HTTP date. Marble also respects this header on `503 Service Unavailable` responses. A valid `Retry-After` replaces the scheduled delay for that retry.
+
+Marble accepts `Retry-After` deadlines up to seven days ahead. Longer waits are treated as invalid to prevent deliveries from remaining queued indefinitely. Without a valid header, `429` retries use increasing delays that start at 60 seconds and stop growing at one hour. A `503` without a valid header follows the normal retry schedule.
 
 ### Failure alerts and automatic disabling
 
-The webhook list shows **Failing** after **10 consecutive failed outbound requests**, and the details page explains what to check. Once the failure incident has also lasted at least **10 minutes**, Marble emails the workspace's owners and admins. There is one warning email per incident. Failure details remain visible even if the email is delayed.
+The webhook list shows **Failing** after **10 consecutive failed outbound requests**, and the details page explains what to check. Once the failure incident has also lasted at least **1 hour**, Marble emails the workspace's owners and admins. There is one warning email per incident. Failure details remain visible even if the email is delayed.
 
-This threshold counts requests across all deliveries to the endpoint, including retries. Each delivery still has a maximum of three attempts; Marble does not retry a single delivery 10 times to trigger an alert. Internal processing errors and usage limits do not count toward the endpoint's failure threshold.
+This threshold counts failed requests across all deliveries to the endpoint, including retries. A single delivery can reach 10 failures in its first 10 minutes of retries. An outage that ends within an hour can show **Failing** while it lasts, but it does not send an email. Internal processing errors and usage limits do not count toward the endpoint's failure threshold.
 
 If failures continue, Marble automatically disables the endpoint and sends a second email. Disabling requires another failed request at least **three days after the warning email**, with no successful request in between. The details page shows the disable reason and the latest recorded result. An endpoint with no new requests is not disabled just because three days have passed.
 
