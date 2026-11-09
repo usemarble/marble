@@ -203,7 +203,7 @@ export const webhookDelivery = pgTable(
     status: webhookDeliveryStatusEnum().default("pending").notNull(),
     isTest: boolean("isTest").default(false).notNull(),
     attemptCount: integer("attemptCount").default(0).notNull(),
-    maxAttempts: integer("maxAttempts").default(3).notNull(),
+    maxAttempts: integer("maxAttempts").default(35).notNull(),
     nextRetryAt: timestamp({ precision: 3, mode: "date" }),
     lastAttemptAt: timestamp({ precision: 3, mode: "date" }),
     deliveredAt: timestamp({ precision: 3, mode: "date" }),

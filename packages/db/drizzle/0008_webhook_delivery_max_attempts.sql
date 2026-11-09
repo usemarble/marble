@@ -1,0 +1,1 @@
+ALTER TABLE "webhook_delivery" ALTER COLUMN "maxAttempts" SET DEFAULT 35;
