@@ -14,6 +14,7 @@ import {
   EVERY_MINUTE_CRON,
   OUTBOX_SWEEP_CRON,
 } from "./src/crons.ts";
+import { WEBHOOK_DELIVERY_QUEUE_MAX_RETRIES } from "./src/lib/webhook-retry.ts";
 
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode);
@@ -35,7 +36,11 @@ export default defineConfig((ctx) => {
         triggers.scheduled({ schedule: OUTBOX_SWEEP_CRON }),
         triggers.scheduled({ schedule: EVERY_MINUTE_CRON }),
         triggers.queue({ ...consumer, name: queue.events }),
-        triggers.queue({ ...consumer, name: queue.webhookDeliveries }),
+        triggers.queue({
+          ...consumer,
+          name: queue.webhookDeliveries,
+          maxRetries: WEBHOOK_DELIVERY_QUEUE_MAX_RETRIES,
+        }),
         triggers.queue({ ...consumer, name: queue.tasks, maxBatchSize: 1 }),
         triggers.queue({
           name: queue.dlq,
