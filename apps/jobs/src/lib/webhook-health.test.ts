@@ -23,12 +23,13 @@ function failingEndpoint(
 
 describe("webhook failure warning policy", () => {
   it.each([
-    { count: 9, elapsedMs: 600_000, due: false },
-    { count: 10, elapsedMs: 599_999, due: false },
-    { count: 10, elapsedMs: 600_000, due: true },
-    { count: 11, elapsedMs: 600_001, due: true },
+    { count: 9, elapsedMs: 3_600_000, due: false },
+    { count: 10, elapsedMs: 600_000, due: false },
+    { count: 10, elapsedMs: 3_599_999, due: false },
+    { count: 10, elapsedMs: 3_600_000, due: true },
+    { count: 11, elapsedMs: 3_600_001, due: true },
   ])(
-    "requires ten failures across ten minutes: $count failures in $elapsedMs ms",
+    "requires ten failures across an hour: $count failures in $elapsedMs ms",
     ({ count, elapsedMs, due }) => {
       const endpoint = failingEndpoint({ consecutiveFailures: count });
       const now = new Date(STARTED.getTime() + elapsedMs);

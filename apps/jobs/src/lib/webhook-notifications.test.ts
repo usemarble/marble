@@ -25,7 +25,6 @@ import {
 import {
   recordWebhookEndpointOutcome,
   WEBHOOK_FAILURE_DISABLE_MS,
-  WEBHOOK_FAILURE_WARNING_MS,
 } from "./webhook-health";
 import {
   queueWebhookFailureNotifications,
@@ -106,7 +105,7 @@ async function fixture() {
 
 async function failingFixture() {
   const result = await fixture();
-  const failureStartedAt = new Date(Date.now() - 15 * 60_000);
+  const failureStartedAt = new Date(Date.now() - 75 * 60_000);
   const incidentId = createRecordId();
   await testDb.db
     .update(webhookEndpoint)
@@ -247,7 +246,7 @@ describe("webhook failure notifications against PostgreSQL", () => {
     expect((await findEndpoint(f.endpoint.id))?.lastFailureEmailAt).toBeNull();
   });
 
-  it("requires both ten failures and ten minutes before reserving a warning", async () => {
+  it("requires both ten failures and an hour before reserving a warning", async () => {
     const f = await failingFixture();
     const now = new Date();
     await testDb.db
@@ -268,7 +267,13 @@ describe("webhook failure notifications against PostgreSQL", () => {
     await queueWebhookFailureNotifications(
       testDb.db,
       APP_URL,
-      new Date(now.getTime() + WEBHOOK_FAILURE_WARNING_MS)
+      new Date(now.getTime() + 3_539_999)
+    );
+    expect(await findNotifications(f.endpoint.id)).toEqual([]);
+    await queueWebhookFailureNotifications(
+      testDb.db,
+      APP_URL,
+      new Date(now.getTime() + 3_540_000)
     );
     expect(await findNotifications(f.endpoint.id)).toHaveLength(1);
   });

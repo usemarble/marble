@@ -4,7 +4,7 @@ import { and, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import type { DbSession } from "./db";
 
 export const WEBHOOK_FAILURE_WARNING_COUNT = 10;
-export const WEBHOOK_FAILURE_WARNING_MS = 10 * 60_000;
+export const WEBHOOK_FAILURE_WARNING_MS = 60 * 60_000;
 export const WEBHOOK_FAILURE_DISABLE_DAYS = 3;
 export const WEBHOOK_FAILURE_DISABLE_MS =
   WEBHOOK_FAILURE_DISABLE_DAYS * 86_400_000;
