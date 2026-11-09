@@ -176,6 +176,39 @@ async function processDelivery(db: DbClient, deliveryId: string) {
       isTest: delivery.isTest,
     });
 
+  const failAttempt = async (
+    response: Response | null,
+    reason: string,
+    observedAt: Date
+  ) => {
+    if (attemptNumber >= delivery.maxAttempts) {
+      await finishAttempt(
+        {
+          status: "failed",
+          failedAt: new Date(),
+          nextRetryAt: null,
+        },
+        false,
+        observedAt
+      );
+      return;
+    }
+
+    const nextRetryAt = getWebhookRetryAt(response, attemptNumber, observedAt);
+    const transition = await finishAttempt(
+      {
+        status: "retrying",
+        nextRetryAt,
+      },
+      false,
+      observedAt
+    );
+
+    if (transition.count > 0) {
+      throw new WebhookDeliveryRetryError(reason, nextRetryAt);
+    }
+  };
+
   const startedAt = Date.now();
 
   let response: Response;
@@ -197,42 +230,22 @@ async function processDelivery(db: DbClient, deliveryId: string) {
     });
   } catch (error) {
     const durationMs = Date.now() - startedAt;
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
     await db.insert(webhookDeliveryAttempt).values({
       id: createRecordId(),
       deliveryId: delivery.id,
       attemptNumber,
       success: false,
-      errorMessage: error instanceof Error ? error.message : String(error),
+      errorMessage,
       durationMs,
     });
 
-    if (attemptNumber >= delivery.maxAttempts) {
-      await finishAttempt(
-        {
-          status: "failed",
-          failedAt: new Date(),
-          nextRetryAt: null,
-        },
-        false,
-        new Date()
-      );
-      return;
-    }
-
-    const transition = await finishAttempt(
-      {
-        status: "retrying",
-        nextRetryAt: null,
-      },
-      false,
+    await failAttempt(
+      null,
+      `Webhook request failed: ${errorMessage}`,
       new Date()
     );
-
-    if (transition.count > 0) {
-      throw error;
-    }
-
     return;
   }
 
@@ -295,39 +308,11 @@ async function processDelivery(db: DbClient, deliveryId: string) {
     return;
   }
 
-  if (attemptNumber >= delivery.maxAttempts) {
-    await finishAttempt(
-      {
-        status: "failed",
-        failedAt: new Date(),
-        nextRetryAt: null,
-      },
-      false,
-      responseReceivedAt
-    );
-    return;
-  }
-
-  const nextRetryAt = getWebhookRetryAt(
+  await failAttempt(
     response,
-    attemptNumber,
+    `Webhook returned ${response.status}`,
     responseReceivedAt
   );
-  const transition = await finishAttempt(
-    {
-      status: "retrying",
-      nextRetryAt,
-    },
-    false,
-    responseReceivedAt
-  );
-
-  if (transition.count > 0) {
-    if (nextRetryAt) {
-      throw new WebhookDeliveryRetryError(response.status, nextRetryAt);
-    }
-    throw new Error(`Webhook returned ${response.status}`);
-  }
 }
 
 async function finishWebhookDeliveryAttempt(
