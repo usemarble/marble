@@ -10,26 +10,25 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/mdx": "^7.0.8",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.3",
-    "@astrojs/vercel": "^11.0.5",
-    "@databuddy/sdk": "^3.4.2",
+    "@astrojs/sitemap": "^3.7.5",
+    "@astrojs/vercel": "^11.0.22",
+    "@databuddy/sdk": "^3.5.3",
     "@marble/utils": "workspace:*",
-    "@tailwindcss/vite": "^4.2.1",
-    "@usemarble/sdk": "^1.1.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "@usemarble/sdk": "^1.4.0",
     "@usenotra/geo": "^0.7.0",
-    "@vercel/functions": "^3.10.3",
+    "@vercel/functions": "^3.11.3",
     "@vercel/speed-insights": "^1.3.1",
-    "astro": "^7.2.2",
-    "cn": "^0.2.4",
-    "free-astro-components": "^1.2.1",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^4.2.1"
+    "astro": "^7.4.12",
+    "cn": "^0.2.6",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19",
-    "@types/node": "^22.20.1",
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/node": "^22.20.5",
     "typescript": "^5.9.3"
   }
 }

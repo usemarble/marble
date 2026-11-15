@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This guide explains how to get Marble 
 
 Before you start, make sure you have the following installed or available:
 
-- **Node.js** ≥ 22.13.0
+- **Node.js** ≥ 24.0.0
 - **pnpm** 12.6.0 (install with `npm i -g pnpm@12.6.0`)
 - **PostgreSQL** database (we use [Neon](https://neon.tech) in examples)
 - **Redis** database (we use [Upstash](https://upstash.com))
@@ -307,7 +307,7 @@ The documentation lives in `apps/docs` and is built with [Mintlify](https://mint
 
 ### Prerequisites
 
-- Node.js v22.13.0+ (same as the main project)
+- Node.js v24.0.0+ (same as the main project)
 - No database, Redis, or OAuth setup required
 
 ### Option A: From the monorepo root (recommended)

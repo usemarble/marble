@@ -10,7 +10,9 @@ const redis = {
 };
 
 vi.mock("@upstash/redis/cloudflare", () => ({
-  Redis: vi.fn(() => redis),
+  Redis: vi.fn(function Redis() {
+    return redis;
+  }),
 }));
 
 const { createCacheClient } = await import("./cache");

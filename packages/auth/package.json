@@ -17,28 +17,28 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@better-auth/drizzle-adapter": "1.7.6",
-    "@databuddy/sdk": "^3.4.2",
+    "@better-auth/drizzle-adapter": "1.7.25",
+    "@databuddy/sdk": "^3.5.3",
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/utils": "workspace:*",
-    "@polar-sh/better-auth": "^2.0.1",
-    "@polar-sh/sdk": "1.0.2",
-    "@upstash/redis": "^1.39.0",
-    "better-auth": "1.7.6",
-    "drizzle-orm": "^0.45.2",
-    "nanoid": "^5.0.9"
+    "@polar-sh/better-auth": "^2.1.4",
+    "@polar-sh/sdk": "1.1.0",
+    "@upstash/redis": "^1.41.0",
+    "better-auth": "1.7.25",
+    "drizzle-orm": "^0.45.4",
+    "nanoid": "^5.1.16"
   },
   "peerDependencies": {
-    "react": "^19.3.0"
+    "react": "^19.3.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20260911.1",
+    "@cloudflare/workers-types": "5.20261115.1",
     "@marble/tsconfig": "workspace:*",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.20.5",
     "@types/react": "19.3.0",
-    "react": "^19.3.0",
+    "react": "^19.3.1",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.12"
   }
 }

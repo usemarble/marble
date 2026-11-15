@@ -12,17 +12,17 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
-    "nanoid": "^5.0.9",
-    "sanitize-html": "^2.17.1",
-    "shiki": "^3.12.2",
-    "zod": "^4.3.6"
+    "nanoid": "^5.1.16",
+    "sanitize-html": "^2.18.2",
+    "shiki": "^3.23.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
-    "@types/node": "^22.9.0",
-    "@types/sanitize-html": "^2.16.1",
+    "@types/node": "^22.20.5",
+    "@types/sanitize-html": "^2.16.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.12"
   },
   "scripts": {
     "test": "vitest run",

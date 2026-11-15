@@ -16,20 +16,20 @@
     "@marble/events": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
-    "@upstash/redis": "^1.39.0",
-    "drizzle-orm": "^0.45.2",
-    "evlog": "2.29.0",
+    "@upstash/redis": "^1.41.0",
+    "drizzle-orm": "^0.45.4",
+    "evlog": "2.35.1",
     "fflate": "^0.8.3",
     "gray-matter": "^4.0.3",
-    "hono": "^4.13.8",
-    "resend": "^6.12.3"
+    "hono": "^4.13.18",
+    "resend": "^6.38.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.sha-ad79608dd",
     "@marble/cf-config": "workspace:*",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.20.5",
     "cf": "1.0.0-beta.12",
-    "vite": "8.3.1",
-    "vitest": "^3.2.4"
+    "vite": "8.3.8",
+    "vitest": "^4.1.12"
   }
 }

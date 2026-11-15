@@ -27,5 +27,6 @@ mcpRoute.all("/", async (c) => {
   const server = createServer(MARBLE_API_BASE_URL, apiKey);
   const handler = createMcpHandler(server, { route: "/mcp" });
 
-  return handler(c.req.raw, c.env, c.executionCtx);
+  // Hono exposes a cross-platform subset of this Worker's execution context.
+  return handler(c.req.raw, c.env, c.executionCtx as ExecutionContext);
 });

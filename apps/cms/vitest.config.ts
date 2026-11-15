@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
-  esbuild: { jsx: "automatic" },
+  oxc: { jsx: { runtime: "automatic" } },
   // The public values src/env.ts requires; tests override them with stubEnv.
   test: {
     env: {

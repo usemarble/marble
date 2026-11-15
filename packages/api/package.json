@@ -22,21 +22,21 @@
     "@marble/events": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
-    "@orpc/server": "1.15.4",
-    "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.39.0",
-    "ai": "7.0.127",
+    "@orpc/server": "1.16.2",
+    "@upstash/ratelimit": "2.0.8",
+    "@upstash/redis": "^1.41.0",
+    "ai": "7.0.173",
     "aws4fetch": "^1.0.20",
     "date-fns": "^4.4.0",
-    "drizzle-orm": "^0.45.2",
-    "evlog": "2.29.0",
+    "drizzle-orm": "^0.45.4",
+    "evlog": "2.35.1",
     "nanoid": "^5.1.16",
-    "zod": "^4.3.6"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.20.5",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.12"
   }
 }

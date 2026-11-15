@@ -12,6 +12,23 @@ allowBuilds:
   puppeteer: true
   sharp: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types@5.20261115.1'
+  - '@databuddy/sdk@3.5.3'
 overrides:
   # drizzle-orm takes this as an optional peer; one version keeps a single drizzle-orm instance across the workspace.
-  '@upstash/redis': 1.39.0
+  '@upstash/redis': 1.41.0
+  # Keep framework and React peers on the same patched versions throughout the workspace.
+  'next@>=16.0.0 <17.0.0': 16.4.6
+  'react@>=19.0.0 <20.0.0': 19.3.1
+  'react-dom@>=19.0.0 <20.0.0': 19.3.1
+  # Vitest can otherwise retain an older optional DOM peer in server-only packages.
+  'happy-dom': 21.0.4
+  'sharp@>=0.35.0 <0.36.0': 0.35.5
+  # Upstream tools still pin vulnerable copies within these supported major versions.
+  'agents>@modelcontextprotocol/sdk': 1.32.2
+  '@vercel/routing-utils>path-to-regexp': 6.3.0
+  'miniflare>undici': 7.30.1
+  '@mintlify/package-builder>js-yaml': 4.3.2
+  '@cloudflare/config>zod': 4.6.7
+  '@tailwindcss/typography>postcss-selector-parser': 6.1.5

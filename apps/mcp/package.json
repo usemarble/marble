@@ -8,16 +8,16 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "agents": "^0.12.3",
-    "hono": "^4.13.8",
-    "zod": "^4.4.2"
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "agents": "^0.12.4",
+    "hono": "^4.13.18",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.sha-ad79608dd",
     "@marble/cf-config": "workspace:*",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.20.5",
     "cf": "1.0.0-beta.12",
-    "vite": "8.3.1"
+    "vite": "8.3.8"
   }
 }

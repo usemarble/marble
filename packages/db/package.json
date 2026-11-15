@@ -23,20 +23,20 @@
   },
   "dependencies": {
     "@marble/utils": "workspace:*",
-    "@neondatabase/serverless": "^1.0.1",
+    "@neondatabase/serverless": "^1.2.1",
     "@paralleldrive/cuid2": "^3.3.0",
-    "drizzle-orm": "^0.45.2",
-    "pg": "^8.18.0",
-    "ws": "^8.18.0"
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.23.1",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
-    "@types/node": "^22.9.0",
-    "@types/pg": "^8.11.11",
-    "@types/ws": "^8.5.13",
-    "dotenv": "^16.4.7",
-    "drizzle-kit": "^0.31.10",
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
+    "dotenv": "^16.6.1",
+    "drizzle-kit": "^0.31.11",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.12"
   }
 }
