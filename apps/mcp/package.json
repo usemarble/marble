@@ -2,6 +2,7 @@
   "name": "mcp",
   "type": "module",
   "scripts": {
+    "build": "cf build",
     "dev": "cf dev",
     "deploy": "cf deploy",
     "cf-typegen": "cf workers types",

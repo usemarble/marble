@@ -5,6 +5,14 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**",
+        ".vercel/output/**",
+        ".cloudflare/output/**"
+      ],
       "env": ["NODE_ENV"]
     },
     "lint": {

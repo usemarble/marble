@@ -701,10 +701,10 @@ importers:
         version: link:../utils
       '@polar-sh/better-auth':
         specifier: ^2.1.4
-        version: 2.1.4(@polar-sh/sdk@1.1.0(@opentelemetry/api@1.10.0))(@stripe/react-stripe-js@5.6.1(@stripe/stripe-js@8.11.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@stripe/stripe-js@8.11.0)(better-auth@1.7.25(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261115.1)(@neondatabase/serverless@1.2.1)(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(@upstash/redis@1.41.0)(kysely@0.29.9)(pg@8.23.1))(next@16.4.6(@babel/core@7.29.13(supports-color@10.2.2))(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.19)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(happy-dom@21.0.4)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))))(react@19.3.1)(zod@4.6.7)
+        version: 2.1.4(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@5.6.1(@stripe/stripe-js@8.11.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@stripe/stripe-js@8.11.0)(better-auth@1.7.25(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261115.1)(@neondatabase/serverless@1.2.1)(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(@upstash/redis@1.41.0)(kysely@0.29.9)(pg@8.23.1))(next@16.4.6(@babel/core@7.29.13(supports-color@10.2.2))(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.19)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(happy-dom@21.0.4)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))))(react@19.3.1)(zod@4.6.7)
       '@polar-sh/sdk':
-        specifier: 1.1.0
-        version: 1.1.0(@opentelemetry/api@1.10.0)
+        specifier: 1.0.2
+        version: 1.0.2
       '@upstash/redis':
         specifier: 1.41.0
         version: 1.41.0
@@ -3215,30 +3215,6 @@ packages:
   '@polar-sh/sdk@1.0.2':
     resolution: {integrity: sha512-c3jdqYloVfcejKsAqYfYcW4bG7KkXj5bXkgdsdx4GHlJPzHFV5tysfeZGf9V7dJReLBirAluchsuHWiAIBco8w==}
     engines: {node: '>=22'}
-
-  '@polar-sh/sdk@1.1.0':
-    resolution: {integrity: sha512-Nv999RRY7sE5XdBggCctVv8rYJQWwFk4Hq7yEtaRG6FQCzEyWYxn1Ksi9VGevZSEF7edwZSyOiYuJ9VaYAdpCw==}
-    engines: {node: '>=24'}
-    peerDependencies:
-      '@opentelemetry/api': ^1.9.1
-      '@opentelemetry/otlp-transformer': ^0.223.0
-      '@opentelemetry/resources': ^2.12.0
-      '@opentelemetry/sdk-metrics': ^2.12.0
-      '@opentelemetry/sdk-trace': ^2.12.0
-      ioredis: ^5.11.0
-    peerDependenciesMeta:
-      '@opentelemetry/api':
-        optional: true
-      '@opentelemetry/otlp-transformer':
-        optional: true
-      '@opentelemetry/resources':
-        optional: true
-      '@opentelemetry/sdk-metrics':
-        optional: true
-      '@opentelemetry/sdk-trace':
-        optional: true
-      ioredis:
-        optional: true
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -10061,11 +10037,11 @@ snapshots:
       '@polar-sh/sdk': 1.0.2
       zod: 4.6.7
 
-  '@polar-sh/better-auth@2.1.4(@polar-sh/sdk@1.1.0(@opentelemetry/api@1.10.0))(@stripe/react-stripe-js@5.6.1(@stripe/stripe-js@8.11.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@stripe/stripe-js@8.11.0)(better-auth@1.7.25(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261115.1)(@neondatabase/serverless@1.2.1)(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(@upstash/redis@1.41.0)(kysely@0.29.9)(pg@8.23.1))(next@16.4.6(@babel/core@7.29.13(supports-color@10.2.2))(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.19)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(happy-dom@21.0.4)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))))(react@19.3.1)(zod@4.6.7)':
+  '@polar-sh/better-auth@2.1.4(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@5.6.1(@stripe/stripe-js@8.11.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@stripe/stripe-js@8.11.0)(better-auth@1.7.25(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261115.1)(@neondatabase/serverless@1.2.1)(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(@upstash/redis@1.41.0)(kysely@0.29.9)(pg@8.23.1))(next@16.4.6(@babel/core@7.29.13(supports-color@10.2.2))(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.19)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(happy-dom@21.0.4)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))))(react@19.3.1)(zod@4.6.7)':
     dependencies:
       '@polar-sh/adapter-utils': 1.1.0
       '@polar-sh/checkout': 0.6.0(@stripe/react-stripe-js@5.6.1(@stripe/stripe-js@8.11.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@stripe/stripe-js@8.11.0)(react@19.3.1)
-      '@polar-sh/sdk': 1.1.0(@opentelemetry/api@1.10.0)
+      '@polar-sh/sdk': 1.0.2
       better-auth: 1.7.25(@opentelemetry/api@1.10.0)(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261115.1)(@neondatabase/serverless@1.2.1)(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(@upstash/redis@1.41.0)(kysely@0.29.9)(pg@8.23.1))(next@16.4.6(@babel/core@7.29.13(supports-color@10.2.2))(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.19)(vitest@4.1.12(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(happy-dom@21.0.4)(vite@8.3.8(@types/node@22.20.5)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))
       zod: 4.6.7
     transitivePeerDependencies:
@@ -10081,10 +10057,6 @@ snapshots:
       react: 19.3.1
 
   '@polar-sh/sdk@1.0.2': {}
-
-  '@polar-sh/sdk@1.1.0(@opentelemetry/api@1.10.0)':
-    optionalDependencies:
-      '@opentelemetry/api': 1.10.0
 
   '@poppinss/colors@4.1.6':
     dependencies:

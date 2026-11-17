@@ -19,6 +19,10 @@ use the full client from `createPolar`. Webhook payloads use snake_case fields
 and ISO timestamp strings, which the subscription handlers convert to Dates
 before storing them.
 
+The SDK is pinned to `1.0.2`: `1.1.0` makes the Worker build resolve optional
+Redis and OpenTelemetry dependencies for Outpost, which Marble does not use.
+Run `pnpm --filter api build` when upgrading it.
+
 Set the webhook endpoint's API version to `2026-10` and pass its complete
 dashboard signing secret as `POLAR_WEBHOOK_SECRET`, without encoding it.
 Restart the local API after updating its secret. The access token authenticates

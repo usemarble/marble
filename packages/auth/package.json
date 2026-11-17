@@ -23,7 +23,7 @@
     "@marble/email": "workspace:*",
     "@marble/utils": "workspace:*",
     "@polar-sh/better-auth": "^2.1.4",
-    "@polar-sh/sdk": "1.1.0",
+    "@polar-sh/sdk": "1.0.2",
     "@upstash/redis": "^1.41.0",
     "better-auth": "1.7.25",
     "drizzle-orm": "^0.45.4",

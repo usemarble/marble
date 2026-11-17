@@ -25,3 +25,6 @@ jobs:
 
       - name: Run lint
         run: pnpm lint
+
+      - name: Build Workers
+        run: pnpm exec turbo run build --filter=api --filter=jobs --filter=mcp
