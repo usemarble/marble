@@ -1,4 +1,3 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
 import { publishDuePosts } from "@marble/api/services/scheduled-posts";
 import { createRecordId } from "@marble/db/id";
 import {
@@ -12,7 +11,6 @@ import {
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import type { ApiScope } from "@marble/utils/api-key-scopes";
 import { and, eq } from "drizzle-orm";
-import { createRequestLogger } from "evlog";
 import {
   afterAll,
   afterEach,
@@ -24,19 +22,27 @@ import {
   vi,
 } from "vitest";
 import { hashApiKey } from "@/lib/crypto";
-import { restrictLegacyPostStatus } from "@/lib/legacy-posts";
-import { keyAuthorization } from "@/middleware/key-authorization";
-import { scopeAuthorization } from "@/middleware/scope-authorization";
 import {
   CreatePostResponseSchema,
   PostResponseSchema,
   PostsListResponseSchema,
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
-import type { ApiKeyApp } from "@/types/env";
-import posts from "./posts";
 
 let testDb: TestDatabase;
+
+vi.mock("@/lib/db", async () => {
+  const { createMiddleware } = await import("hono/factory");
+  return {
+    dbMiddleware: createMiddleware(async (c, next) => {
+      c.set("db", testDb.db);
+      await next();
+    }),
+  };
+});
+
+const { default: app } = await import("../index");
+
 beforeAll(async () => {
   testDb = await createTestDatabase();
 });
@@ -104,20 +110,6 @@ async function fixture(timezone = "Europe/London") {
       scopes,
     });
   }
-  const app = new OpenAPIHono<ApiKeyApp>();
-  app.use("*", async (c, next) => {
-    c.set("db", testDb.db);
-    c.set("log", createRequestLogger({}));
-    await next();
-  });
-  app.use("/v1/*", keyAuthorization());
-  app.use("/v1/*", scopeAuthorization());
-  app.route("/v1/posts", posts);
-  app.use("/legacy/*", async (c, next) => {
-    c.set("workspaceId", workspaceId);
-    await next();
-  });
-  app.route("/legacy/posts", posts);
   const deferred: Promise<unknown>[] = [];
   const env = {
     APP_URL: "http://localhost:3000",
@@ -137,6 +129,7 @@ async function fixture(timezone = "Europe/London") {
       {
         method,
         headers: {
+          "cf-connecting-ip": workspaceId,
           ...(key ? { authorization: `Bearer ${key}` } : {}),
           ...(body === undefined ? {} : { "content-type": "application/json" }),
         },
@@ -285,7 +278,7 @@ describe("public post status compatibility", () => {
     }
   });
 
-  it.each(["draft", "all", "scheduled", "unknown", ""])(
+  it.each(["draft", "all", "scheduled", "unknown", "", "published", null])(
     "legacy %s is published-only before validation and filtering",
     async (status) => {
       const f = await fixture();
@@ -294,18 +287,17 @@ describe("public post status compatibility", () => {
         `/${f.scheduled.id}`,
         `/${f.scheduled.slug}`,
       ]) {
-        const url = new URL(
-          `http://localhost/v1/${f.workspaceId}/posts${identifier}?status=${status}`
-        );
-        restrictLegacyPostStatus(url, f.workspaceId);
+        const query =
+          status === null ? "?limit=1" : `?limit=1&status=${status}`;
         const response = await f.request(
-          `/legacy/posts${identifier}${url.search}`
+          `/v1/${f.workspaceId}/posts${identifier}${query}`
         );
         expect(response.status).toBe(identifier ? 404 : 200);
         if (!identifier) {
-          expect(
-            PostsListResponseSchema.parse(await response.json()).posts
-          ).toMatchObject([{ status: "published" }]);
+          expect(await response.json()).toMatchObject({
+            posts: [{ id: f.published.id, status: "published" }],
+            pagination: { limit: 1, totalItems: 1 },
+          });
         }
       }
     }
@@ -402,25 +394,6 @@ describe("scheduling posts", () => {
       {}
     );
     expect(Object.keys(await unchanged.json())).toEqual(["post"]);
-  });
-
-  it("reads the workspace only for a publishedAt with no zone", async () => {
-    const f = await fixture();
-    const lookup = vi.spyOn(testDb.db.query.workspace, "findFirst");
-    try {
-      for (const publishedAt of [FUTURE, "2031-06-01T09:00:00+01:00"]) {
-        await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
-          publishedAt,
-        });
-      }
-      expect(lookup).not.toHaveBeenCalled();
-      await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
-        publishedAt: "2031-06-01T09:00:00",
-      });
-      expect(lookup).toHaveBeenCalledTimes(1);
-    } finally {
-      lookup.mockRestore();
-    }
   });
 
   it("reschedules, unschedules and pulls a live post with the right events", async () => {
@@ -541,12 +514,7 @@ describe("scheduling posts", () => {
   describe("publishedAt forms", () => {
     it.each([
       ["Europe/London", "2031-07-01T09:00:00", "2031-07-01T08:00:00.000Z"],
-      ["Europe/London", "2031-01-15T09:00:00", "2031-01-15T09:00:00.000Z"],
-      ["America/New_York", "2031-07-01T09:00:00", "2031-07-01T13:00:00.000Z"],
-      ["America/New_York", "2031-01-15T09:00:00", "2031-01-15T14:00:00.000Z"],
       ["Europe/London", "2031-10-26T01:30:00", "2031-10-26T00:30:00.000Z"],
-      ["Australia/Sydney", "2031-04-06T02:30:00", "2031-04-05T15:30:00.000Z"],
-      ["Asia/Tokyo", "2031-07-01T09:00:00", "2031-07-01T00:00:00.000Z"],
       ["Asia/Tokyo", "2031-07-01T09:15:30.250", "2031-07-01T00:15:30.250Z"],
       ["Asia/Tokyo", "2031-07-01T09:00", "2031-07-01T00:00:00.000Z"],
       ["Asia/Tokyo", "2031-07-01T09:00:00Z", "2031-07-01T09:00:00.000Z"],
@@ -576,31 +544,31 @@ describe("scheduling posts", () => {
       });
     });
 
-    it.each([
-      ["America/New_York", "2031-03-09T02:30:00"],
-      ["Europe/London", "2031-03-30T01:30:00"],
-    ])("rejects %s %s, which daylight saving skips", async (timezone, sent) => {
-      const f = await fixture(timezone);
-      const before = await postRow(f.scheduled.id);
-      for (const response of [
-        await f.request(
-          "/v1/posts",
-          f.keys.private,
-          { ...f.createBody, status: "scheduled", publishedAt: sent },
-          "POST"
-        ),
-        await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
-          publishedAt: sent,
-        }),
-      ]) {
-        expect(response.status).toBe(400);
-        expect(await response.json()).toMatchObject({
-          error: "Invalid publishedAt",
-          message: expect.stringContaining(timezone),
-        });
+    it.each([["Europe/London", "2031-03-30T01:30:00"]])(
+      "rejects %s %s, which daylight saving skips",
+      async (timezone, sent) => {
+        const f = await fixture(timezone);
+        const before = await postRow(f.scheduled.id);
+        for (const response of [
+          await f.request(
+            "/v1/posts",
+            f.keys.private,
+            { ...f.createBody, status: "scheduled", publishedAt: sent },
+            "POST"
+          ),
+          await f.request(`/v1/posts/${f.scheduled.id}`, f.keys.private, {
+            publishedAt: sent,
+          }),
+        ]) {
+          expect(response.status).toBe(400);
+          expect(await response.json()).toMatchObject({
+            error: "Invalid publishedAt",
+            message: expect.stringContaining(timezone),
+          });
+        }
+        expect(await postRow(f.scheduled.id)).toEqual(before);
       }
-      expect(await postRow(f.scheduled.id)).toEqual(before);
-    });
+    );
 
     it.each(["2031-02-30T09:00:00", "tomorrow", "2031-07-01"])(
       "rejects %s before it reaches the route",

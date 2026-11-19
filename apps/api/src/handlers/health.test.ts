@@ -51,7 +51,6 @@ describe("GET /health", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ db: "ok", redis: "ok" });
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(mocks.execute).toHaveBeenCalledOnce();
   });
 
   it("returns 503 naming the database when its query fails", async () => {
@@ -75,19 +74,15 @@ describe("GET /health", () => {
     expect(await response.json()).toEqual({ db: "error", redis: "ok" });
   });
 
-  it("serves a cached result instead of querying the database again", async () => {
+  it("serves a cached result even when a query parameter changes and the database goes down", async () => {
     await request();
-    mocks.execute.mockRejectedValue(new Error("should not be called"));
-    const response = await request();
+    mocks.execute.mockRejectedValue(new Error("connection refused"));
+    const response = await request(
+      "https://api.marblecms.com/health?nocache=1"
+    );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ db: "ok", redis: "ok" });
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(mocks.execute).toHaveBeenCalledOnce();
-  });
-
-  it("ignores query strings when reading the cache", async () => {
-    await request();
-    await request("https://api.marblecms.com/health?nocache=1");
     expect(mocks.execute).toHaveBeenCalledOnce();
   });
 

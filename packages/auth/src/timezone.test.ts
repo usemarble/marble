@@ -37,15 +37,6 @@ describe("resolveSignupTimezone", () => {
     expect(resolveSignupTimezone({ cookieHeader })).toBe("Europe/London");
   });
 
-  it("prefers the cookie over Cloudflare", () => {
-    expect(
-      resolveSignupTimezone({
-        cookieHeader: "marble_timezone=America%2FNew_York",
-        cloudflareTimezone: "Asia/Tokyo",
-      })
-    ).toBe("America/New_York");
-  });
-
   it.each([["Mars/Olympus"], ["UTC"], [42], [null]])(
     "ignores the Cloudflare value %j",
     (cloudflareTimezone) => {

@@ -1,786 +1,595 @@
-import type {
+import { createRecordId } from "@marble/db/id";
+import {
+  member,
+  usageEvent,
+  user,
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
+  workspace,
   workspaceEvent,
 } from "@marble/db/schema";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { signPayload } from "@/lib/signing";
-import type {
-  checkWebhookUsage,
-  recordWebhookUsage,
-  sendWebhookUsageAlert,
-} from "@/lib/usage";
-import type {
-  claimWebhookDeliveryAttempt,
-  renewWebhookDeliveryLease,
-  updateWebhookDeliveryForLease,
-} from "@/lib/webhook-delivery-lease";
-import type { recordWebhookEndpointOutcome } from "@/lib/webhook-health";
+import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
+import type { sendUsageLimitEmail } from "@marble/email";
+import { eq, sql } from "drizzle-orm";
 import {
-  MAX_QUEUE_DELAY_SECONDS,
-  WEBHOOK_MAX_ATTEMPTS,
-  WebhookDeliveryDeferredError,
-} from "@/lib/webhook-retry";
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import type { WebhookMessage } from "@/types/env";
 import { handleWebhookDeliveryQueue } from "./deliveries";
 
-type Delivery = typeof webhookDelivery.$inferSelect & {
-  event: typeof workspaceEvent.$inferSelect;
-  webhookEndpoint: Pick<
-    typeof webhookEndpoint.$inferSelect,
-    "format" | "secret" | "enabled"
-  >;
-};
-
-interface DeliverySession {
-  query: {
-    webhookDelivery: {
-      findFirst: () => Promise<Delivery | undefined>;
-    };
-  };
-  insert: () => {
-    values: (
-      attempt: typeof webhookDeliveryAttempt.$inferInsert
-    ) => Promise<void>;
-  };
-  transaction: (
-    callback: (session: DeliverySession) => Promise<{ count: number }>
-  ) => Promise<{ count: number }>;
-}
-
-const mocks = vi.hoisted(() => {
-  const findDelivery = vi.fn<() => Promise<Delivery | undefined>>();
-  const insertAttempt =
+const mocks = vi.hoisted(() => ({
+  enqueue:
     vi.fn<
-      (attempt: typeof webhookDeliveryAttempt.$inferInsert) => Promise<void>
-    >();
-  const transaction =
-    vi.fn<
-      (
-        callback: (session: DeliverySession) => Promise<{ count: number }>
-      ) => Promise<{ count: number }>
-    >();
-  const db = {
-    query: { webhookDelivery: { findFirst: findDelivery } },
-    insert: () => ({ values: insertAttempt }),
-    transaction,
-  } satisfies DeliverySession;
-
-  return {
-    db,
-    findDelivery,
-    insertAttempt,
-    transaction,
-    claim: vi.fn<typeof claimWebhookDeliveryAttempt>(),
-    renew: vi.fn<typeof renewWebhookDeliveryLease>(),
-    transition: vi.fn<typeof updateWebhookDeliveryForLease>(),
-    recordOutcome: vi.fn<typeof recordWebhookEndpointOutcome>(),
-    checkUsage: vi.fn<typeof checkWebhookUsage>(),
-    recordUsage: vi.fn<typeof recordWebhookUsage>(),
-    sendUsageAlert: vi.fn<typeof sendWebhookUsageAlert>(),
-    sign: vi.fn<typeof signPayload>(),
-    enqueue:
-      vi.fn<
-        (body: WebhookMessage, options?: QueueSendOptions) => Promise<void>
-      >(),
-    fetch: vi.fn<typeof fetch>(),
-  };
-});
-
+      (body: WebhookMessage, options?: QueueSendOptions) => Promise<void>
+    >(),
+  fetch: vi.fn<typeof fetch>(),
+  sendUsageLimitEmail: vi.fn<typeof sendUsageLimitEmail>(),
+}));
 vi.mock("cloudflare:workers", () => ({
-  env: { WEBHOOK_DELIVERY_QUEUE: { send: mocks.enqueue } },
+  env: {
+    WEBHOOK_DELIVERY_QUEUE: { send: mocks.enqueue },
+    RESEND_API_KEY: "test-key",
+  },
 }));
-vi.mock("@/lib/db", () => ({
-  createDbClient: () => mocks.db,
-}));
-vi.mock("@/lib/usage", () => ({
-  checkWebhookUsage: mocks.checkUsage,
-  recordWebhookUsage: mocks.recordUsage,
-  sendWebhookUsageAlert: mocks.sendUsageAlert,
-}));
-vi.mock("@/lib/signing", () => ({ signPayload: mocks.sign }));
-vi.mock("@/lib/webhook-health", () => ({
-  recordWebhookEndpointOutcome: mocks.recordOutcome,
-}));
-vi.mock("@/lib/webhook-delivery-lease", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/webhook-delivery-lease")>()),
-  claimWebhookDeliveryAttempt: mocks.claim,
-  renewWebhookDeliveryLease: mocks.renew,
-  updateWebhookDeliveryForLease: mocks.transition,
+vi.mock("@/lib/db", () => ({ createDbClient: () => testDb.db }));
+vi.mock("@marble/email", () => ({
+  sendUsageLimitEmail: mocks.sendUsageLimitEmail,
 }));
 
 const NOW = new Date("2026-10-13T12:00:00.000Z");
-const LEASE = { deliveryId: "delivery-1", attemptNumber: 1, claimedAt: NOW };
+const RECEIVER_URL = "https://receiver.example.com/events";
+let testDb: TestDatabase;
 
-function makeDelivery(overrides: Partial<Delivery> = {}): Delivery {
-  return {
-    id: "delivery-1",
-    eventId: "event-1",
-    workspaceId: "workspace-1",
-    webhookEndpointId: "endpoint-1",
-    url: "https://example.com/webhooks",
-    status: "sending",
-    isTest: true,
-    attemptCount: 1,
-    maxAttempts: 3,
-    nextRetryAt: null,
-    lastAttemptAt: NOW,
-    deliveredAt: null,
-    failedAt: null,
-    createdAt: NOW,
-    updatedAt: NOW,
-    event: {
-      id: "event-1",
-      workspaceId: "workspace-1",
-      type: "post_created",
-      source: "system",
-      resourceType: "post",
-      resourceId: "post-1",
-      actorType: "system",
-      actorId: null,
-      payload: {},
-      enqueuedAt: NOW,
-      processedAt: NOW,
-      createdAt: NOW,
-    },
-    webhookEndpoint: { format: "json", secret: "secret", enabled: true },
-    ...overrides,
-  };
-}
-
-function makeBatch() {
-  const message = {
-    id: "queue-message-1",
-    body: { type: "webhook.delivery", deliveryId: "delivery-1" },
-    timestamp: NOW,
-    attempts: 1,
-    ack: vi.fn<() => void>(),
-    retry: vi.fn<(options?: QueueRetryOptions) => void>(),
-  } satisfies Message<WebhookMessage>;
-  const batch = {
-    queue: "marble-webhook-deliveries",
-    messages: [message],
-    metadata: { metrics: { backlogCount: 1, backlogBytes: 100 } },
-    ackAll: vi.fn<() => void>(),
-    retryAll: vi.fn<(options?: QueueRetryOptions) => void>(),
-  } satisfies MessageBatch<WebhookMessage>;
-  return { message, batch };
-}
-
+beforeAll(async () => {
+  testDb = await createTestDatabase();
+});
+afterAll(async () => {
+  await testDb.close();
+});
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.useFakeTimers();
   vi.setSystemTime(NOW);
   vi.spyOn(Math, "random").mockReturnValue(0);
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   vi.stubGlobal("fetch", mocks.fetch);
-  mocks.claim.mockResolvedValue(LEASE);
-  mocks.renew.mockResolvedValue(LEASE);
-  mocks.transition.mockResolvedValue({ count: 1 });
-  mocks.transaction.mockImplementation((callback) => callback(mocks.db));
-  mocks.recordOutcome.mockResolvedValue(undefined);
-  mocks.sign.mockResolvedValue("test-signature");
-  mocks.checkUsage.mockResolvedValue({
-    allowed: true,
-    currentUsage: 0,
-    limit: 100,
-    period: {
-      start: new Date("2026-10-01T00:00:00.000Z"),
-      end: new Date("2026-11-01T00:00:00.000Z"),
-    },
-    plan: "free",
-  });
-  mocks.recordUsage.mockResolvedValue(undefined);
-  mocks.sendUsageAlert.mockResolvedValue(undefined);
-  mocks.findDelivery.mockResolvedValue(makeDelivery());
-  mocks.enqueue.mockResolvedValue(undefined);
-  mocks.insertAttempt.mockResolvedValue(undefined);
 });
-
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
+type DeliveryState = Pick<
+  typeof webhookDelivery.$inferInsert,
+  "status" | "attemptCount" | "maxAttempts" | "nextRetryAt" | "isTest"
+>;
+type EndpointState = Pick<
+  typeof webhookEndpoint.$inferInsert,
+  "enabled" | "secret" | "consecutiveFailures" | "failureIncidentId"
+>;
+
+async function fixture(
+  delivery: DeliveryState = {},
+  endpoint: Partial<EndpointState> = {}
+) {
+  const workspaceId = createRecordId();
+  const endpointId = createRecordId();
+  const eventId = createRecordId();
+  const deliveryId = createRecordId();
+  await testDb.db.insert(workspace).values({
+    id: workspaceId,
+    name: "Webhook delivery test",
+    slug: workspaceId,
+  });
+  await testDb.db.insert(webhookEndpoint).values({
+    id: endpointId,
+    workspaceId,
+    name: "Receiver",
+    url: RECEIVER_URL,
+    secret: "test-secret",
+    events: ["tag_created"],
+    ...endpoint,
+  });
+  await testDb.db
+    .insert(workspaceEvent)
+    .values({ id: eventId, workspaceId, type: "tag_created" });
+  await testDb.db.insert(webhookDelivery).values({
+    id: deliveryId,
+    webhookEndpointId: endpointId,
+    eventId,
+    workspaceId,
+    url: RECEIVER_URL,
+    ...delivery,
+  });
+
+  return {
+    workspaceId,
+    async deliver() {
+      const message = {
+        id: createRecordId(),
+        body: { type: "webhook.delivery", deliveryId },
+        timestamp: new Date(),
+        attempts: 1,
+        ack: vi.fn<() => void>(),
+        retry: vi.fn<(options?: QueueRetryOptions) => void>(),
+      } satisfies Message<WebhookMessage>;
+      await handleWebhookDeliveryQueue({
+        queue: "marble-webhook-deliveries",
+        messages: [message],
+        metadata: { metrics: { backlogCount: 1, backlogBytes: 100 } },
+        ackAll: vi.fn<() => void>(),
+        retryAll: vi.fn<(options?: QueueRetryOptions) => void>(),
+      });
+      return message;
+    },
+    delivery: () =>
+      testDb.db.query.webhookDelivery.findFirst({
+        where: eq(webhookDelivery.id, deliveryId),
+      }),
+    attempts: () =>
+      testDb.db.query.webhookDeliveryAttempt.findMany({
+        where: eq(webhookDeliveryAttempt.deliveryId, deliveryId),
+      }),
+    endpoint: () =>
+      testDb.db.query.webhookEndpoint.findFirst({
+        where: eq(webhookEndpoint.id, endpointId),
+      }),
+    usage: () =>
+      testDb.db.query.usageEvent.findMany({
+        where: eq(usageEvent.workspaceId, workspaceId),
+      }),
+  };
+}
+
+function unreadableBody() {
+  return new ReadableStream({
+    start(controller) {
+      controller.error(new Error("connection reset"));
+    },
+  });
+}
+
 describe("webhook receiver cooldowns", () => {
   it.each([429, 503])(
-    "persists and schedules Retry-After on %i",
+    "persists and schedules Retry-After on %i even if the response body fails",
     async (status) => {
+      const f = await fixture();
       mocks.fetch.mockResolvedValue(
-        new Response("slow down", { status, headers: { "retry-after": "120" } })
-      );
-      const { message, batch } = makeBatch();
-      await handleWebhookDeliveryQueue(batch);
-      expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
-        status: "retrying",
-        nextRetryAt: new Date(NOW.getTime() + 121_000),
-      });
-      expect(mocks.insertAttempt).toHaveBeenCalledWith(
-        expect.objectContaining({
-          statusCode: status,
-          attemptNumber: 1,
-          success: false,
-        })
-      );
-      expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 121 });
-      expect(message.ack).not.toHaveBeenCalled();
-    }
-  );
-
-  it("uses increasing fallback delays for rate limiting without a header", async () => {
-    const lease = { ...LEASE, attemptNumber: 2 };
-    mocks.claim.mockResolvedValue(lease);
-    mocks.renew.mockResolvedValue(lease);
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ attemptCount: 2 }));
-    mocks.fetch.mockResolvedValue(new Response(null, { status: 429 }));
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 121 });
-  });
-
-  it.each([429, 503])(
-    "uses bounded retries instead of an endless cooldown chain on %i",
-    async (status) => {
-      mocks.fetch.mockResolvedValue(
-        new Response("unavailable", {
+        new Response(unreadableBody(), {
           status,
-          headers: { "retry-after": "999999999" },
+          headers: { "retry-after": "120" },
         })
       );
-      const { message, batch } = makeBatch();
-      await handleWebhookDeliveryQueue(batch);
-      expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
+
+      const message = await f.deliver();
+
+      expect(await f.delivery()).toMatchObject({
         status: "retrying",
-        nextRetryAt: new Date(NOW.getTime() + 61_000),
+        nextRetryAt: new Date("2026-10-13T12:02:01.000Z"),
       });
-      expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 61 });
+      expect(await f.attempts()).toMatchObject([
+        { attemptNumber: 1, statusCode: status, success: false },
+      ]);
+      expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 1 });
+      expect(message.retry).toHaveBeenCalledExactlyOnceWith({
+        delaySeconds: 121,
+      });
       expect(message.ack).not.toHaveBeenCalled();
-      expect(mocks.enqueue).not.toHaveBeenCalled();
     }
   );
 
-  it.each([429, 503])(
-    "honors %i retry headers when reading the response body fails",
-    async (status) => {
-      const body = new ReadableStream({
-        start(controller) {
-          controller.error(new Error("connection reset"));
-        },
-      });
-      mocks.fetch.mockResolvedValue(
-        new Response(body, { status, headers: { "retry-after": "120" } })
-      );
-      const { message, batch } = makeBatch();
-      await handleWebhookDeliveryQueue(batch);
-      expect(mocks.insertAttempt).toHaveBeenCalledWith(
-        expect.objectContaining({
-          statusCode: status,
-          errorMessage:
-            "Failed to read webhook response body: connection reset",
-        })
-      );
-      expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
-        status: "retrying",
-        nextRetryAt: new Date(NOW.getTime() + 121_000),
-      });
-      expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 121 });
-    }
-  );
-
-  it("accepts a 2xx even if reading its response body fails", async () => {
-    const body = new ReadableStream({
-      start(controller) {
-        controller.error(new Error("connection reset"));
-      },
+  it("requeues an early duplicate and sends only once the cooldown expires", async () => {
+    const nextRetryAt = new Date("2026-10-13T12:02:00.000Z");
+    const f = await fixture({
+      status: "retrying",
+      attemptCount: 1,
+      nextRetryAt,
     });
-    mocks.fetch.mockResolvedValue(new Response(body, { status: 200 }));
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
-      status: "success",
-      deliveredAt: NOW,
-      nextRetryAt: null,
-    });
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(message.retry).not.toHaveBeenCalled();
-  });
 
-  it("requeues early duplicate messages without sending or consuming an attempt", async () => {
-    const retryAt = new Date(NOW.getTime() + 120_000);
-    mocks.claim.mockRejectedValue(
-      new WebhookDeliveryDeferredError("delivery-1", retryAt)
-    );
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(mocks.enqueue).toHaveBeenCalledWith(message.body, {
+    const early = await f.deliver();
+
+    expect(mocks.enqueue).toHaveBeenCalledExactlyOnceWith(early.body, {
       delaySeconds: 120,
     });
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(mocks.enqueue.mock.invocationCallOrder[0]).toBeLessThan(
-      message.ack.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY
-    );
-    expect(message.retry).not.toHaveBeenCalled();
+    expect(early.ack).toHaveBeenCalledOnce();
+    expect(early.retry).not.toHaveBeenCalled();
     expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.insertAttempt).not.toHaveBeenCalled();
-    expect(mocks.transition).not.toHaveBeenCalled();
+    expect(await f.attempts()).toEqual([]);
+    expect(await f.delivery()).toMatchObject({
+      status: "retrying",
+      attemptCount: 1,
+      nextRetryAt,
+    });
+
+    vi.setSystemTime(nextRetryAt);
+    mocks.fetch.mockResolvedValue(
+      new Response(unreadableBody(), { status: 200 })
+    );
+    const due = await f.deliver();
+
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+    expect(await f.attempts()).toMatchObject([
+      { attemptNumber: 2, statusCode: 200, success: true },
+    ]);
+    expect(await f.delivery()).toMatchObject({
+      status: "success",
+      deliveredAt: nextRetryAt,
+      nextRetryAt: null,
+    });
+    expect(due.ack).toHaveBeenCalledOnce();
+    expect(due.retry).not.toHaveBeenCalled();
   });
 
-  it("chunks long cooldowns without reducing the persisted deadline", async () => {
-    const retryAt = new Date(
-      NOW.getTime() + 3 * MAX_QUEUE_DELAY_SECONDS * 1000
-    );
+  it("chunks long cooldowns without shortening the persisted deadline", async () => {
+    const f = await fixture();
     mocks.fetch.mockResolvedValue(
       new Response(null, {
         status: 429,
-        headers: { "retry-after": retryAt.toUTCString() },
+        headers: { "retry-after": "Fri, 16 Oct 2026 12:00:00 GMT" },
       })
     );
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
+
+    const message = await f.deliver();
+
+    expect(await f.delivery()).toMatchObject({
       status: "retrying",
-      nextRetryAt: new Date(retryAt.getTime() + 1000),
+      nextRetryAt: new Date("2026-10-16T12:00:01.000Z"),
     });
-    expect(mocks.enqueue).toHaveBeenCalledWith(message.body, {
-      delaySeconds: MAX_QUEUE_DELAY_SECONDS,
+    expect(mocks.enqueue).toHaveBeenCalledExactlyOnceWith(message.body, {
+      delaySeconds: 86_400,
     });
     expect(message.ack).toHaveBeenCalledOnce();
   });
 
-  it("keeps a deferred message unacked if enqueueing fails", async () => {
-    mocks.claim.mockRejectedValue(
-      new WebhookDeliveryDeferredError(
-        "delivery-1",
-        new Date(NOW.getTime() + 120_000)
-      )
-    );
+  it("keeps a deferred message unacked when the queue rejects the replacement", async () => {
+    const f = await fixture({
+      status: "retrying",
+      nextRetryAt: new Date("2026-10-13T12:02:00.000Z"),
+    });
     mocks.enqueue.mockRejectedValue(new Error("queue unavailable"));
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
+
+    const message = await f.deliver();
+
     expect(message.ack).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledWith();
+    expect(message.retry).toHaveBeenCalledExactlyOnceWith();
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
 
-  it.each([400, 500, 503])(
-    "schedules an ordinary %i on the retry schedule",
-    async (status) => {
-      mocks.fetch.mockResolvedValue(new Response(null, { status }));
-      const { message, batch } = makeBatch();
-      await handleWebhookDeliveryQueue(batch);
-      expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
-        status: "retrying",
-        nextRetryAt: new Date(NOW.getTime() + 61_000),
-      });
-      expect(message.retry).toHaveBeenCalledWith({ delaySeconds: 61 });
-      expect(mocks.enqueue).not.toHaveBeenCalled();
-    }
-  );
+  it("schedules an hourly retry after the eleventh 500", async () => {
+    const f = await fixture({ status: "retrying", attemptCount: 10 });
+    mocks.fetch.mockResolvedValue(new Response(null, { status: 500 }));
 
-  it("exhausts the existing HTTP attempt limit even when rate limited", async () => {
-    const lease = { ...LEASE, attemptNumber: 3 };
-    mocks.claim.mockResolvedValue(lease);
-    mocks.renew.mockResolvedValue(lease);
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ attemptCount: 3 }));
-    mocks.fetch.mockResolvedValue(
-      new Response(null, { status: 429, headers: { "retry-after": "120" } })
-    );
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), lease, {
+    const message = await f.deliver();
+
+    expect(await f.delivery()).toMatchObject({
+      status: "retrying",
+      nextRetryAt: new Date("2026-10-13T13:00:01.000Z"),
+    });
+    expect(message.retry).toHaveBeenCalledExactlyOnceWith({
+      delaySeconds: 3601,
+    });
+    expect(message.ack).not.toHaveBeenCalled();
+    expect(mocks.enqueue).not.toHaveBeenCalled();
+  });
+
+  it("records a network failure and retries in one minute", async () => {
+    const f = await fixture();
+    mocks.fetch.mockRejectedValue(new Error("DNS resolution failed"));
+
+    const message = await f.deliver();
+
+    expect(await f.attempts()).toMatchObject([
+      {
+        attemptNumber: 1,
+        success: false,
+        errorMessage: "DNS resolution failed",
+      },
+    ]);
+    expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 1 });
+    expect(await f.delivery()).toMatchObject({
+      status: "retrying",
+      nextRetryAt: new Date("2026-10-13T12:01:01.000Z"),
+    });
+    expect(message.retry).toHaveBeenCalledExactlyOnceWith({ delaySeconds: 61 });
+    expect(message.ack).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      name: "a receiver cooldown",
+      respond: () =>
+        new Response(null, { status: 429, headers: { "retry-after": "120" } }),
+    },
+    {
+      name: "a network failure",
+      respond: () => Promise.reject(new Error("connection refused")),
+    },
+  ])("ends after $name on the final attempt", async ({ respond }) => {
+    const f = await fixture({
+      status: "retrying",
+      attemptCount: 34,
+      maxAttempts: 35,
+    });
+    mocks.fetch.mockImplementation(async () => respond());
+
+    const message = await f.deliver();
+
+    expect(await f.delivery()).toMatchObject({
       status: "failed",
       failedAt: NOW,
       nextRetryAt: null,
     });
+    expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 1 });
     expect(message.ack).toHaveBeenCalledOnce();
     expect(message.retry).not.toHaveBeenCalled();
     expect(mocks.enqueue).not.toHaveBeenCalled();
   });
 
-  it("clears cooldown after success", async () => {
-    mocks.fetch.mockResolvedValue(new Response(null, { status: 204 }));
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(mocks.transition).toHaveBeenCalledWith(expect.anything(), LEASE, {
-      status: "success",
-      deliveredAt: NOW,
+  it("clears the cooldown without sending when the attempt budget is spent", async () => {
+    const f = await fixture({
+      status: "retrying",
+      attemptCount: 3,
+      maxAttempts: 3,
+      nextRetryAt: new Date("2026-10-13T12:02:00.000Z"),
+    });
+
+    const message = await f.deliver();
+
+    expect(await f.delivery()).toMatchObject({
+      status: "failed",
+      attemptCount: 3,
       nextRetryAt: null,
     });
+    expect(mocks.fetch).not.toHaveBeenCalled();
     expect(message.ack).toHaveBeenCalledOnce();
+    expect(mocks.enqueue).not.toHaveBeenCalled();
+  });
+});
+
+describe("webhook delivery ownership", () => {
+  it("does not make a second request while a delivery is in flight", async () => {
+    const f = await fixture();
+    mocks.fetch.mockImplementationOnce(async () => {
+      const duplicate = await f.deliver();
+      expect(duplicate.retry).toHaveBeenCalledExactlyOnceWith();
+      expect(duplicate.ack).not.toHaveBeenCalled();
+      return new Response(null, { status: 204 });
+    });
+
+    const first = await f.deliver();
+
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+    expect(await f.delivery()).toMatchObject({
+      status: "success",
+      attemptCount: 1,
+    });
+    expect(first.ack).toHaveBeenCalledOnce();
   });
 
-  it("does not schedule a cooldown from a stale worker's response", async () => {
-    mocks.transition.mockResolvedValue({ count: 0 });
-    mocks.fetch.mockResolvedValue(
-      new Response(null, { status: 429, headers: { "retry-after": "120" } })
-    );
-    const { message, batch } = makeBatch();
-    await handleWebhookDeliveryQueue(batch);
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(message.retry).not.toHaveBeenCalled();
-    expect(mocks.enqueue).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-  });
+  it.each([
+    {
+      name: "a cooldown header",
+      respond: () =>
+        new Response(null, { status: 429, headers: { "retry-after": "120" } }),
+    },
+    {
+      name: "a network error",
+      respond: () => Promise.reject(new Error("connection reset")),
+    },
+  ])(
+    "ignores $name from a worker whose lease was reclaimed",
+    async ({ respond }) => {
+      const f = await fixture();
+      mocks.fetch
+        .mockImplementationOnce(async () => {
+          vi.setSystemTime(new Date("2026-10-13T12:05:00.000Z"));
+          const replacement = await f.deliver();
+          expect(replacement.ack).toHaveBeenCalledOnce();
+          return respond();
+        })
+        .mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+      const stale = await f.deliver();
+
+      expect(mocks.fetch).toHaveBeenCalledTimes(2);
+      expect(await f.delivery()).toMatchObject({
+        status: "success",
+        attemptCount: 2,
+        nextRetryAt: null,
+      });
+      expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+      expect(await f.usage()).toMatchObject([
+        { type: "webhook_delivery", endpoint: RECEIVER_URL },
+      ]);
+      expect(stale.ack).toHaveBeenCalledOnce();
+      expect(stale.retry).not.toHaveBeenCalled();
+      expect(mocks.enqueue).not.toHaveBeenCalled();
+    }
+  );
 });
 
 describe("webhook endpoint outcomes", () => {
-  it.each([
-    { status: 204, success: true },
-    { status: 400, success: false },
-    { status: 500, success: false },
-    { status: 429, success: false },
-  ])(
-    "records HTTP $status only after an owned delivery transition",
-    async ({ status, success }) => {
-      mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-      mocks.fetch.mockResolvedValue(new Response(null, { status }));
-      const { batch } = makeBatch();
+  it("does not count an unsent request when signing fails", async () => {
+    const f = await fixture({}, { secret: "" });
 
-      await handleWebhookDeliveryQueue(batch);
+    const message = await f.deliver();
 
-      expect(mocks.recordOutcome).toHaveBeenCalledExactlyOnceWith(mocks.db, {
-        endpointId: "endpoint-1",
-        url: "https://example.com/webhooks",
-        observedAt: NOW,
-        success,
-        isTest: false,
-      });
-      expect(mocks.transaction).toHaveBeenCalledOnce();
-      expect(mocks.insertAttempt.mock.invocationCallOrder[0]).toBeLessThan(
-        mocks.transition.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY
+    expect(mocks.fetch).not.toHaveBeenCalled();
+    expect(await f.attempts()).toEqual([]);
+    expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+    expect(message.retry).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it.each(["delivery", "workspace"] as const)(
+    "does not count an unsent request when the %s cannot be read",
+    async (source) => {
+      const f = await fixture();
+      const query =
+        source === "delivery"
+          ? testDb.db.query.webhookDelivery
+          : testDb.db.query.workspace;
+      vi.spyOn(query, "findFirst").mockRejectedValueOnce(
+        new Error("database unavailable")
       );
-      expect(mocks.transition.mock.invocationCallOrder[0]).toBeLessThan(
-        mocks.recordOutcome.mock.invocationCallOrder[0] ??
-          Number.POSITIVE_INFINITY
-      );
+
+      const message = await f.deliver();
+
+      expect(mocks.fetch).not.toHaveBeenCalled();
+      expect(await f.attempts()).toEqual([]);
+      expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+      expect(message.retry).toHaveBeenCalledExactlyOnceWith();
     }
   );
 
-  it.each([1, 3])(
-    "records a completed network failure on attempt %i",
-    async (attemptNumber) => {
-      const lease = { ...LEASE, attemptNumber };
-      mocks.claim.mockResolvedValue(lease);
-      mocks.renew.mockResolvedValue(lease);
-      mocks.findDelivery.mockResolvedValue(
-        makeDelivery({ isTest: false, attemptCount: attemptNumber })
-      );
-      mocks.fetch.mockRejectedValue(new Error("DNS resolution failed"));
-      const { message, batch } = makeBatch();
-
-      await handleWebhookDeliveryQueue(batch);
-
-      expect(mocks.insertAttempt).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: false,
-          errorMessage: "DNS resolution failed",
-          attemptNumber,
-        })
-      );
-      expect(mocks.recordOutcome).toHaveBeenCalledExactlyOnceWith(mocks.db, {
-        endpointId: "endpoint-1",
-        url: "https://example.com/webhooks",
-        observedAt: NOW,
-        success: false,
-        isTest: false,
-      });
-      expect(mocks.transition.mock.invocationCallOrder[0]).toBeLessThan(
-        mocks.recordOutcome.mock.invocationCallOrder[0] ??
-          Number.POSITIVE_INFINITY
-      );
-      if (attemptNumber === 3) {
-        expect(message.ack).toHaveBeenCalledOnce();
-        expect(message.retry).not.toHaveBeenCalled();
-      } else {
-        expect(message.retry).toHaveBeenCalledExactlyOnceWith({
-          delaySeconds: 61,
-        });
-        expect(message.ack).not.toHaveBeenCalled();
-      }
-    }
-  );
-
-  it("does not record a stale worker's network failure", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.fetch.mockRejectedValue(new Error("connection timed out"));
-    mocks.transition.mockResolvedValue({ count: 0 });
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(message.retry).not.toHaveBeenCalled();
-  });
-
-  it("does not record failures when signing fails before sending", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.sign.mockRejectedValue(new Error("signing service unavailable"));
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.insertAttempt).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledExactlyOnceWith();
-    expect(message.ack).not.toHaveBeenCalled();
-  });
-
-  it("does not record failures when the delivery cannot be read", async () => {
-    mocks.findDelivery.mockRejectedValue(new Error("database unavailable"));
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledOnce();
-  });
-
-  it("does not record failures when persisting the attempt fails", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
+  it("does not count a failure if the HTTP attempt cannot be saved", async () => {
+    const f = await fixture();
     mocks.fetch.mockResolvedValue(new Response(null, { status: 500 }));
-    mocks.insertAttempt.mockRejectedValue(new Error("database unavailable"));
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).toHaveBeenCalledOnce();
-    expect(mocks.transition).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("does not record failures when the owned delivery transition fails", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.fetch.mockResolvedValue(new Response(null, { status: 500 }));
-    mocks.transition.mockRejectedValue(new Error("database unavailable"));
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.insertAttempt).toHaveBeenCalledOnce();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("does not record failures when the usage check fails", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.checkUsage.mockRejectedValue(new Error("usage database unavailable"));
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(message.retry).toHaveBeenCalledOnce();
-  });
-
-  it("does not count quota exhaustion as an endpoint failure", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.checkUsage.mockResolvedValue({
-      allowed: false,
-      currentUsage: 100,
-      limit: 100,
-      period: {
-        start: new Date("2026-10-01T00:00:00.000Z"),
-        end: new Date("2026-11-01T00:00:00.000Z"),
-      },
-      plan: "free",
-    });
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.insertAttempt).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(mocks.sendUsageAlert).toHaveBeenCalledOnce();
-    expect(message.ack).toHaveBeenCalledOnce();
-  });
-
-  it("preserves a successful receiver outcome if usage accounting fails", async () => {
-    mocks.findDelivery.mockResolvedValue(makeDelivery({ isTest: false }));
-    mocks.fetch.mockResolvedValue(new Response(null, { status: 204 }));
-    mocks.recordUsage.mockRejectedValue(
-      new Error("usage database unavailable")
+    await testDb.db.execute(
+      sql`ALTER TABLE webhook_delivery_attempt ADD CONSTRAINT test_reject_attempt CHECK (false) NOT VALID`
     );
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.recordOutcome).toHaveBeenCalledExactlyOnceWith(
-      mocks.db,
-      expect.objectContaining({ success: true, isTest: false })
-    );
-    expect(message.ack).toHaveBeenCalledOnce();
-    expect(message.retry).not.toHaveBeenCalled();
-  });
-
-  it("does not send queued normal deliveries to a disabled endpoint", async () => {
-    mocks.findDelivery.mockResolvedValue(
-      makeDelivery({
-        isTest: false,
-        webhookEndpoint: { format: "json", secret: "secret", enabled: false },
-      })
-    );
-    const { message, batch } = makeBatch();
-
-    await handleWebhookDeliveryQueue(batch);
-
-    expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(mocks.checkUsage).not.toHaveBeenCalled();
-    expect(mocks.insertAttempt).not.toHaveBeenCalled();
-    expect(mocks.recordOutcome).not.toHaveBeenCalled();
-    expect(mocks.transition).toHaveBeenCalledWith(mocks.db, LEASE, {
-      status: "failed",
-      failedAt: NOW,
-      nextRetryAt: null,
-    });
-    expect(message.ack).toHaveBeenCalledOnce();
-  });
-
-  it.each([
-    { status: 204, success: true },
-    { status: 400, success: false },
-  ])(
-    "allows disabled endpoint tests and identifies their HTTP $status outcome as manual",
-    async ({ status, success }) => {
-      mocks.findDelivery.mockResolvedValue(
-        makeDelivery({
-          webhookEndpoint: {
-            format: "json",
-            secret: "secret",
-            enabled: false,
-          },
-        })
-      );
-      mocks.fetch.mockResolvedValue(new Response(null, { status }));
-      const { batch } = makeBatch();
-
-      await handleWebhookDeliveryQueue(batch);
+    try {
+      const message = await f.deliver();
 
       expect(mocks.fetch).toHaveBeenCalledOnce();
-      expect(mocks.checkUsage).not.toHaveBeenCalled();
-      // The health module ignores failed manual tests and allows successful
-      // ones to clear an incident. The consumer must preserve that distinction.
-      expect(mocks.recordOutcome).toHaveBeenCalledExactlyOnceWith(mocks.db, {
-        endpointId: "endpoint-1",
-        url: "https://example.com/webhooks",
-        observedAt: NOW,
-        success,
-        isTest: true,
-      });
+      expect(await f.attempts()).toEqual([]);
+      expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+      expect(message.retry).toHaveBeenCalledExactlyOnceWith();
+    } finally {
+      await testDb.db.execute(
+        sql`ALTER TABLE webhook_delivery_attempt DROP CONSTRAINT test_reject_attempt`
+      );
     }
-  );
-});
+  });
 
-describe("webhook retry schedule", () => {
-  function atAttempt(attemptNumber: number) {
-    const lease = { ...LEASE, attemptNumber };
-    mocks.claim.mockResolvedValue(lease);
-    mocks.renew.mockResolvedValue(lease);
-    mocks.findDelivery.mockResolvedValue(
-      makeDelivery({
-        isTest: false,
-        attemptCount: attemptNumber,
-        maxAttempts: WEBHOOK_MAX_ATTEMPTS,
-      })
+  it("leaves the delivery for retry if its endpoint outcome cannot be saved", async () => {
+    const f = await fixture();
+    mocks.fetch.mockResolvedValue(new Response(null, { status: 500 }));
+    await testDb.db.execute(
+      sql`ALTER TABLE webhook_endpoint ADD CONSTRAINT test_reject_failure CHECK ("consecutiveFailures" = 0) NOT VALID`
     );
-    return lease;
-  }
+    try {
+      const message = await f.deliver();
 
-  it.each([
-    { attemptNumber: 1, nextRetryAt: "2026-10-13T12:01:01.000Z", delay: 61 },
-    { attemptNumber: 10, nextRetryAt: "2026-10-13T12:01:01.000Z", delay: 61 },
-    { attemptNumber: 11, nextRetryAt: "2026-10-13T13:00:01.000Z", delay: 3601 },
-    { attemptNumber: 34, nextRetryAt: "2026-10-13T13:00:01.000Z", delay: 3601 },
-  ])(
-    "persists and schedules the retry after a 500 on attempt $attemptNumber",
-    async ({ attemptNumber, nextRetryAt, delay }) => {
-      const lease = atAttempt(attemptNumber);
-      mocks.fetch.mockResolvedValue(new Response("down", { status: 500 }));
-      const { message, batch } = makeBatch();
-
-      await handleWebhookDeliveryQueue(batch);
-
-      expect(mocks.transition).toHaveBeenCalledExactlyOnceWith(
-        mocks.db,
-        lease,
-        { status: "retrying", nextRetryAt: new Date(nextRetryAt) }
-      );
-      expect(message.retry).toHaveBeenCalledExactlyOnceWith({
-        delaySeconds: delay,
+      expect(await f.attempts()).toMatchObject([{ statusCode: 500 }]);
+      expect(await f.delivery()).toMatchObject({
+        status: "sending",
+        nextRetryAt: null,
       });
-      expect(message.ack).not.toHaveBeenCalled();
-      expect(mocks.enqueue).not.toHaveBeenCalled();
+      expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+      expect(message.retry).toHaveBeenCalledExactlyOnceWith();
+    } finally {
+      await testDb.db.execute(
+        sql`ALTER TABLE webhook_endpoint DROP CONSTRAINT test_reject_failure`
+      );
     }
-  );
+  });
 
-  it.each([
-    new Error("connection refused"),
-    new DOMException("The operation timed out.", "TimeoutError"),
-  ])(
-    "persists and schedules the retry after a request error: $message",
-    async (error) => {
-      const lease = atAttempt(1);
-      mocks.fetch.mockRejectedValue(error);
-      const { message, batch } = makeBatch();
+  it("preserves a success and clears the incident when usage accounting fails", async () => {
+    const f = await fixture(
+      {},
+      { consecutiveFailures: 2, failureIncidentId: "incident" }
+    );
+    mocks.fetch.mockResolvedValue(new Response(null, { status: 204 }));
+    await testDb.db.execute(
+      sql`ALTER TABLE usage_event ADD CONSTRAINT test_reject_usage CHECK (false) NOT VALID`
+    );
+    try {
+      const message = await f.deliver();
 
-      await handleWebhookDeliveryQueue(batch);
-
-      expect(mocks.insertAttempt).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          attemptNumber: 1,
-          success: false,
-          errorMessage: error.message,
-        })
-      );
-      expect(mocks.transition).toHaveBeenCalledExactlyOnceWith(
-        mocks.db,
-        lease,
-        {
-          status: "retrying",
-          nextRetryAt: new Date("2026-10-13T12:01:01.000Z"),
-        }
-      );
-      expect(message.retry).toHaveBeenCalledExactlyOnceWith({
-        delaySeconds: 61,
+      expect(await f.delivery()).toMatchObject({ status: "success" });
+      expect(await f.endpoint()).toMatchObject({
+        consecutiveFailures: 0,
+        failureIncidentId: null,
       });
-      expect(message.ack).not.toHaveBeenCalled();
-    }
-  );
-
-  it.each([
-    { failure: "a 500", respond: () => new Response(null, { status: 500 }) },
-    {
-      failure: "a request error",
-      respond: () => Promise.reject(new Error("connection refused")),
-    },
-  ])(
-    "fails the delivery after $failure on the final attempt",
-    async ({ respond }) => {
-      const lease = atAttempt(WEBHOOK_MAX_ATTEMPTS);
-      mocks.fetch.mockImplementation(async () => respond());
-      const { message, batch } = makeBatch();
-
-      await handleWebhookDeliveryQueue(batch);
-
-      expect(mocks.transition).toHaveBeenCalledExactlyOnceWith(
-        mocks.db,
-        lease,
-        {
-          status: "failed",
-          failedAt: NOW,
-          nextRetryAt: null,
-        }
-      );
       expect(message.ack).toHaveBeenCalledOnce();
       expect(message.retry).not.toHaveBeenCalled();
-      expect(mocks.enqueue).not.toHaveBeenCalled();
+    } finally {
+      await testDb.db.execute(
+        sql`ALTER TABLE usage_event DROP CONSTRAINT test_reject_usage`
+      );
+    }
+  });
+
+  it("alerts the owner when quota is exhausted without counting an endpoint failure", async () => {
+    const f = await fixture();
+    const userId = createRecordId();
+    const email = `${userId}@test.invalid`;
+    await testDb.db.insert(user).values({
+      id: userId,
+      name: "Owner",
+      email,
+      emailVerified: true,
+    });
+    await testDb.db
+      .insert(member)
+      .values({ organizationId: f.workspaceId, userId, role: "owner" });
+    await testDb.db.insert(usageEvent).values(
+      Array.from({ length: 100 }, () => ({
+        type: "webhook_delivery" as const,
+        workspaceId: f.workspaceId,
+      }))
+    );
+
+    const message = await f.deliver();
+
+    expect(mocks.fetch).not.toHaveBeenCalled();
+    expect(await f.attempts()).toEqual([]);
+    expect(await f.endpoint()).toMatchObject({ consecutiveFailures: 0 });
+    expect(await f.delivery()).toMatchObject({ status: "failed" });
+    expect(mocks.sendUsageLimitEmail).toHaveBeenCalledExactlyOnceWith(
+      expect.anything(),
+      expect.objectContaining({
+        userEmail: [email],
+        usageAmount: 100,
+        limitAmount: 100,
+      })
+    );
+    expect(message.ack).toHaveBeenCalledOnce();
+  });
+
+  it("skips normal deliveries to a disabled endpoint", async () => {
+    const f = await fixture({}, { enabled: false });
+
+    const message = await f.deliver();
+
+    expect(mocks.fetch).not.toHaveBeenCalled();
+    expect(await f.attempts()).toEqual([]);
+    expect(await f.delivery()).toMatchObject({ status: "failed" });
+    expect(message.ack).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { status: 204, remainingFailures: 0 },
+    { status: 400, remainingFailures: 2 },
+  ])(
+    "lets a manual $status reach a disabled endpoint without using quota",
+    async ({ status, remainingFailures }) => {
+      const f = await fixture(
+        { isTest: true },
+        {
+          enabled: false,
+          consecutiveFailures: 2,
+          failureIncidentId: "incident",
+        }
+      );
+      mocks.fetch.mockResolvedValue(new Response(null, { status }));
+
+      await f.deliver();
+
+      expect(await f.attempts()).toMatchObject([{ statusCode: status }]);
+      expect(await f.endpoint()).toMatchObject({
+        enabled: false,
+        consecutiveFailures: remainingFailures,
+      });
+      expect(await f.usage()).toEqual([]);
     }
   );
 });

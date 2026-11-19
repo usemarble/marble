@@ -1,241 +1,115 @@
-import type { DbClient } from "@marble/db";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { createRecordId } from "@marble/db/id";
+import { account, session, user } from "@marble/db/schema";
+import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
+import { eq } from "drizzle-orm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createAuth } from "./index";
 import { testEnv } from "./test-env";
 
-const db = {} as DbClient;
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
+let testDb: TestDatabase;
+beforeAll(async () => {
+  testDb = await createTestDatabase();
+});
+afterAll(async () => {
+  await testDb.close();
 });
 
-describe("Worker auth configuration", () => {
+const stagingEnv = testEnv({
+  MODE: "staging",
+  BETTER_AUTH_URL: "https://api-staging.marblecms.com",
+  APP_URL: "https://staging.marblecms.com",
+  AUTH_COOKIE_DOMAIN: ".marblecms.com",
+  AUTH_COOKIE_PREFIX: "marble-staging",
+  REDIS_TOKEN: "justusemarble",
+});
+const localEnv = testEnv({ REDIS_TOKEN: "justusemarble" });
+
+describe("Worker sign-in", () => {
   it.each([
-    ["203.0.113.42", "203.0.113.42"],
-    // Better Auth normalizes IPv6 addresses to /64 by default.
-    ["2001:db8::42", "2001:0db8:0000:0000:0000:0000:0000:0000"],
+    {
+      env: stagingEnv,
+      ip: "203.0.113.42",
+      storedIp: "203.0.113.42",
+      name: "__Secure-marble-staging.session_token",
+      attributes: [
+        "HttpOnly",
+        "Secure",
+        "SameSite=Lax",
+        "Domain=.marblecms.com",
+      ],
+    },
+    {
+      env: localEnv,
+      ip: "2001:db8::42",
+      storedIp: "2001:0db8:0000:0000:0000:0000:0000:0000",
+      name: "marble-dev.session_token",
+      attributes: ["HttpOnly", "SameSite=Lax"],
+    },
   ])(
-    "stores the Cloudflare client IP %s when signing in",
-    async (ipAddress, storedIpAddress) => {
-      const auth = createAuth({ db, env: testEnv() });
-      const context = await auth.$context;
-      const user = {
-        id: "ip-user",
+    "stores the Cloudflare IP and sets the $name cookie",
+    async ({ env, ip, storedIp, name, attributes }) => {
+      const auth = createAuth({ db: testDb.db, env });
+      const userId = createRecordId();
+      const email = `${userId}@test.invalid`;
+      const password = "correct-horse-battery";
+      const { password: passwordHasher } = await auth.$context;
+      await testDb.db.insert(user).values({
+        id: userId,
         name: "IP User",
-        email: "ip@staging.invalid",
+        email,
         emailVerified: true,
-        image: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      vi.spyOn(context.internalAdapter, "findUserByEmail").mockResolvedValue({
-        user,
-        accounts: [
-          {
-            id: "ip-account",
-            accountId: user.id,
-            userId: user.id,
-            providerId: "credential",
-            password: "hashed-password",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
       });
-      vi.spyOn(context.password, "verify").mockResolvedValue(true);
-      const create = vi.spyOn(context.adapter, "create").mockResolvedValue({
-        id: "ip-session",
-        userId: user.id,
-        token: "ip-session-token",
-        ipAddress: storedIpAddress,
-        userAgent: "",
-        expiresAt: new Date(Date.now() + 60_000),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      await testDb.db.insert(account).values({
+        id: createRecordId(),
+        accountId: userId,
+        userId,
+        providerId: "credential",
+        password: await passwordHasher.hash(password),
       });
-      vi.spyOn(context.adapter, "findOne").mockResolvedValue(user);
-      vi.spyOn(auth.options.secondaryStorage, "get").mockResolvedValue(null);
-      vi.spyOn(auth.options.secondaryStorage, "set").mockResolvedValue();
 
       const response = await auth.handler(
-        new Request("http://localhost:8787/api/auth/sign-in/email", {
+        new Request(`${env.BETTER_AUTH_URL}/api/auth/sign-in/email`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            origin: "http://localhost:3000",
-            "cf-connecting-ip": ipAddress,
+            origin: env.APP_URL,
+            "cf-connecting-ip": ip,
             "x-forwarded-for": "198.51.100.10",
           },
-          body: JSON.stringify({
-            email: user.email,
-            password: "correct-horse-battery",
-          }),
+          body: JSON.stringify({ email, password }),
         })
       );
 
       expect(response.status).toBe(200);
-      expect(create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          model: "session",
-          data: expect.objectContaining({
-            ipAddress: storedIpAddress,
-            userId: user.id,
-          }),
-        })
-      );
+      const cookie = response.headers
+        .getSetCookie()
+        .find((value) => value.startsWith(`${name}=`));
+      expect(cookie).toBeDefined();
+      const cookieAttributes = cookie?.split("; ").slice(1);
+      expect(cookieAttributes).toEqual(expect.arrayContaining(attributes));
+      if (env.MODE === "dev") {
+        expect(cookie).not.toMatch(/; (?:Secure|Domain=)/);
+      }
+      const sessions = await testDb.db
+        .select({ ipAddress: session.ipAddress })
+        .from(session)
+        .where(eq(session.userId, userId));
+      expect(sessions).toEqual([{ ipAddress: storedIp }]);
     }
   );
+});
 
-  it("handles the default auth path without a database query", async () => {
-    const auth = createAuth({ db, env: testEnv() });
-    const response = await auth.handler(
-      new Request("http://localhost:8787/api/auth/ok")
-    );
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true });
-  });
-
-  it("initializes local auth with omitted Polar credentials", async () => {
-    const {
-      POLAR_ACCESS_TOKEN: _token,
-      POLAR_WEBHOOK_SECRET: _secret,
-      ...env
-    } = testEnv();
-    const auth = createAuth({ db, env });
-    const response = await auth.handler(
-      new Request("http://localhost:8787/api/auth/ok")
-    );
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true });
-    const polarPlugin = auth.options.plugins.find(
-      (plugin) => plugin.id === "polar"
-    );
-    expect(polarPlugin?.endpoints).toHaveProperty("checkout");
-    expect(polarPlugin?.endpoints).toHaveProperty("portal");
-    expect(polarPlugin?.endpoints).not.toHaveProperty("polarWebhooks");
-  });
-
-  it("shares staging cookies with the dashboard without using production names", async () => {
-    const auth = createAuth({
-      db,
-      env: testEnv({
-        MODE: "staging",
-        BETTER_AUTH_URL: "https://api-staging.marblecms.com",
-        APP_URL: "https://staging.marblecms.com",
-        AUTH_COOKIE_DOMAIN: ".marblecms.com",
-        AUTH_COOKIE_PREFIX: "marble-staging",
-      }),
-    });
-    const context = await auth.$context;
-    expect(context.authCookies.sessionToken).toMatchObject({
-      name: "__Secure-marble-staging.session_token",
-      attributes: {
-        domain: ".marblecms.com",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: true,
-      },
-    });
-    expect(context.trustedOrigins).toContain("https://staging.marblecms.com");
-    expect(context.trustedOrigins).not.toContain("https://app.marblecms.com");
-    expect(auth.options.plugins[0]?.id).toBe("polar");
-    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("checkout");
-    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("portal");
-    expect(auth.options.plugins[0]?.endpoints).toHaveProperty("polarWebhooks");
-  });
-
-  it("keeps localhost cookies usable across ports", async () => {
-    const context = await createAuth({ db, env: testEnv() }).$context;
-    expect(context.authCookies.sessionToken).toMatchObject({
-      name: "marble-dev.session_token",
-      attributes: { sameSite: "lax", secure: false },
-    });
-    expect(context.authCookies.sessionToken.attributes.domain).toBeUndefined();
-    expect(context.trustedOrigins).toContain("http://localhost:3000");
-  });
-
-  it("updates copied avatars through Better Auth so cached sessions refresh", async () => {
-    const auth = createAuth({ db, env: testEnv() });
-    const context = await auth.$context;
-    const user = {
-      id: "avatar-user",
-      name: "Avatar User",
-      email: "avatar@staging.invalid",
-      emailVerified: false,
-      image: "https://avatars.githubusercontent.com/u/123",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const updateUser = vi
-      .spyOn(context.internalAdapter, "updateUser")
-      .mockResolvedValue(user);
-    vi.spyOn(auth.api, "createOrganization").mockResolvedValue({
-      id: "personal-workspace",
-      name: "Personal",
-      slug: "personal-workspace",
-      createdAt: new Date(),
-      metadata: null,
-      members: [],
-    });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response("avatar", {
-          headers: { "content-type": "image/png" },
-        })
-      )
-    );
-    await auth.options.databaseHooks.user.create.after(user, null);
-    expect(updateUser).toHaveBeenCalledWith(user.id, {
-      image: expect.stringMatching(
-        /^https:\/\/cdn-test.marblecms.com\/avatars\/avatar-user\//
-      ),
-    });
-  });
-
-  it.each([
-    [
-      "the browser cookie",
-      { cookie: "marble_timezone=America%2FNew_York" },
-      "Asia/Tokyo",
-      "America/New_York",
-    ],
-    ["Cloudflare without a cookie", {}, "Asia/Tokyo", "Asia/Tokyo"],
-    [
-      "Europe/London with nothing usable",
-      { cookie: "marble_timezone=Mars%2FOlympus" },
-      undefined,
-      "Europe/London",
-    ],
-  ])(
-    "creates the Personal workspace with %s",
-    async (_source, headers, timezone, expected) => {
-      const auth = createAuth({ db, env: testEnv() });
-      const createOrganization = vi
-        .spyOn(auth.api, "createOrganization")
-        .mockResolvedValue(null as never);
-      const request = Object.assign(new Request("http://localhost:8787"), {
-        cf: { timezone },
-      });
-
-      await auth.options.databaseHooks.user.create.after(
-        {
-          id: "timezone-user",
-          name: "Timezone User",
-          email: "timezone@staging.invalid",
-          emailVerified: false,
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        { headers: new Headers(headers), request } as never
-      );
-
-      expect(createOrganization.mock.calls[0]?.[0]?.body).toMatchObject({
-        name: "Personal",
-        timezone: expected,
-      });
-    }
+it("serves the auth health endpoint locally without Polar credentials", async () => {
+  const {
+    POLAR_ACCESS_TOKEN: _token,
+    POLAR_WEBHOOK_SECRET: _secret,
+    ...env
+  } = localEnv;
+  const auth = createAuth({ db: testDb.db, env });
+  const response = await auth.handler(
+    new Request("http://localhost:8787/api/auth/ok")
   );
+
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ ok: true });
 });

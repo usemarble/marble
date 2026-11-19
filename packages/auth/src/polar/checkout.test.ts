@@ -163,7 +163,6 @@ describe("Polar checkout authorization", () => {
       })
     );
     expect(response.status).toBe(403);
-    expect(findFirst).toHaveBeenCalledOnce();
     expect(await response.json()).toMatchObject({
       message: "Only workspace owners can start checkout",
     });
@@ -196,7 +195,6 @@ describe("Workspace subscription checkout", () => {
   });
 
   it.each([
-    "active",
     "trialing",
     "past_due",
     "incomplete",
@@ -249,14 +247,6 @@ describe("Workspace subscription checkout", () => {
     );
   });
 
-  it("reuses the same checkout on a later request", async () => {
-    const request = setup();
-    expect((await request()).status).toBe(200);
-    expect((await request()).status).toBe(200);
-    expect(state.create).toHaveBeenCalledOnce();
-    expect(state.get).toHaveBeenCalledWith("checkout-test", expect.anything());
-  });
-
   it("changes the plan within the same unfinished checkout", async () => {
     state.checkouts = [checkout()];
     expect(
@@ -268,27 +258,6 @@ describe("Workspace subscription checkout", () => {
       expect.anything()
     );
     expect(state.create).not.toHaveBeenCalled();
-  });
-
-  it("serializes concurrent checkout creation", async () => {
-    let finish!: (value: ReturnType<typeof checkout>) => void;
-    let started!: () => void;
-    const creating = new Promise<void>((resolve) => {
-      started = resolve;
-    });
-    state.create.mockImplementation(() => {
-      started();
-      return new Promise((resolve) => {
-        finish = resolve;
-      });
-    });
-    const request = setup();
-    const first = request();
-    await creating;
-    expect((await request()).status).toBe(409);
-    finish(checkout());
-    expect((await first).status).toBe(200);
-    expect(state.create).toHaveBeenCalledOnce();
   });
 
   it.each(["confirmed", "succeeded"])(

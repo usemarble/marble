@@ -9,7 +9,7 @@ import { htmlToTiptap } from "./html";
  * claiming full CommonMark fidelity. Rich Marble-only nodes should be handled
  * through HTML parsing or future editor-aware Markdown rules.
  */
-export class MarkdownToTiptapParser {
+class MarkdownToTiptapParser {
   private tokens: Token[] = [];
 
   constructor() {

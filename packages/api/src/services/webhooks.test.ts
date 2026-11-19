@@ -6,7 +6,6 @@ import {
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import type { EventMessage } from "@marble/events";
 import { createRouterClient } from "@orpc/server";
-import { Redis } from "@upstash/redis";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { webhooksRouter } from "../routers/webhooks";
@@ -16,12 +15,10 @@ import {
   seedUser,
   seedWorkspace,
   sessionFor,
-  testEnv,
 } from "../testing";
 import { sweepEvents } from "./events";
 
 let testDb: TestDatabase;
-const redis = new Redis({ url: testEnv.REDIS_URL, token: testEnv.REDIS_TOKEN });
 beforeAll(async () => {
   testDb = await createTestDatabase();
 });
@@ -323,34 +320,22 @@ describe("dashboard webhooks", () => {
     expect(f.events.sent).toEqual([]);
   });
 
-  it("CRUD retains the CMS's absence of events/cache clears and hides the list secret", async () => {
+  it("reveals the signing secret on create and get, and omits it from the list", async () => {
     const f = await fixture();
-    const key = `cache:${f.input.workspaceId}:posts:v1:list`;
-    await redis.set(key, "keep");
-    try {
-      const hook = await f.client.create(f.input);
-      expect(hook.secret).toMatch(/^[a-f0-9]{64}$/);
-      expect(
-        (await f.client.list({ workspaceId: f.input.workspaceId }))[0]
-      ).not.toHaveProperty("secret");
-      expect(
-        (await f.client.get({ workspaceId: f.input.workspaceId, id: hook.id }))
-          .webhook.secret
-      ).toBe(hook.secret);
-      await f.client.update({
-        workspaceId: f.input.workspaceId,
-        id: hook.id,
-        name: "Edited",
-        enabled: false,
-      });
-      await f.client.delete({ workspaceId: f.input.workspaceId, id: hook.id });
-      await f.flush();
-      expect(await rows(f.input.workspaceId)).toEqual([]);
-      expect(f.events.sent).toEqual([]);
-      expect(await redis.get(key)).toBe("keep");
-    } finally {
-      await redis.del(key);
-    }
+    const hook = await f.client.create(f.input);
+    expect(hook.secret).toMatch(/^[a-f0-9]{64}$/);
+    const listed = await f.client.list({ workspaceId: f.input.workspaceId });
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toMatchObject({ id: hook.id });
+    expect(listed[0]).not.toHaveProperty("secret");
+    expect(
+      (await f.client.get({ workspaceId: f.input.workspaceId, id: hook.id }))
+        .webhook.secret
+    ).toBe(hook.secret);
+    await f.client.delete({ workspaceId: f.input.workspaceId, id: hook.id });
+    expect(await f.client.list({ workspaceId: f.input.workspaceId })).toEqual(
+      []
+    );
   });
 
   it("a disabled endpoint with no post subscription can receive a targeted, non-billable test", async () => {

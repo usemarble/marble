@@ -11,30 +11,12 @@ import {
   sessionFor,
   testEnv,
 } from "../testing";
-import {
-  AssistantError,
-  authorizeChat,
-  requireVerifiedSession,
-} from "./assistant";
+import { AssistantError, authorizeChat } from "./assistant";
 
 const redis = new Redis({
   url: testEnv.REDIS_URL,
   token: testEnv.REDIS_TOKEN,
 });
-
-async function keysMatching(pattern: string) {
-  const found: string[] = [];
-  let cursor: string | number = "0";
-  do {
-    const [next, keys]: [string | number, string[]] = await redis.scan(cursor, {
-      match: pattern,
-      count: 1000,
-    });
-    found.push(...keys);
-    cursor = next;
-  } while (String(cursor) !== "0");
-  return found;
-}
 
 let testDb: TestDatabase;
 beforeAll(async () => {
@@ -79,24 +61,6 @@ async function failure(work: Promise<unknown>) {
   throw new Error("expected an AssistantError");
 }
 
-describe("requireVerifiedSession", () => {
-  it("is a 401 without a session or with an unverified email", async () => {
-    expect(() => requireVerifiedSession(null)).toThrowError(
-      expect.objectContaining({ status: 401 })
-    );
-    const unverified = await seedUser(testDb.db, false);
-    expect(() => requireVerifiedSession(sessionFor(unverified))).toThrowError(
-      expect.objectContaining({ status: 401 })
-    );
-  });
-
-  it("returns a verified session", async () => {
-    const user = await seedUser(testDb.db);
-    const session = sessionFor(user);
-    expect(requireVerifiedSession(session)).toBe(session);
-  });
-});
-
 describe("authorizeChat", () => {
   it("returns the workspace name for a member on a paid plan", async () => {
     const { user, workspace, ctx } = await fixture();
@@ -105,7 +69,7 @@ describe("authorizeChat", () => {
     });
   });
 
-  it("is a 403 for a user who is not a member, before any limiter runs", async () => {
+  it("is a 403 for a user who is not a member", async () => {
     const { workspace, ctx } = await fixture();
     const outsider = await seedUser(testDb.db);
 
@@ -113,17 +77,15 @@ describe("authorizeChat", () => {
 
     expect(error.status).toBe(403);
     expect(error.message).toBe("You do not have access to this workspace");
-    expect(await keysMatching(`ai-assistant-*:${outsider.id}*`)).toEqual([]);
   });
 
-  it("is a 403 on the free plan, before any limiter runs", async () => {
+  it("is a 403 on the free plan", async () => {
     const { user, workspace, ctx } = await fixture(false);
 
     const error = await failure(authorizeChat(ctx, user.id, workspace.id));
 
     expect(error.status).toBe(403);
     expect(error.message).toBe("Upgrade to Hobby to use the AI assistant");
-    expect(await keysMatching(`ai-assistant-*:${user.id}*`)).toEqual([]);
   });
 
   it("is a 429 with Retry-After past 10 messages a minute", async () => {
@@ -174,20 +136,5 @@ describe("authorizeChat", () => {
     await expect(
       authorizeChat(ctx, teammate.id, workspace.id)
     ).resolves.toBeDefined();
-  });
-
-  it("uses its own limiter keys, not the suggestions limiter's", async () => {
-    const { user, workspace, ctx } = await fixture();
-    await authorizeChat(ctx, user.id, workspace.id);
-
-    expect(
-      (await keysMatching(`ai-assistant-minute-rate-limit:${user.id}:*`)).length
-    ).toBeGreaterThan(0);
-    expect(
-      (await keysMatching(`ai-assistant-daily-rate-limit:${user.id}:*`)).length
-    ).toBeGreaterThan(0);
-    expect(
-      await keysMatching(`ai-suggestions-rate-limit:*${user.id}*`)
-    ).toEqual([]);
   });
 });

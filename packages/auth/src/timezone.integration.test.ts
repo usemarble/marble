@@ -28,20 +28,23 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const avatarUrl = "https://avatars.githubusercontent.com/u/42";
+
 function googleIdToken(email: string) {
   const encode = (value: object) =>
     Buffer.from(JSON.stringify(value)).toString("base64url");
-  const claims = { sub: "google-subject", email, email_verified: false };
+  const claims = { sub: email, email, email_verified: false };
   return `${encode({ alg: "none" })}.${encode(claims)}.signature`;
 }
 
 const providerResponses = {
-  github: (email: string): Record<string, unknown> => ({
+  github: (email: string, id: number): Record<string, unknown> => ({
     "https://github.com/login/oauth/access_token": {
       access_token: "provider-access-token",
     },
     "https://api.github.com/user": {
-      id: 42,
+      id,
+      avatar_url: avatarUrl,
       login: "timezone-user",
       name: "Timezone User",
       email,
@@ -59,16 +62,48 @@ const providerResponses = {
 };
 
 describe("OAuth sign-up timezone", () => {
-  it.each(["github", "google"] as const)(
-    "creates the Personal workspace from the cookie on the %s callback",
-    async (provider) => {
+  it.each([
+    {
+      provider: "github",
+      id: 42,
+      checksAvatar: true,
+      cookie: "marble_timezone=America%2FNew_York",
+      timezone: "Asia/Tokyo",
+      expected: "America/New_York",
+    },
+    {
+      provider: "google",
+      id: 43,
+      cookie: "marble_timezone=America%2FNew_York",
+      expected: "America/New_York",
+    },
+    {
+      provider: "github",
+      id: 44,
+      timezone: "Asia/Tokyo",
+      expected: "Asia/Tokyo",
+    },
+    {
+      provider: "github",
+      id: 45,
+      cookie: "marble_timezone=Mars%2FOlympus",
+      expected: "Europe/London",
+    },
+  ] as const)(
+    "creates a Personal workspace in $expected from the $provider callback",
+    async ({ provider, id, expected, ...requestContext }) => {
       const email = `${createRecordId()}@test.invalid`;
-      const responses = providerResponses[provider](email);
+      const responses = providerResponses[provider](email, id);
       const nativeFetch = globalThis.fetch;
       vi.stubGlobal(
         "fetch",
         async (input: string | URL | Request, init?: RequestInit) => {
           const url = new Request(input, init).url;
+          if (url === avatarUrl) {
+            return new Response("avatar", {
+              headers: { "content-type": "image/png" },
+            });
+          }
           return url in responses
             ? Response.json(responses[url])
             : nativeFetch(input, init);
@@ -98,19 +133,19 @@ describe("OAuth sign-up timezone", () => {
         .getSetCookie()
         .map((cookie) => cookie.split(";")[0]);
 
-      const callback = await auth.handler(
-        new Request(
-          `http://localhost:8787/api/auth/callback/${provider}?code=provider-code&state=${state}`,
-          {
-            headers: {
-              cookie: [
-                ...stateCookies,
-                "marble_timezone=America%2FNew_York",
-              ].join("; "),
-            },
-          }
-        )
+      if ("cookie" in requestContext) {
+        stateCookies.push(requestContext.cookie);
+      }
+      const callbackRequest = new Request(
+        `http://localhost:8787/api/auth/callback/${provider}?code=provider-code&state=${state}`,
+        { headers: { cookie: stateCookies.join("; ") } }
       );
+      if ("timezone" in requestContext) {
+        Object.assign(callbackRequest, {
+          cf: { timezone: requestContext.timezone },
+        });
+      }
+      const callback = await auth.handler(callbackRequest);
 
       expect(callback.headers.get("location")).toBe("http://localhost:3000/");
       const rows = await testDb.db
@@ -119,9 +154,27 @@ describe("OAuth sign-up timezone", () => {
         .innerJoin(member, eq(member.userId, user.id))
         .innerJoin(workspace, eq(workspace.id, member.organizationId))
         .where(eq(user.email, email));
-      expect(rows).toEqual([
-        { name: "Personal", timezone: "America/New_York" },
-      ]);
+      expect(rows).toEqual([{ name: "Personal", timezone: expected }]);
+
+      if ("checksAvatar" in requestContext) {
+        const sessionCookies = callback.headers
+          .getSetCookie()
+          .map((cookie) => cookie.split(";")[0])
+          .join("; ");
+        const session = await auth.handler(
+          new Request("http://localhost:8787/api/auth/get-session", {
+            headers: { cookie: sessionCookies },
+          })
+        );
+        expect(await session.json()).toMatchObject({
+          user: {
+            email,
+            image: expect.stringMatching(
+              /^https:\/\/cdn-test\.marblecms\.com\/avatars\//
+            ),
+          },
+        });
+      }
     }
   );
 });

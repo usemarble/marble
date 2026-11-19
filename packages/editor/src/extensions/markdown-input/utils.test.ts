@@ -3,7 +3,7 @@ import { MarkdownManager } from "@tiptap/markdown";
 import type { Node } from "@tiptap/pm/model";
 import { describe, expect, it } from "vitest";
 import { ExtensionKit } from "../extension-kit";
-import { parseMarkdown, stripFrontmatter } from "./utils";
+import { parseMarkdown } from "./utils";
 
 const extensions = ExtensionKit();
 const editor = {
@@ -109,27 +109,27 @@ describe("parseMarkdown", () => {
     expect(markNames(findText(doc, "-f"))).toEqual(["code"]);
   });
 
-  it("leaves out frontmatter", () => {
-    const doc = parse("---\ntitle: Hello\ndate: 2026-10-07\n---\n\n# Hello\n");
+  it.each([
+    "---\ntitle: Hello\ndate: 2026-10-07\n---\n\n# Hello\n",
+    "---\n# generated\n\ntitle: Hello\n---\n# Hello\n",
+  ])("pastes the heading without its metadata", (markdown) => {
+    const doc = parse(markdown);
 
     expect(doc.childCount).toBe(1);
+    expect(doc.firstChild?.type.name).toBe("heading");
     expect(doc.firstChild?.textContent).toBe("Hello");
   });
-});
 
-describe("stripFrontmatter", () => {
-  it("removes a leading frontmatter block", () => {
-    expect(stripFrontmatter("---\ntitle: Hi\n---\nBody")).toBe("Body");
-  });
+  it("keeps a leading horizontal rule before ordinary prose", () => {
+    const doc = parse("---\n\nJust a divider.\n\n---\n");
 
-  it("removes frontmatter that opens with a comment", () => {
-    expect(stripFrontmatter("---\n# generated\n\ntitle: Hi\n---\nBody")).toBe(
-      "Body"
-    );
-  });
-
-  it("leaves a divider that isn't frontmatter", () => {
-    const markdown = "---\nJust a divider\n---\n";
-    expect(stripFrontmatter(markdown)).toBe(markdown);
+    expect(doc.content.toJSON()).toMatchObject([
+      { type: "horizontalRule" },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Just a divider." }],
+      },
+      { type: "horizontalRule" },
+    ]);
   });
 });

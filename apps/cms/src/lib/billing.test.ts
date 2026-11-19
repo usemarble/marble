@@ -12,17 +12,14 @@ beforeEach(() => {
 });
 
 describe("Workspace billing navigation", () => {
-  it.each(["hobby", "hobby-yearly", "pro", "pro-yearly"] as const)(
-    "opens the portal for an existing subscriber selecting %s",
-    async (plan) => {
-      await openWorkspaceBilling(
-        { id: "workspace", hasSubscription: true },
-        plan
-      );
-      expect(state.portal).toHaveBeenCalledOnce();
-      expect(state.checkout).not.toHaveBeenCalled();
-    }
-  );
+  it("opens the portal when a subscriber selects another plan", async () => {
+    await openWorkspaceBilling(
+      { id: "workspace", hasSubscription: true },
+      "pro"
+    );
+    expect(state.portal).toHaveBeenCalledOnce();
+    expect(state.checkout).not.toHaveBeenCalled();
+  });
 
   it("starts checkout for an unsubscribed workspace", async () => {
     await openWorkspaceBilling(

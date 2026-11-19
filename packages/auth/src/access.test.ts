@@ -1,15 +1,10 @@
 import { createRecordId } from "@marble/db/id";
-import { member } from "@marble/db/schema";
+import { member, subscription } from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { Redis } from "@upstash/redis";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  findMembership,
-  findWorkspacePlan,
-  membershipKey,
-  planKey,
-} from "./access";
+import { findMembership, findWorkspacePlan } from "./access";
 import { createAuth } from "./index";
 import { testEnv } from "./test-env";
 
@@ -84,10 +79,6 @@ describe("membership cache", () => {
     const { teammate, workspaceId, memberId } = await workspaceWithMember();
 
     expect(await lookup(workspaceId, teammate.id)).toEqual({ role: "member" });
-    expect(await redis.get(membershipKey(workspaceId, teammate.id))).toEqual({
-      role: "member",
-    });
-
     // Removing the row behind the cache's back proves the second read doesn't
     // reach the database.
     await testDb.db.delete(member).where(eq(member.id, memberId));
@@ -99,7 +90,6 @@ describe("membership cache", () => {
     const outsider = await signUp("outsider");
 
     expect(await lookup(workspaceId, outsider.id)).toBeNull();
-    expect(await redis.get(membershipKey(workspaceId, outsider.id))).toBeNull();
 
     // Once they join, the next lookup sees it without any invalidation.
     await testDb.db.insert(member).values({
@@ -121,7 +111,6 @@ describe("membership cache", () => {
       body: { memberIdOrEmail: teammate.email, organizationId: workspaceId },
     });
 
-    expect(await redis.get(membershipKey(workspaceId, teammate.id))).toBeNull();
     expect(await lookup(workspaceId, teammate.id)).toBeNull();
   });
 
@@ -154,17 +143,32 @@ describe("membership cache", () => {
     const { owner, teammate, workspaceId } = await workspaceWithMember();
     await lookup(workspaceId, owner.id);
     await lookup(workspaceId, teammate.id);
-    await findWorkspacePlan({ db: testDb.db, redis }, workspaceId);
-    expect(await redis.get(planKey(workspaceId))).not.toBeNull();
+    const plan = () => findWorkspacePlan({ db: testDb.db, redis }, workspaceId);
+    await testDb.db.insert(subscription).values({
+      id: createRecordId(),
+      workspaceId,
+      userId: owner.id,
+      plan: "hobby",
+      status: "active",
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: new Date(Date.now() + 86_400_000),
+      cancelAtPeriodEnd: false,
+      polarId: createRecordId(),
+    });
+    expect(await plan()).toBe("hobby");
+    await testDb.db
+      .update(subscription)
+      .set({ status: "expired" })
+      .where(eq(subscription.workspaceId, workspaceId));
+    expect(await plan()).toBe("hobby");
 
     await auth.api.deleteOrganization({
       headers: owner.headers,
       body: { organizationId: workspaceId },
     });
 
-    expect(await redis.get(membershipKey(workspaceId, owner.id))).toBeNull();
-    expect(await redis.get(membershipKey(workspaceId, teammate.id))).toBeNull();
-    expect(await redis.get(planKey(workspaceId))).toBeNull();
+    expect(await lookup(workspaceId, owner.id)).toBeNull();
+    expect(await plan()).toBe("free");
     expect(await lookup(workspaceId, teammate.id)).toBeNull();
   });
 });

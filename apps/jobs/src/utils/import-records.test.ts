@@ -90,9 +90,10 @@ describe("createImportTaxonomy", () => {
   it("resolves to one row when two imports create the same slug", async () => {
     const workspaceId = await seedWorkspace();
 
+    const otherConnection = await testDb.connect();
     const [first, second] = await Promise.all([
       createImportTaxonomy(testDb.db, workspaceId).category("Coding"),
-      createImportTaxonomy(testDb.db, workspaceId).category("Coding"),
+      createImportTaxonomy(otherConnection, workspaceId).category("Coding"),
     ]);
 
     expect(first).toBe(second);

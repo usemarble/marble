@@ -45,7 +45,7 @@ const markdownPatterns = [
  * attributes, paragraphs, and code blocks are literal content; Markdown can
  * still contain raw HTML blocks alongside Markdown text.
  */
-export function detectPostContentFormat(content: string): PostContentFormat {
+function detectPostContentFormat(content: string): PostContentFormat {
   const trimmed = content.trim();
 
   if (!trimmed) {

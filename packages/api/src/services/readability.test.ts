@@ -22,6 +22,7 @@ import {
   sessionFor,
   testEnv,
 } from "../testing";
+import { authorizeChat } from "./assistant";
 
 const fake = vi.hoisted(() => ({
   model: undefined as unknown as LanguageModel,
@@ -136,6 +137,7 @@ async function fixture(paid = true) {
   return {
     user,
     workspace,
+    context: request.context,
     client: createRouterClient(aiRouter, { context: request.context }),
   };
 }
@@ -160,8 +162,10 @@ describe("ai.suggestions", () => {
       unavailable: false,
     });
     const [key] = await keysMatching(`ai:suggestions:${workspace.id}:*`);
-    expect(key).toMatch(/^ai:suggestions:.+:[0-9a-f]{16}:[0-9a-f]{16}$/);
-    const ttl = await redis.ttl(key as string);
+    if (!key) {
+      throw new Error("Missing suggestions cache entry");
+    }
+    const ttl = await redis.ttl(key);
     expect(ttl).toBeGreaterThan(1100);
     expect(ttl).toBeLessThanOrEqual(1200);
   });
@@ -197,27 +201,28 @@ describe("ai.suggestions", () => {
     fake.model = model;
 
     const bypassed = await client.suggestions({ ...input, bypassCache: true });
+    fake.model = answering([{ text: "Another answer." }]);
     const afterwards = await client.suggestions(input);
 
-    expect(model.doGenerateCalls).toHaveLength(1);
     expect(bypassed.suggestions).toEqual([{ text: "A fresh answer." }]);
     expect(afterwards.suggestions).toEqual([{ text: "A fresh answer." }]);
   });
 
-  it("keys the cache by post when a post is given", async () => {
+  it("reuses suggestions for the same post after an edit", async () => {
     const { workspace, client } = await fixture();
-    const postId = await seedPost(workspace.id);
-
-    await client.suggestions({
+    const input = {
       workspaceId: workspace.id,
-      content: "<p>Body</p>",
+      content: "<p>Before edit</p>",
       metrics,
-      postId,
-    });
+      postId: await seedPost(workspace.id),
+    };
+    await client.suggestions(input);
+    fake.model = answering([{ text: "A different answer." }]);
 
-    expect(await redis.exists(`ai:suggestions:${workspace.id}:${postId}`)).toBe(
-      1
-    );
+    expect(
+      (await client.suggestions({ ...input, content: "<p>After edit</p>" }))
+        .suggestions
+    ).toEqual([{ text: "Shorten the opening sentence." }]);
   });
 
   it("rejects a post from another workspace", async () => {
@@ -270,8 +275,8 @@ describe("ai.suggestions", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
-  it("answers TOO_MANY_REQUESTS after 20 uncached requests in a minute", async () => {
-    const { workspace, user, client } = await fixture();
+  it("limits suggestions to 20 per minute independently of chat", async () => {
+    const { workspace, user, context, client } = await fixture();
 
     for (let i = 0; i < 20; i++) {
       await client.suggestions({
@@ -291,6 +296,11 @@ describe("ai.suggestions", () => {
       })
     ).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS", status: 429 });
     expect(model.doGenerateCalls).toHaveLength(0);
+    await expect(
+      authorizeChat(context, user.id, workspace.id)
+    ).resolves.toEqual({
+      workspaceName: workspace.name,
+    });
   });
 
   it("returns no suggestions and unavailable when the model fails, without caching", async () => {
@@ -301,14 +311,21 @@ describe("ai.suggestions", () => {
       },
     });
 
-    const result = await client.suggestions({
+    const input = {
       workspaceId: workspace.id,
-      content: `<p>Failing draft ${createRecordId()}</p>`,
+      content: "<p>Failing draft</p>",
       metrics,
-    });
+    };
 
-    expect(result).toEqual({ suggestions: [], unavailable: true });
-    expect(await keysMatching(`ai:suggestions:${workspace.id}:*`)).toEqual([]);
+    expect(await client.suggestions(input)).toEqual({
+      suggestions: [],
+      unavailable: true,
+    });
+    fake.model = answering([{ text: "Try a stronger opening." }]);
+    expect(await client.suggestions(input)).toEqual({
+      suggestions: [{ text: "Try a stronger opening." }],
+      unavailable: false,
+    });
   });
 
   it("treats an unreadable result as unavailable rather than an error", async () => {

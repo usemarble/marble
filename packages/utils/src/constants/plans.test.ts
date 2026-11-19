@@ -4,7 +4,6 @@ import {
   getWorkspacePlan,
   hasHigherPlan,
   isSubscriptionActive,
-  SUBSCRIPTION_ACCESS_GRACE_MS,
 } from "./plans";
 
 const NOW = new Date("2026-09-18T12:00:00.000Z");
@@ -38,7 +37,7 @@ describe("isSubscriptionActive", () => {
         {
           status: "active",
           cancelAtPeriodEnd: false,
-          currentPeriodEnd: fromNow(-days(1)),
+          currentPeriodEnd: fromNow(-days(3) + 1000),
         },
         NOW
       )
@@ -54,9 +53,7 @@ describe("isSubscriptionActive", () => {
           {
             status,
             cancelAtPeriodEnd: false,
-            currentPeriodEnd: new Date(
-              NOW.getTime() - SUBSCRIPTION_ACCESS_GRACE_MS - 1000
-            ),
+            currentPeriodEnd: fromNow(-days(3)),
           },
           NOW
         )

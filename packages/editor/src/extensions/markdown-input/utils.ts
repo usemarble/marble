@@ -162,7 +162,7 @@ const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
  * frontmatter, so it would otherwise come through as a divider followed by a
  * heading made of the keys.
  */
-export function stripFrontmatter(markdown: string): string {
+function stripFrontmatter(markdown: string): string {
   const match = markdown.match(FRONTMATTER);
   // YAML allows blank lines and `#` comments before the first key
   const firstLine = match?.[1]

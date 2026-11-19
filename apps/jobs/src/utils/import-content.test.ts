@@ -2,39 +2,17 @@ import { describe, expect, it } from "vitest";
 import { parseMarkdownImport } from "./import-content";
 
 describe("parseMarkdownImport", () => {
-  it("reads standard frontmatter keys", () => {
-    const parsed = parseMarkdownImport(
-      "notes/docker.md",
-      `---
-title: Connect a Docker container
-date: 2024-01-15
-description: Run Tailscale as a sidecar.
-category: Coding
-tags: [docker, networking]
----
+  it.each(["description", "excerpt", "summary"])(
+    "reads the description from %s",
+    (key) => {
+      const parsed = parseMarkdownImport(
+        "post.md",
+        `---\n${key}: From frontmatter\n---\n\nBody text.`
+      );
 
-Body text.
-`
-    );
-
-    expect(parsed).toMatchObject({
-      title: "Connect a Docker container",
-      slug: "connect-a-docker-container",
-      description: "Run Tailscale as a sidecar.",
-      publishedAt: new Date("2024-01-15T12:00:00.000Z"),
-      rawCategory: "Coding",
-      rawTags: ["docker", "networking"],
-    });
-  });
-
-  it.each(["excerpt", "summary"])("reads the description from %s", (key) => {
-    const parsed = parseMarkdownImport(
-      "post.md",
-      `---\n${key}: From frontmatter\n---\n\nBody text.`
-    );
-
-    expect(parsed.description).toBe("From frontmatter");
-  });
+      expect(parsed.description).toBe("From frontmatter");
+    }
+  );
 
   it("builds a description from the opening prose when there isn't one", () => {
     const parsed = parseMarkdownImport(
@@ -66,7 +44,9 @@ Install **Docker** first, then [Tailscale](https://tailscale.com).
 
     expect(parsed.description.length).toBeLessThanOrEqual(161);
     expect(parsed.description).toMatch(/ [A-Za-z]+…$/);
-    expect(sentence.repeat(10)).toContain(parsed.description.slice(0, -1));
+    expect(
+      sentence.repeat(10).startsWith(parsed.description.slice(0, -1))
+    ).toBe(true);
   });
 
   it("strips block HTML and MDX tags from the description", () => {

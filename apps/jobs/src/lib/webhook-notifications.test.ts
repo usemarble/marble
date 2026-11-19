@@ -22,10 +22,7 @@ import {
   it,
   vi,
 } from "vitest";
-import {
-  recordWebhookEndpointOutcome,
-  WEBHOOK_FAILURE_DISABLE_MS,
-} from "./webhook-health";
+import { recordWebhookEndpointOutcome } from "./webhook-health";
 import {
   queueWebhookFailureNotifications,
   sendPendingWebhookNotifications,
@@ -463,19 +460,23 @@ describe("webhook failure notifications against PostgreSQL", () => {
     const f = await failingFixture();
     await queueWebhookFailureNotifications(testDb.db, APP_URL);
     await sendPendingWebhookNotifications(testDb.db, "test-key");
-    const warnedAt = new Date(Date.now() - WEBHOOK_FAILURE_DISABLE_MS - 60_000);
+    const deadline = new Date();
+    const warnedAt = new Date(deadline.getTime() - 3 * 86_400_000);
+    const beforeDeadline = new Date(deadline.getTime() - 1);
     await testDb.db
       .update(webhookEndpoint)
       .set({
         lastFailureEmailAt: warnedAt,
-        lastFailureAt: new Date(warnedAt.getTime() + 1000),
+        lastFailureAt: beforeDeadline,
       })
       .where(eq(webhookEndpoint.id, f.endpoint.id));
-    await queueWebhookFailureNotifications(testDb.db, APP_URL);
+    await queueWebhookFailureNotifications(testDb.db, APP_URL, beforeDeadline);
+    expect((await findEndpoint(f.endpoint.id))?.enabled).toBe(true);
+    await queueWebhookFailureNotifications(testDb.db, APP_URL, deadline);
     expect((await findEndpoint(f.endpoint.id))?.enabled).toBe(true);
     await testDb.db
       .update(webhookEndpoint)
-      .set({ lastFailureAt: new Date() })
+      .set({ lastFailureAt: deadline })
       .where(eq(webhookEndpoint.id, f.endpoint.id));
     await testDb.db.execute(
       sql`CREATE FUNCTION reject_disabled_notice() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.kind = 'disabled' THEN RAISE EXCEPTION 'forced notification failure'; END IF; RETURN NEW; END $$`
@@ -484,7 +485,7 @@ describe("webhook failure notifications against PostgreSQL", () => {
       sql`CREATE TRIGGER reject_disabled_notice BEFORE INSERT ON webhook_notification FOR EACH ROW EXECUTE FUNCTION reject_disabled_notice()`
     );
     try {
-      await queueWebhookFailureNotifications(testDb.db, APP_URL);
+      await queueWebhookFailureNotifications(testDb.db, APP_URL, deadline);
       expect((await findEndpoint(f.endpoint.id))?.enabled).toBe(true);
       expect(await findNotifications(f.endpoint.id)).toHaveLength(1);
     } finally {
@@ -493,8 +494,8 @@ describe("webhook failure notifications against PostgreSQL", () => {
       );
       await testDb.db.execute(sql`DROP FUNCTION reject_disabled_notice()`);
     }
-    await queueWebhookFailureNotifications(testDb.db, APP_URL);
-    await queueWebhookFailureNotifications(testDb.db, APP_URL);
+    await queueWebhookFailureNotifications(testDb.db, APP_URL, deadline);
+    await queueWebhookFailureNotifications(testDb.db, APP_URL, deadline);
     expect(await findEndpoint(f.endpoint.id)).toMatchObject({
       enabled: false,
       disabledAt: expect.any(Date),

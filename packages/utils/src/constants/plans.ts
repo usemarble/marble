@@ -88,7 +88,7 @@ export function hasHigherPlan(plan: PlanType): boolean {
  * never interrupts a paying customer, and narrow enough that a dropped
  * `subscription.revoked` cannot grant a paid plan indefinitely.
  */
-export const SUBSCRIPTION_ACCESS_GRACE_MS = 3 * 24 * 60 * 60 * 1000;
+const SUBSCRIPTION_ACCESS_GRACE_MS = 3 * 24 * 60 * 60 * 1000;
 
 function toDate(value?: string | Date | null): Date | null {
   if (!value) {
