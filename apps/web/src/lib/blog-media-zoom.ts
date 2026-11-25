@@ -13,12 +13,13 @@ function getAspectRatio(media: Media, bounds: DOMRect) {
 function expandVideo(
   video: HTMLVideoElement,
   content: HTMLElement,
-  height: number
+  bounds: DOMRect
 ) {
   const placeholder = document.createElement("span");
   const { marginBlockStart, marginBlockEnd } = getComputedStyle(video);
   placeholder.style.display = "block";
-  placeholder.style.height = `${height}px`;
+  placeholder.style.width = `${bounds.width}px`;
+  placeholder.style.height = `${bounds.height}px`;
   placeholder.style.marginBlockStart = marginBlockStart;
   placeholder.style.marginBlockEnd = marginBlockEnd;
   video.before(placeholder);
@@ -42,24 +43,34 @@ function expandImage(image: HTMLImageElement, content: HTMLElement) {
   return () => expanded.remove();
 }
 
-function addTrigger(media: Media, open: (trigger: HTMLButtonElement) => void) {
+function addTrigger(
+  media: Media,
+  videoTrigger: HTMLTemplateElement,
+  open: (trigger: HTMLButtonElement) => void
+) {
   const target = media.closest("picture") ?? media;
   if (target.closest("a, button") || media.hasAttribute("usemap")) {
     return;
   }
 
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.setAttribute("aria-haspopup", "dialog");
-  const focusStyles =
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  const trigger =
+    media instanceof HTMLVideoElement
+      ? document.importNode(videoTrigger.content, true).querySelector("button")
+      : document.createElement("button");
+  if (!trigger) {
+    return;
+  }
 
   if (media instanceof HTMLVideoElement) {
-    trigger.className = `cursor-zoom-in rounded-md border bg-surface px-2.5 py-1 text-sm text-foreground hover:bg-muted ${focusStyles}`;
-    trigger.textContent = "Expand video";
-    media.after(trigger);
+    const wrapper = document.createElement("span");
+    wrapper.className = "blog-video-zoom relative block w-fit max-w-full";
+    media.before(wrapper);
+    wrapper.append(media, trigger);
   } else {
-    trigger.className = `blog-image-zoom block max-w-full cursor-zoom-in rounded-lg ${focusStyles}`;
+    trigger.type = "button";
+    trigger.setAttribute("aria-haspopup", "dialog");
+    trigger.className =
+      "blog-image-zoom block max-w-full cursor-zoom-in rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
     trigger.setAttribute(
       "aria-label",
       media.alt ? `View full size image, ${media.alt}` : "View full size image"
@@ -75,7 +86,10 @@ function initMediaZoom() {
   const content = dialog?.querySelector<HTMLElement>(
     "[data-media-zoom-content]"
   );
-  if (!(dialog && content) || dialog.dataset.ready) {
+  const videoTrigger = dialog?.querySelector<HTMLTemplateElement>(
+    "[data-media-zoom-video-trigger]"
+  );
+  if (!(dialog && content && videoTrigger) || dialog.dataset.ready) {
     return;
   }
   dialog.dataset.ready = "true";
@@ -110,7 +124,7 @@ function initMediaZoom() {
   for (const media of document.querySelectorAll<Media>(
     "[data-zoomable-media] :is(img, video)"
   )) {
-    addTrigger(media, (trigger) => {
+    addTrigger(media, videoTrigger, (trigger) => {
       const bounds = media.getBoundingClientRect();
       if (dialog.open || !bounds.width || !bounds.height) {
         return;
@@ -130,7 +144,7 @@ function initMediaZoom() {
       dialog.showModal();
       restoreMedia =
         media instanceof HTMLVideoElement
-          ? expandVideo(media, content, bounds.height)
+          ? expandVideo(media, content, bounds)
           : expandImage(media, content);
 
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {

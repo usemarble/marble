@@ -9,6 +9,27 @@
     <span aria-hidden="true">×</span>
   </button>
   <div data-media-zoom-content></div>
+  <template data-media-zoom-video-trigger>
+    <button
+      aria-haspopup="dialog"
+      aria-label="Expand video"
+      class="blog-video-zoom-trigger absolute right-2 top-2 grid size-10 cursor-pointer place-items-center rounded-md bg-black/75 text-white hover:bg-black/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-opacity"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="size-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/>
+      </svg>
+    </button>
+  </template>
 </dialog>
 
 <style is:global>
@@ -53,8 +74,22 @@
     cursor: zoom-out;
   }
 
-  figure > .blog-image-zoom :is(img, picture) {
+  figure > .blog-image-zoom :is(img, picture),
+  figure > .blog-video-zoom > video {
     margin-block: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .blog-video-zoom-trigger {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .blog-video-zoom:hover > .blog-video-zoom-trigger,
+    .blog-video-zoom-trigger:focus-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 </style>
 
