@@ -1,6 +1,7 @@
 ---
   import { getCollection } from "astro:content";
   import { YOUTUBE_VIDEO_ID } from "@marble/utils";
+  import BlogMediaZoom from "@/components/BlogMediaZoom.astro";
   import Container from "@/components/Container.astro";
   import Prose from "@/components/Prose.astro";
   import ButtonComponent from "@/components/ui/Button.astro";
@@ -121,9 +122,10 @@
             <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
           )}
         </div> -->
-        <Prose>
+        <Prose data-zoomable-media>
           <div set:html={entry.data.content}/>
         </Prose>
+        <BlogMediaZoom/>
       </Container>
     </div>
   </section>

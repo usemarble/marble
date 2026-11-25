@@ -1,0 +1,63 @@
+<dialog id="blog-media-zoom" aria-label="Expanded media">
+  <button
+    autofocus
+    aria-label="Close expanded media"
+    class="absolute right-4 top-4 z-10 grid size-10 cursor-pointer place-items-center rounded-full border bg-surface text-2xl leading-none text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    data-media-zoom-close
+    type="button"
+  >
+    <span aria-hidden="true">×</span>
+  </button>
+  <div data-media-zoom-content></div>
+</dialog>
+
+<style is:global>
+  html:has(#blog-media-zoom[open]) {
+    overflow: hidden;
+  }
+
+  #blog-media-zoom {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    padding: 4rem 1rem 1rem;
+    background: transparent;
+  }
+
+  #blog-media-zoom[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  #blog-media-zoom::backdrop {
+    background: color-mix(in srgb, var(--background) 95%, transparent);
+  }
+
+  [data-media-zoom-content] {
+    width: min(100%, calc((100dvh - 5rem) * var(--media-ratio)));
+    aspect-ratio: var(--media-ratio);
+    transform-origin: top left;
+  }
+
+  [data-media-zoom-content] > :is(img, video) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius);
+  }
+
+  [data-media-zoom-content] > img {
+    cursor: zoom-out;
+  }
+
+  figure > .blog-image-zoom :is(img, picture) {
+    margin-block: 0;
+  }
+</style>
+
+<script>
+  import "@/lib/blog-media-zoom";
+</script>
