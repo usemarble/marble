@@ -14,6 +14,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
+import { saveRegistrationAttribution } from "@/lib/auth/registration-attribution";
 import { saveBrowserTimezone } from "@/lib/auth/signup-timezone";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
@@ -86,6 +87,7 @@ export function LoginForm() {
 
     try {
       saveBrowserTimezone();
+      await saveRegistrationAttribution();
       await authClient.signIn.social({
         provider,
         callbackURL: new URL(callbackURL, window.location.origin).href,

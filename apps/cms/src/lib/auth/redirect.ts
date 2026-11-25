@@ -16,3 +16,25 @@ export function safeRedirectPath(
     return fallback;
   }
 }
+
+export function authPageHref(
+  path: "/login" | "/register",
+  from: string,
+  searchParams: Record<string, string | string[] | undefined>
+) {
+  const query = new URLSearchParams();
+  if (from !== "/") {
+    query.set("from", from);
+  }
+
+  for (const key of ["anonId", "sessionId"]) {
+    const param = searchParams[key];
+    const value = Array.isArray(param) ? param[0] : param;
+    if (value) {
+      query.set(key, value);
+    }
+  }
+
+  const search = query.toString();
+  return search ? `${path}?${search}` : path;
+}

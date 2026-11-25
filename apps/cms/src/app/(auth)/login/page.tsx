@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import MarbleIcon from "@/components/icons/marble";
-import { safeRedirectPath } from "@/lib/auth/redirect";
+import { authPageHref, safeRedirectPath } from "@/lib/auth/redirect";
 import { getServerSession } from "@/lib/auth/session";
 import { SITE_CONFIG } from "@/utils/site";
 
@@ -80,9 +80,7 @@ export default async function LoginPage(props: PageProps) {
               Don&apos;t have an account?{" "}
               <Link
                 className="underline underline-offset-2 hover:text-primary"
-                href={
-                  from !== "/" ? `/register?from=${encodedFrom}` : "/register"
-                }
+                href={authPageHref("/register", from, searchParams)}
               >
                 Register
               </Link>

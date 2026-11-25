@@ -1,6 +1,6 @@
 "use client";
 
-import { getAnonymousId, getSessionId, track } from "@databuddy/sdk";
+import { track } from "@databuddy/sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -11,10 +11,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { env } from "@/env";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { safeRedirectPath } from "@/lib/auth/redirect";
+import { saveRegistrationAttribution } from "@/lib/auth/registration-attribution";
 import { saveBrowserTimezone } from "@/lib/auth/signup-timezone";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
@@ -41,28 +41,6 @@ export function RegisterForm() {
   const router = useRouter();
   const [isRedirecting, startTransition] = useTransition();
 
-  async function saveAttribution() {
-    const marketingParams = new URLSearchParams(window.location.search);
-    try {
-      await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/api/auth/analytics/registration`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            marketingAnonymousId: marketingParams.get("anonId"),
-            marketingSessionId: marketingParams.get("sessionId"),
-            appAnonymousId: getAnonymousId(),
-            appSessionId: getSessionId(),
-          }),
-        }
-      );
-    } catch {
-      // Analytics must not block registration.
-    }
-  }
-
   const initiateEmailVerification = async (email: string) => {
     // at this point user is already registered
     // so we can redirect to verify even if sending fails
@@ -87,7 +65,7 @@ export function RegisterForm() {
 
     try {
       saveBrowserTimezone();
-      await saveAttribution();
+      await saveRegistrationAttribution();
       await authClient.signUp.email(
         {
           email: formData.email.toLowerCase(),
@@ -122,7 +100,7 @@ export function RegisterForm() {
 
     try {
       saveBrowserTimezone();
-      await saveAttribution();
+      await saveRegistrationAttribution();
       const result = await authClient.signIn.social({
         provider,
         callbackURL: new URL(callbackURL, window.location.origin).href,

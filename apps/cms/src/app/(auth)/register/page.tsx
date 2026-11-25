@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
-import { safeRedirectPath } from "@/lib/auth/redirect";
+import { authPageHref, safeRedirectPath } from "@/lib/auth/redirect";
 import { getServerSession } from "@/lib/auth/session";
 import { SITE_CONFIG } from "@/utils/site";
 
@@ -31,7 +31,6 @@ export default async function RegisterPage(props: PageProps) {
   if (session?.user.emailVerified) {
     redirect(from);
   }
-  const encodedFrom = encodeURIComponent(from);
 
   return (
     <div className="h-screen w-full md:grid md:grid-cols-2">
@@ -65,7 +64,7 @@ export default async function RegisterPage(props: PageProps) {
             Already have an account?{" "}
             <Link
               className="underline underline-offset-2 hover:text-primary"
-              href={from !== "/" ? `/login?from=${encodedFrom}` : "/login"}
+              href={authPageHref("/login", from, searchParams)}
             >
               Login
             </Link>
