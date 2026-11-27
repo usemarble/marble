@@ -53,6 +53,7 @@ Use this file as a compact guide to Marble's public product documentation and ma
 - [Marble vs Ghost](https://marblecms.com/compare/ghost): When to choose Marble or Ghost, with sourced differences and migration notes.
 - [Marble vs Sanity](https://marblecms.com/compare/sanity): When to choose Marble or Sanity, with sourced differences and migration notes.
 - [Marble vs Contentful](https://marblecms.com/compare/contentful): Compare blog publishing, content models, API allowances, and migration from Contentful to Marble.
+- [Marble vs Framer CMS](https://marblecms.com/compare/framer): Compare editing in Framer with writing in Marble and syncing posts to a Framer site.
 
 ## Framework Integrations
 

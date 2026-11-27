@@ -333,6 +333,41 @@ const WORDPRESS = {
   },
 };
 
+const FRAMER = {
+  cms: {
+    label: "Framer CMS overview",
+    href: "https://www.framer.com/cms/",
+  },
+  pages: {
+    label: "Framer guide to CMS pages",
+    href: "https://www.framer.com/help/articles/how-to-use-pages/",
+  },
+  publishing: {
+    label: "Framer publishing guide",
+    href: "https://www.framer.com/help/articles/publishing-your-framer-website/",
+  },
+  serverApi: {
+    label: "Framer Server API docs",
+    href: "https://www.framer.com/developers/server-api-introduction",
+  },
+  managedCollections: {
+    label: "Framer managed collections docs",
+    href: "https://www.framer.com/developers/cms",
+  },
+  marblePlugin: {
+    label: "Marble on the Framer Marketplace",
+    href: "https://www.framer.com/marketplace/plugins/marble/",
+  },
+  pricing: {
+    label: "Framer site pricing",
+    href: "https://www.framer.com/pricing",
+  },
+  exporting: {
+    label: "Framer CMS export guide",
+    href: "https://www.framer.com/help/articles/porting-your-data-from-framer/",
+  },
+};
+
 export const COMPARISONS: Comparison[] = [
   {
     slug: "ghost",
@@ -1397,6 +1432,128 @@ export const COMPARISONS: Comparison[] = [
       {
         question: "Can I import a Contentful export directly into Marble?",
         answer: `No. Select the blog entries and intended locale from your Contentful export, resolve linked content, and convert the bodies to Markdown. Marble's <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">file importer</a> creates drafts from Markdown or MDX files. Review authors, taxonomy, covers, custom fields, images, and old URL mappings before publishing.`,
+      },
+    ],
+  },
+  {
+    slug: "framer",
+    name: "Framer CMS",
+    checked: "November 27, 2026",
+    summary:
+      "Edit posts and layouts together in Framer, or write in Marble and sync posts to your Framer site.",
+    meta: {
+      title: "Marble vs Framer CMS for blog publishing",
+      description:
+        "Compare Framer CMS and Marble for your blog. See when to publish directly in Framer, when to use a headless CMS, and what the Marble plugin syncs.",
+    },
+    intro:
+      "Framer CMS is the simplest choice when your blog lives on one Framer site and your team wants to edit posts in the same project as the design. Marble gives writers a dedicated editor and gives developers an API to deliver those posts to a custom site or app. If you want both, write in Marble and use its Framer plugin to sync posts into a collection that your Framer site displays.",
+    chooseMarble: [
+      "Your blog runs on a frontend you build with Next.js, Astro, or another framework.",
+      "You want one editorial workspace for posts that appear on a website and in an app or another site.",
+      "Writers want a ready-made post model with authors, a category, tags, and custom fields.",
+      "You want writers to work in Marble while designers keep the site in Framer, and someone on the team can run the sync and publish the site.",
+    ],
+    chooseCompetitor: [
+      "Your blog belongs to a single Framer site and your team can write and publish from that project.",
+      "You want to edit copy on the canvas and see it in the actual page layout.",
+      "You need separate collections and page templates for posts, case studies, and other site content.",
+    ],
+    rows: [
+      {
+        topic: "What you get",
+        marble:
+          "A hosted post editor, media library, and content API. You build and host the public site separately, or use the plugin to display posts on a Framer site.",
+        competitor:
+          "A visual site builder, hosting, and a built-in CMS. Each CMS page uses a shared template bound to a collection.",
+        sources: [FRAMER.cms, FRAMER.pages, FRAMER.publishing],
+      },
+      {
+        topic: "Content model",
+        marble:
+          "Posts come with authors, a category, tags, and a cover image. Add custom fields for details such as an external URL or a version number.",
+        competitor:
+          "Define collections and their fields for content such as blog posts and case studies. Reference other collections for shared data such as author bios.",
+        sources: [FRAMER.cms, FRAMER.managedCollections],
+      },
+      {
+        topic: "Editing and publishing",
+        marble:
+          "Write in the Marble editor and publish or schedule posts. Published posts are available through the API. Your frontend controls when visitors see them.",
+        competitor:
+          "Edit in the CMS or on the canvas to see changes in context, then publish the site from Framer.",
+        sources: [FRAMER.cms, FRAMER.publishing],
+      },
+      {
+        topic: "API and automation",
+        marble:
+          "Fetch published posts through the REST API or TypeScript SDK, with HTML or Markdown bodies. Webhooks can trigger your own rebuild or revalidation.",
+        competitor:
+          "Framer's Plugin API works inside the project. Its Server API can update CMS data and publish a Framer project from a server.",
+        sources: [FRAMER.managedCollections, FRAMER.serverApi],
+      },
+      {
+        topic: "Using Marble with Framer",
+        marble:
+          "Write in Marble and run the plugin in Framer whenever you want to bring in published changes. Review the synced items before publishing the site.",
+        competitor:
+          "Framer displays the synced posts from a collection managed by the Marble plugin. The project still needs room for the synced collections and items on its site plan.",
+        sources: [
+          FRAMER.marblePlugin,
+          FRAMER.managedCollections,
+          FRAMER.pricing,
+        ],
+      },
+      {
+        topic: "Pricing",
+        marble:
+          "Free at $0, Hobby at $5/month, and Pro at $20/month per workspace on monthly billing. All include unlimited posts. Your frontend hosting is a separate cost.",
+        competitor:
+          "Free on a Framer domain. On yearly billing, Basic is $10/month with 2 CMS collections and 1,000 CMS items. Pro starts at $30/month with 10 collections and 2,500 items. Site plans include hosting.",
+        sources: [FRAMER.pricing],
+      },
+    ],
+    workflow: {
+      marble: [
+        "Write a post in Marble and add its slug, author, category, tags, and cover image.",
+        "Publish the post now or schedule it in Marble.",
+        "On a custom site, fetch the post through the API and render it on your blog route. Use a webhook if your site needs to rebuild or refresh cached content.",
+        "On a Framer site, run the Marble plugin to sync published posts, check the collection and page preview, then publish the Framer site.",
+      ],
+      competitor: [
+        "Create a CMS collection for blog posts and add the fields you want editors to fill in.",
+        "Design a CMS detail page and bind its elements to fields such as the title, body, and cover image.",
+        "Add an item and preview how it looks in the shared page template.",
+        "Publish the site from Framer. If you use staging, review it there before deploying to production.",
+      ],
+    },
+    migration: {
+      title: "Moving an existing Framer blog to Marble",
+      steps: [
+        `Export your blog collection as CSV or JSON using a plugin. Keep a backup and record existing post URLs, slugs, images, and any author or category references. <a href="${FRAMER.exporting.href}" target="_blank" rel="noopener">Framer CMS export guide</a>`,
+        `Convert each exported post to a Markdown file. Put the title, slug, description, date, category, and tags in frontmatter and the article below it. Upload the files to Marble as drafts. <a href="${MARBLE_DOCS.import}" target="_blank" rel="noopener">Marble import guide</a>`,
+        "Open the drafts and check rich text, links, covers, and images. Set authors and custom fields after import. Test a few representative posts before moving the full archive.",
+        `If the site stays on Framer, publish the test posts in Marble and sync them into a new managed collection. Rebind the blog list and post template, then check the existing URLs before publishing the change. <a href="/blog/marble-framer">Marble and Framer setup guide</a>`,
+        "If you’re moving to a custom frontend, render the posts from Marble’s API and preserve the old blog paths where possible. For paths that change, set up and test redirects on the host serving the old URLs.",
+      ],
+    },
+    faqs: [
+      {
+        question: "Do I need Marble if my site already uses Framer CMS?",
+        answer: `Framer CMS is enough if you publish to one Framer site and like editing in the project. Marble adds a separate writing workspace and an API when you want to deliver the same posts to other sites or apps. You can keep your Framer design and connect Marble through the <a href="${FRAMER.marblePlugin.href}" target="_blank" rel="noopener">Marble plugin</a>.`,
+      },
+      {
+        question:
+          "Will a scheduled Marble post go live automatically on Framer?",
+        answer: `Marble makes the post available through its API at the scheduled time. With the Marble plugin workflow, you still need to sync the Framer collection and publish the site. <a href="https://docs.marblecms.com/integrations/framer" target="_blank" rel="noopener">Marble Framer integration</a> · <a href="${FRAMER.publishing.href}" target="_blank" rel="noopener">Framer publishing guide</a>`,
+      },
+      {
+        question: "Where do I edit posts after connecting the plugin?",
+        answer: `Edit the posts in Marble, then run the plugin again from the Framer CMS. The plugin updates matching items, adds new ones, and removes stale items from its managed collection. Use Framer to edit the design that displays them. <a href="/blog/marble-framer">Marble and Framer setup guide</a>`,
+      },
+      {
+        question: "Do Marble posts count toward Framer’s CMS limits?",
+        answer: `Yes. The plugin imports posts as Framer CMS items, so the collection and its items count toward your Framer site plan’s limits. If you sync authors or categories into separate collections, count those too. <a href="${FRAMER.marblePlugin.href}" target="_blank" rel="noopener">Marble plugin</a> · <a href="${FRAMER.pricing.href}" target="_blank" rel="noopener">Framer site pricing</a>`,
       },
     ],
   },
